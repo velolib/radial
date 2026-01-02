@@ -42,8 +42,10 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          # This is the name of the ZIP file you download from the Actions tab
           name: radial-${{ github.ref_name }}
-          # This grabs the actual .jar file from the build folder
-          path: build/libs/!(*-sources.jar|*-dev.jar)
+          # Use the multiline syntax to exclude sources and dev jars
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
+            !build/libs/*-dev.jar
           if-no-files-found: error

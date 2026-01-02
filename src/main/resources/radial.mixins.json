@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"package": "velo.radial.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	},
+	"client": [
+		"InGameHudMixin",
+		"KeyBindingAccessor",
+		"KeyBindingMixin"
+	]
+}

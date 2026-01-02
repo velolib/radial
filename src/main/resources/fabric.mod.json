@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "radial",
+	"version": "${version}",
+	"name": "radial",
+	"description": "A simple and opinionated Minecraft radial menu.",
+	"authors": [
+		"velolib"
+	],
+	"contact": {
+		"sources": "https://github.com/velolib/radial"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/radial/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"velo.radial.RadialClient"
+		],
+		"main": [
+			"velo.radial.RadialMain"
+		],
+		"modmenu": [
+			"velo.radial.integration.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"radial.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"yet_another_config_lib_v3": ">=3.8.1+1.21.10-fabric",
+		"modmenu": ">=16.0.0-rc.1"
+	}
+}

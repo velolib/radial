@@ -1,0 +1,48 @@
+{
+  "category.radial.main": "Radial",
+  "key.radial.open": "Open Radial",
+  "key.category.radial.main": "Radial",
+
+  "screen.radial.editor.title": "Edit Radial Slot",
+  "screen.radial.editor.name": "Slot Name",
+  "screen.radial.editor.mode": "Mode: %s",
+  "screen.radial.editor.value": "Action Value",
+  "screen.radial.editor.icon": "Icon ID",
+  "screen.radial.editor.submenu": "Submenu Size",
+  "screen.radial.editor.sub_size": "Submenu Size: %s",
+  "screen.radial.editor.save": "Save & Exit",
+  "screen.radial.editor.cancel": "Cancel",
+  "screen.radial.editor.browse": "Browse",
+  "screen.radial.editor.hand": "Hand",
+
+  "radial.ui.back": "Back",
+
+  "radial.mode.empty": "Empty",
+  "radial.mode.chat": "Chat/Command",
+  "radial.mode.keybind": "Keybind",
+  "radial.mode.submenu": "Submenu",
+
+  "screen.radial.config.title": "Radial Menu Layout Configuration",
+  "screen.radial.config.category.layout": "Layout Settings",
+
+  "screen.radial.config.category.settings": "Main",
+  "screen.radial.config.description.main": "Radial by velolib - A simple and opinionated Minecraft radial menu.",
+  "screen.radial.config.description.left_click": "Left-click a slot in-game to trigger its action.",
+  "screen.radial.config.description.right_click": "Right-click a slot in-game to edit its command or keybind.",
+  "screen.radial.config.slot_count": "Number of Slots",
+  "screen.radial.config.slot_count.tooltip": "How many slices the menu is divided into.",
+  "screen.radial.config.radius": "Menu Radius",
+  "screen.radial.config.radius.tooltip": "Distance from the center to each slot.",
+  "screen.radial.config.inner_padding": "Inner Detection Padding",
+  "screen.radial.config.inner_padding.tooltip": "How far inward the cursor can be while still selecting a slot.",
+  "screen.radial.config.outer_reach": "Outer Detection Reach",
+  "screen.radial.config.outer_reach.tooltip": "How far outward the cursor can go before losing selection.",
+  "screen.radial.config.animation_speed": "Animation Speed (ms)",
+  "screen.radial.config.animation_speed.tooltip": "Duration of the fly-out animation. 0 is instant.",
+  "screen.radial.config.preview": "Live Preview",
+  "screen.radial.config.show_preview": "Live Preview",
+  "screen.radial.config.show_preview.tooltip": "Show the live GUI preview.",
+
+  "modmenu.nameTranslation.radial": "Radial",
+  "modmenu.descriptionTranslate.modmenu": "A simple and opinionated Minecraft radial menu."
+}

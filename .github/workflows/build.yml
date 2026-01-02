@@ -34,7 +34,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build JAR
-          run: ./gradlew build --stacktrace --no-daemon
+        run: ./gradlew build --stacktrace --no-daemon
 
       - name: Rename and Clean Artifacts
         run: |

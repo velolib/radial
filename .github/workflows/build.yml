@@ -1,39 +1,49 @@
 name: Release Build
 on:
   push:
-    tags: ["v*"]
+    tags: ["v*"] # Triggers only when you push a tag like v1.0.0
 
 jobs:
   build:
     name: Build Tagged Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: gradle/actions/wrapper-validation@v4
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v4
 
-      - uses: actions/setup-java@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '21'
 
-      - uses: actions/cache@v4
+      - name: Cache Gradle Packages
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
+      - name: Make Gradle Executable
+        run: chmod +x gradlew
+
       - name: Build JAR
-        # We use the tag name (minus the 'v') to set the version dynamically
-        run: ./gradlew build -Pmod_version="${{ github.ref_name }}" --stacktrace --no-daemon
+        # This takes your tag (v1.0.0), removes the 'v', and tells Gradle to use '1.0.0'
+        run: |
+          CLEAN_VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          ./gradlew build -Pmod_version="$CLEAN_VERSION" --stacktrace --no-daemon
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          # This names the zip file on GitHub "radial-v1.0.0"
+          # This is the name of the ZIP file you download from the Actions tab
           name: radial-${{ github.ref_name }}
+          # This grabs the actual .jar file from the build folder
           path: build/libs/!(*-sources.jar|*-dev.jar)
           if-no-files-found: error

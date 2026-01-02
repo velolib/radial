@@ -1,7 +1,7 @@
 name: Release Build
 on:
   push:
-    tags: ["v*"] # Triggers only when you push a tag like v1.0.0
+    tags: ["v*"] # Triggers only when you push a tag like v1.0.0-1.21.10
 
 jobs:
   build:
@@ -34,18 +34,26 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build JAR
-        # This takes your tag (v1.0.0), removes the 'v', and tells Gradle to use '1.0.0'
-        run: |
-          CLEAN_VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
-          ./gradlew build -Pmod_version="$CLEAN_VERSION" --stacktrace --no-daemon
+        run: ./gradlew build --stacktrace --no-daemon
 
+      - name: Rename and Clean Artifacts
+        run: |
+          # 1. Get version from tag (e.g. v1.0.0-1.21.10 -> 1.0.0-1.21.10)
+          CLEAN_VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          
+          # 2. Enter build directory
+          cd build/libs/
+          
+          # 3. Find the main jar and rename it to exactly radial-VERSION.jar
+          # (Filtering out -dev and -sources jars)
+          MAIN_JAR=$(ls | grep -v "-dev" | grep -v "-sources" | head -n 1)
+          mv "$MAIN_JAR" "radial-$CLEAN_VERSION.jar"
+          
+          # 4. Remove the extra jars so they aren't uploaded
+          rm *-dev.jar *-sources.jar || true
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: radial-${{ github.ref_name }}
-          # Use the multiline syntax to exclude sources and dev jars
-          path: |
-            build/libs/*.jar
-            !build/libs/*-sources.jar
-            !build/libs/*-dev.jar
+          path: build/libs/radial-*.jar
           if-no-files-found: error

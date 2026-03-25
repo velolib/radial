@@ -35,6 +35,7 @@
 	},
 	"suggests": {
 		"yet_another_config_lib_v3": ">=3.8.1+1.21.10-fabric",
-		"modmenu": ">=16.0.0-rc.1"
+		"modmenu": ">=16.0.0-rc.1",
+		"malilib": "*"
 	}
 }

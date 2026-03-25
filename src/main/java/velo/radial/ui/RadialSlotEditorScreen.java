@@ -16,6 +16,7 @@ import velo.radial.config.SlotMode;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class RadialSlotEditorScreen extends Screen {
 
@@ -87,6 +88,12 @@ public class RadialSlotEditorScreen extends Screen {
                                 ];
                     }
 
+                    if (slot.mode == SlotMode.MALILIB && !FabricLoader.getInstance().isModLoaded("malilib")) {
+                        slot.mode = SlotMode.values()[
+                                (slot.mode.ordinal() + 1) % SlotMode.values().length
+                                ];
+                    }
+
                     btn.setMessage(Text.of("Type: " + slot.mode.getTranslatedName().getString()));
                     refreshWidgets();
                 }
@@ -106,10 +113,23 @@ public class RadialSlotEditorScreen extends Screen {
                 Text.literal("..."),
                 btn -> {
                     if (client != null) {
-                        client.setScreen(new KeybindPickerScreen(this, id -> {
-                            valueField.setText(id);
-                            slot.value = id;
-                        }));
+                        if (slot.mode == SlotMode.MALILIB) {
+                            client.setScreen(new velo.radial.ui.MalilibSelectionScreen(this, action -> {
+                                valueField.setText(action.id);
+                                slot.value = action.id;
+                                // Auto-update the icon and name if they are empty or default
+                                if (slot.name == null || slot.name.startsWith("Empty Slot") || slot.name.isEmpty()) {
+                                    slot.name = action.displayName;
+                                    nameField.setText(slot.name);
+                                }
+                                slot.clearCache();
+                            }));
+                        } else {
+                            client.setScreen(new KeybindPickerScreen(this, id -> {
+                                valueField.setText(id);
+                                slot.value = id;
+                            }));
+                        }
                     }
                 }
         ).dimensions(left + contentWidth - 25, baseY + GAP * 2, 25, 20).build();
@@ -233,12 +253,14 @@ public class RadialSlotEditorScreen extends Screen {
         boolean isEmpty = slot.mode == SlotMode.EMPTY;
         boolean isKey = slot.mode == SlotMode.KEYBIND;
 
+        boolean isMalilib = slot.mode == SlotMode.MALILIB;
+
         if (isSub) {
             ensureChildren();
         }
 
         valueField.setVisible(!isEmpty && !isSub);
-        valueBrowseButton.visible = isKey;
+        valueBrowseButton.visible = isKey || isMalilib;
 
         subCountSlider.visible = isSub;
 

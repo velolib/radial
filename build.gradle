@@ -23,6 +23,14 @@ repositories {
 	}
 
 	maven {
+		name = "CurseMaven"
+		url = "https://cursemaven.com"
+		content {
+			includeGroup "curse.maven"
+		}
+	}
+
+	maven {
 		name 'Xander Maven'
 		url 'https://maven.isxander.dev/releases'
 	}
@@ -42,6 +50,9 @@ dependencies {
 
 	modCompileOnly "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 	modLocalRuntime "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+
+	// Malilib Soft Dependency
+	modCompileOnly "curse.maven:malilib-303119:5427775" // Corresponds to malilib-fabric-1.21-0.20.1+1.21
 }
 
 processResources {

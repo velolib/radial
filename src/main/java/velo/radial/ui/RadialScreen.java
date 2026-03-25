@@ -259,6 +259,14 @@ public class RadialScreen extends Screen {
 
         RadialClient.lockKey();
         close();
+        
+        // Execute Malilib actions *after* the screen has closed, 
+        // because many Malilib hotkeys require an IN_GAME context (no active screens).
+        if (slot.mode == SlotMode.MALILIB) {
+            if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("malilib")) {
+                velo.radial.integration.MalilibBridge.executeHotkey(slot.value);
+            }
+        }
     }
 
     private void goBack() {

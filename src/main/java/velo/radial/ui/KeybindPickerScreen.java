@@ -1,17 +1,16 @@
 package velo.radial.ui;
 
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.text.Text;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
 
 public class KeybindPickerScreen extends Screen {
 
@@ -20,51 +19,51 @@ public class KeybindPickerScreen extends Screen {
     private final Screen parent;
     private final Consumer<String> onSelect;
 
-    private TextFieldWidget searchField;
-    private List<KeyBinding> filteredKeys = new ArrayList<>();
+    private EditBox searchField;
+    private List<KeyMapping> filteredKeys = new ArrayList<>();
     private int scrollOffset = 0;
 
     public KeybindPickerScreen(Screen parent, Consumer<String> onSelect) {
-        super(Text.literal("Select Keybind"));
+        super(Component.literal("Select Keybind"));
         this.parent = parent;
         this.onSelect = onSelect;
     }
 
     @Override
     protected void init() {
-        if (client != null) {
-            filteredKeys = Arrays.asList(client.options.allKeys);
+        if (minecraft != null) {
+            filteredKeys = Arrays.asList(minecraft.options.keyMappings);
         }
 
         int searchWidth = Math.min(400, (int) (width * 0.8));
         int left = width / 2 - searchWidth / 2;
 
-        searchField = new TextFieldWidget(
-                textRenderer,
+        searchField = new EditBox(
+                font,
                 left,
                 15,
                 searchWidth,
                 20,
-                Text.literal("Search...")
+                Component.literal("Search...")
         );
-        searchField.setPlaceholder(Text.literal("Search Keybinds..."));
-        searchField.setChangedListener(this::updateSearch);
+        searchField.setHint(Component.literal("Search Keybinds..."));
+        searchField.setResponder(this::updateSearch);
 
-        addDrawableChild(searchField);
+        addRenderableWidget(searchField);
         setInitialFocus(searchField);
     }
 
     private void updateSearch(String query) {
-        if (client == null) return;
+        if (minecraft == null) return;
 
         String q = query.toLowerCase();
 
-        filteredKeys = Arrays.stream(client.options.allKeys)
+        filteredKeys = Arrays.stream(minecraft.options.keyMappings)
                 .filter(key -> {
                     String actionName =
-                            Text.translatable(key.getId()).getString().toLowerCase();
+                            Component.translatable(key.getName()).getString().toLowerCase();
                     String category =
-                            key.getCategory().getLabel().getString().toLowerCase();
+                            key.getCategory().label().getString().toLowerCase();
 
                     return actionName.contains(q) || category.contains(q);
                 })
@@ -74,7 +73,7 @@ public class KeybindPickerScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         context.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
         int startY = 45;
@@ -88,7 +87,7 @@ public class KeybindPickerScreen extends Screen {
             int index = i + scrollOffset;
             if (index >= filteredKeys.size()) break;
 
-            KeyBinding key = filteredKeys.get(index);
+            KeyMapping key = filteredKeys.get(index);
             int y = startY + i * ENTRY_HEIGHT;
 
             boolean hovered =
@@ -98,23 +97,23 @@ public class KeybindPickerScreen extends Screen {
             int bgColor = hovered ? 0x80FFFFFF : 0x40000000;
             context.fill(left, y, left + listWidth, y + ENTRY_HEIGHT - 2, bgColor);
 
-            String actionName = Text.translatable(key.getId()).getString();
+            String actionName = Component.translatable(key.getName()).getString();
             String boundKey =
-                    Text.translatable(key.getBoundKeyTranslationKey()).getString();
+                    Component.translatable(key.saveString()).getString();
 
-            context.drawTextWithShadow(
-                    textRenderer,
+            context.text(
+                    font,
                     actionName + " [" + boundKey + "]",
                     left + 5,
                     y + 5,
                     0xFFFFFFFF
             );
 
-            Text categoryLabel = key.getCategory().getLabel();
-            int catWidth = textRenderer.getWidth(categoryLabel);
+            Component categoryLabel = key.getCategory().label();
+            int catWidth = font.width(categoryLabel);
 
-            context.drawTextWithShadow(
-                    textRenderer,
+            context.text(
+                    font,
                     categoryLabel,
                     left + listWidth - catWidth - 5,
                     y + 5,
@@ -122,21 +121,21 @@ public class KeybindPickerScreen extends Screen {
             );
         }
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         int startY = 45;
         int listWidth = Math.min(350, (int) (width * 0.9));
         int left = width / 2 - listWidth / 2;
 
-        double mx = client.mouse.getX()
-                * client.getWindow().getScaledWidth()
-                / client.getWindow().getWidth();
-        double my = client.mouse.getY()
-                * client.getWindow().getScaledHeight()
-                / client.getWindow().getHeight();
+        double mx = minecraft.mouseHandler.xpos()
+                * minecraft.getWindow().getGuiScaledWidth()
+                / minecraft.getWindow().getScreenWidth();
+        double my = minecraft.mouseHandler.ypos()
+                * minecraft.getWindow().getGuiScaledHeight()
+                / minecraft.getWindow().getScreenHeight();
 
         int maxEntries = (height - startY - 20) / ENTRY_HEIGHT;
 
@@ -148,8 +147,8 @@ public class KeybindPickerScreen extends Screen {
 
                 int index = i + scrollOffset;
                 if (index < filteredKeys.size()) {
-                    onSelect.accept(filteredKeys.get(index).getId());
-                    client.setScreen(parent);
+                    onSelect.accept(filteredKeys.get(index).getName());
+                    minecraft.setScreen(parent);
                     return true;
                 }
             }
@@ -176,9 +175,9 @@ public class KeybindPickerScreen extends Screen {
     }
 
     @Override
-    public void close() {
-        if (client != null) {
-            client.setScreen(parent);
+    public void onClose() {
+        if (minecraft != null) {
+            minecraft.setScreen(parent);
         }
     }
 }

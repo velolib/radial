@@ -1,16 +1,16 @@
 package velo.radial.config;
 
 import com.mojang.brigadier.StringReader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.command.argument.ItemStringReader;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.text.Text;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.Minecraft;
+import net.minecraft.commands.arguments.item.ItemInput;
+import net.minecraft.commands.arguments.item.ItemParser;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class RadialSlot {
 
@@ -41,28 +41,28 @@ public class RadialSlot {
             return cachedStack;
         }
 
+        Minecraft client = Minecraft.getInstance();
+
+        if (client.level == null) {
+            return ItemStack.EMPTY;
+        }
+
         try {
-            MinecraftClient client = MinecraftClient.getInstance();
+            HolderLookup.Provider registryLookup =
+                    client.level.registryAccess();
 
-            if (client.world == null) {
-                cachedStack = new ItemStack(Items.AIR);
-                return cachedStack;
-            }
+            ItemInput result =
+                    new ItemParser(registryLookup)
+                            .parse(new StringReader(itemId));
 
-            RegistryWrapper.WrapperLookup registryLookup =
-                    client.world.getRegistryManager();
+            cachedStack = result.createItemStack(1);
+            cachedStack.applyComponentsAndValidate(result.components());
 
-            ItemStringReader.ItemResult result =
-                    new ItemStringReader(registryLookup)
-                            .consume(new StringReader(itemId));
-
-            cachedStack = new ItemStack(result.item(), 1);
-            cachedStack.applyChanges(result.components());
         } catch (Exception e) {
             cachedStack = new ItemStack(Items.BARRIER);
             cachedStack.set(
-                    DataComponentTypes.CUSTOM_NAME,
-                    Text.literal("Invalid Item ID")
+                    DataComponents.CUSTOM_NAME,
+                    Component.literal("Invalid Item ID")
             );
         }
 

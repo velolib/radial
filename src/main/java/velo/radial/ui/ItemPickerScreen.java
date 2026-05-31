@@ -1,17 +1,17 @@
 package velo.radial.ui;
 
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
-
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemPickerScreen extends Screen {
 
@@ -23,7 +23,7 @@ public class ItemPickerScreen extends Screen {
     private final Screen parent;
     private final Consumer<String> onSelect;
 
-    private TextFieldWidget searchField;
+    private EditBox searchField;
     private List<Item> filteredItems;
 
     private int scrollOffset = 0;
@@ -31,27 +31,27 @@ public class ItemPickerScreen extends Screen {
     private int maxRows = 7;
 
     public ItemPickerScreen(Screen parent, Consumer<String> onSelect) {
-        super(Text.literal("Item Selector"));
+        super(Component.literal("Item Selector"));
         this.parent = parent;
         this.onSelect = onSelect;
-        this.filteredItems = Registries.ITEM.stream().collect(Collectors.toList());
+        this.filteredItems = BuiltInRegistries.ITEM.stream().collect(Collectors.toList());
     }
 
     @Override
     protected void init() {
         int searchWidth = Math.min(400, (int) (width * 0.8));
-        this.searchField = new TextFieldWidget(
-                textRenderer,
+        this.searchField = new EditBox(
+                font,
                 width / 2 - searchWidth / 2,
                 15,
                 searchWidth,
                 20,
-                Text.literal("Search...")
+                Component.literal("Search...")
         );
 
-        this.searchField.setPlaceholder(Text.translatable("gui.recipebook.search_hint"));
-        this.searchField.setChangedListener(this::updateSearch);
-        this.addDrawableChild(searchField);
+        this.searchField.setHint(Component.translatable("gui.recipebook.search_hint"));
+        this.searchField.setResponder(this::updateSearch);
+        this.addRenderableWidget(searchField);
         this.setInitialFocus(searchField);
 
         columns = Math.max(1, (width - HORIZONTAL_PADDING) / SLOT_SIZE);
@@ -60,10 +60,10 @@ public class ItemPickerScreen extends Screen {
 
     private void updateSearch(String query) {
         String q = query.toLowerCase();
-        filteredItems = Registries.ITEM.stream()
+        filteredItems = BuiltInRegistries.ITEM.stream()
                 .filter(item ->
-                        item.getName().getString().toLowerCase().contains(q)
-                                || Registries.ITEM.getId(item).toString().contains(q)
+                        item.components().get(DataComponents.ITEM_NAME).getString().toLowerCase().contains(q)
+                                || BuiltInRegistries.ITEM.getKey(item).toString().contains(q)
                 )
                 .collect(Collectors.toList());
 
@@ -71,7 +71,7 @@ public class ItemPickerScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         context.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
         int startX = width / 2 - (columns * SLOT_SIZE) / 2;
@@ -84,20 +84,20 @@ public class ItemPickerScreen extends Screen {
             int y = GRID_TOP + (i / columns) * SLOT_SIZE;
 
             ItemStack stack = new ItemStack(filteredItems.get(index));
-            context.drawItem(stack, x + 1, y + 1);
+            context.item(stack, x + 1, y + 1);
 
             if (mouseX >= x && mouseX < x + SLOT_SIZE && mouseY >= y && mouseY < y + SLOT_SIZE) {
                 context.fill(x, y, x + SLOT_SIZE, y + SLOT_SIZE, 0x40FFFFFF);
-                context.drawItemTooltip(textRenderer, stack, mouseX, mouseY);
+                context.setTooltipForNextFrame(font, stack, mouseX, mouseY);
             }
         }
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        assert client != null;
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        assert minecraft != null;
 
         double mx = click.x();
         double my = click.y();
@@ -111,8 +111,8 @@ public class ItemPickerScreen extends Screen {
             if (mx >= x && mx < x + SLOT_SIZE && my >= y && my < y + SLOT_SIZE) {
                 int index = i + scrollOffset * columns;
                 if (index < filteredItems.size()) {
-                    onSelect.accept(Registries.ITEM.getId(filteredItems.get(index)).toString());
-                    client.setScreen(parent);
+                    onSelect.accept(BuiltInRegistries.ITEM.getKey(filteredItems.get(index)).toString());
+                    minecraft.setScreen(parent);
                     return true;
                 }
             }
@@ -131,8 +131,8 @@ public class ItemPickerScreen extends Screen {
     }
 
     @Override
-    public void close() {
-        assert client != null;
-        client.setScreen(parent);
+    public void onClose() {
+        assert minecraft != null;
+        minecraft.setScreen(parent);
     }
 }

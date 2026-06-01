@@ -1,15 +1,16 @@
 package velo.radial.ui;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 import velo.radial.config.RadialConfig;
 import velo.radial.config.RadialSlot;
 import velo.radial.config.SlotMode;
@@ -20,7 +21,7 @@ import java.util.Objects;
 public class RadialSlotEditorScreen extends Screen {
 
     private static final Identifier SLOT_TEXTURE =
-            Identifier.of("minecraft", "gamemode_switcher/slot");
+            Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
     private static final int SLOT_SIZE = 26;
     private static final int GAP = 38;
 
@@ -32,21 +33,21 @@ public class RadialSlotEditorScreen extends Screen {
     private final SlotMode oldMode;
     private final int oldChildCount;
 
-    private TextFieldWidget nameField;
-    private TextFieldWidget valueField;
-    private TextFieldWidget iconField;
+    private EditBox nameField;
+    private EditBox valueField;
+    private EditBox iconField;
 
-    private SliderWidget subCountSlider;
+    private AbstractSliderButton subCountSlider;
 
-    private ButtonWidget modeButton;
-    private ButtonWidget browseIconButton;
-    private ButtonWidget handButton;
-    private ButtonWidget valueBrowseButton;
-    private ButtonWidget saveButton;
-    private ButtonWidget cancelButton;
+    private Button modeButton;
+    private Button browseIconButton;
+    private Button handButton;
+    private Button valueBrowseButton;
+    private Button saveButton;
+    private Button cancelButton;
 
     public RadialSlotEditorScreen(RadialSlot slot, boolean isRoot) {
-        super(Text.translatable("screen.radial.editor.title"));
+        super(Component.translatable("screen.radial.editor.title"));
         this.slot = slot;
         this.isRoot = isRoot;
 
@@ -65,17 +66,17 @@ public class RadialSlotEditorScreen extends Screen {
         int contentWidth = Math.min(300, (int) (width * 0.9));
         int left = centerX - (contentWidth / 2);
 
-        nameField = new TextFieldWidget(
-                textRenderer, left, baseY, contentWidth, 20,
-                Text.translatable("screen.radial.editor.name")
+        nameField = new EditBox(
+                font, left, baseY, contentWidth, 20,
+                Component.translatable("screen.radial.editor.name")
         );
         nameField.setMaxLength(Integer.MAX_VALUE);
-        nameField.setText(slot.name);
-        nameField.setChangedListener(v -> slot.name = v);
-        addDrawableChild(nameField);
+        nameField.setValue(slot.name);
+        nameField.setResponder(v -> slot.name = v);
+        addRenderableWidget(nameField);
 
-        modeButton = ButtonWidget.builder(
-                Text.of("Type: " + slot.mode.getTranslatedName().getString()),
+        modeButton = Button.builder(
+                Component.nullToEmpty("Type: " + slot.mode.getTranslatedName().getString()),
                 btn -> {
                     slot.mode = SlotMode.values()[
                             (slot.mode.ordinal() + 1) % SlotMode.values().length
@@ -87,35 +88,31 @@ public class RadialSlotEditorScreen extends Screen {
                                 ];
                     }
 
-                    btn.setMessage(Text.of("Type: " + slot.mode.getTranslatedName().getString()));
+                    btn.setMessage(Component.nullToEmpty("Type: " + slot.mode.getTranslatedName().getString()));
                     refreshWidgets();
                 }
-        ).dimensions(left, baseY + GAP, contentWidth, 20).build();
-        addDrawableChild(modeButton);
+        ).bounds(left, baseY + GAP, contentWidth, 20).build();
+        addRenderableWidget(modeButton);
 
-        valueField = new TextFieldWidget(
-                textRenderer, left, baseY + GAP * 2, contentWidth - 30, 20,
-                Text.translatable("screen.radial.editor.value")
+        valueField = new EditBox(
+                font, left, baseY + GAP * 2, contentWidth - 30, 20,
+                Component.translatable("screen.radial.editor.value")
         );
         valueField.setMaxLength(Integer.MAX_VALUE);
-        valueField.setText(slot.value);
-        valueField.setChangedListener(v -> slot.value = v);
-        addDrawableChild(valueField);
+        valueField.setValue(slot.value);
+        valueField.setResponder(v -> slot.value = v);
+        addRenderableWidget(valueField);
 
-        valueBrowseButton = ButtonWidget.builder(
-                Text.literal("..."),
-                btn -> {
-                    if (client != null) {
-                        client.setScreen(new KeybindPickerScreen(this, id -> {
-                            valueField.setText(id);
-                            slot.value = id;
-                        }));
-                    }
-                }
-        ).dimensions(left + contentWidth - 25, baseY + GAP * 2, 25, 20).build();
-        addDrawableChild(valueBrowseButton);
+        valueBrowseButton = Button.builder(
+                Component.literal("..."),
+                _ -> minecraft.setScreen(new KeybindPickerScreen(this, id -> {
+                    valueField.setValue(id);
+                    slot.value = id;
+                }))
+        ).bounds(left + contentWidth - 25, baseY + GAP * 2, 25, 20).build();
+        addRenderableWidget(valueBrowseButton);
 
-        subCountSlider = new SliderWidget(
+        subCountSlider = new AbstractSliderButton(
                 left,
                 baseY + GAP * 2,
                 contentWidth,
@@ -138,79 +135,77 @@ public class RadialSlotEditorScreen extends Screen {
                 }
             }
         };
-        addDrawableChild(subCountSlider);
+        addRenderableWidget(subCountSlider);
 
         int buttonWidth = 50;
         int iconFieldWidth = contentWidth - (buttonWidth * 2) - 10;
 
-        iconField = new TextFieldWidget(
-                textRenderer, left, baseY + GAP * 3, iconFieldWidth, 20,
-                Text.translatable("screen.radial.editor.icon")
+        iconField = new EditBox(
+                font, left, baseY + GAP * 3, iconFieldWidth, 20,
+                Component.translatable("screen.radial.editor.icon")
         );
         iconField.setMaxLength(Integer.MAX_VALUE);
-        iconField.setText(slot.itemId);
-        iconField.setChangedListener(v -> {
+        iconField.setValue(slot.itemId);
+        iconField.setResponder(v -> {
             slot.itemId = v;
             slot.clearCache();
         });
-        addDrawableChild(iconField);
+        addRenderableWidget(iconField);
 
-        browseIconButton = ButtonWidget.builder(
-                Text.translatable("screen.radial.editor.browse"),
-                btn -> {
-                    if (client != null) {
-                        client.setScreen(new ItemPickerScreen(this, id -> {
-                            iconField.setText(id);
-                            slot.itemId = id;
-                            slot.clearCache();
-                        }));
-                    }
+        browseIconButton = Button.builder(
+                Component.translatable("screen.radial.editor.browse"),
+                _ -> {
+                    minecraft.setScreen(new ItemPickerScreen(this, id -> {
+                        iconField.setValue(id);
+                        slot.itemId = id;
+                        slot.clearCache();
+                    }));
                 }
-        ).dimensions(left + iconFieldWidth + 5, baseY + GAP * 3, buttonWidth, 20).build();
-        addDrawableChild(browseIconButton);
+        ).bounds(left + iconFieldWidth + 5, baseY + GAP * 3, buttonWidth, 20).build();
+        addRenderableWidget(browseIconButton);
 
-        handButton = ButtonWidget.builder(
-                Text.translatable("screen.radial.editor.hand"),
-                btn -> {
-                    if (client != null && client.player != null) {
-                        ItemStack stack = client.player.getMainHandStack();
+        handButton = Button.builder(
+                Component.translatable("screen.radial.editor.hand"),
+                _ -> {
+                    if (minecraft.player != null) {
+                        ItemStack stack = minecraft.player.getMainHandItem();
                         String id;
                         if (!stack.isEmpty()) {
-                             id = Registries.ITEM.getId(stack.getItem()).toString();
+                             id = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
                         } else {
                             id = "minecraft:air";
                         }
-                        iconField.setText(id);
+                        iconField.setValue(id);
                         slot.itemId = id;
                         slot.clearCache();
                     }
                 }
-        ).dimensions(left + iconFieldWidth + buttonWidth + 10, baseY + GAP * 3, buttonWidth, 20).build();
-        addDrawableChild(handButton);
+        ).bounds(left + iconFieldWidth + buttonWidth + 10, baseY + GAP * 3, buttonWidth, 20).build();
+        addRenderableWidget(handButton);
 
         int actionY = baseY + GAP * 4 + 10;
         int halfWidth = (contentWidth - 10) / 2;
 
-        saveButton = ButtonWidget.builder(
-                Text.translatable("screen.radial.editor.save"),
-                btn -> {
+        saveButton = Button.builder(
+                Component.translatable("screen.radial.editor.save"),
+                _ -> {
                     RadialConfig.save();
-                    if (client != null) client.setScreen(null);
+                    minecraft.setScreen(null);
                 }
-        ).dimensions(left, actionY, halfWidth, 20).build();
-        addDrawableChild(saveButton);
+        ).bounds(left, actionY, halfWidth, 20).build();
+        addRenderableWidget(saveButton);
 
-        cancelButton = ButtonWidget.builder(
-                Text.translatable("screen.radial.editor.cancel"),
-                btn -> close()
-        ).dimensions(left + halfWidth + 10, actionY, halfWidth, 20).build();
-        addDrawableChild(cancelButton);
+        cancelButton = Button.builder(
+                Component.translatable("screen.radial.editor.cancel"),
+                _ -> onClose()
+        ).bounds(left + halfWidth + 10, actionY, halfWidth, 20).build();
+        addRenderableWidget(cancelButton);
 
         refreshWidgets();
     }
 
-    private Text getSliderText(int value) {
-        return Text.translatable("screen.radial.editor.sub_size", value);
+    private Component getSliderText(int value) {
+        return Component.translatable("screen.radial.editor.sub_size", value);
     }
 
     private void ensureChildren() {
@@ -248,15 +243,15 @@ public class RadialSlotEditorScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
         int centerX = width / 2;
         int contentWidth = Math.min(300, (int) (width * 0.9));
         int left = centerX - (contentWidth / 2);
         int baseY = height / 2 - 60;
 
-        context.drawGuiTexture(
+        graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
                 SLOT_TEXTURE,
                 centerX - 13,
@@ -264,28 +259,28 @@ public class RadialSlotEditorScreen extends Screen {
                 SLOT_SIZE,
                 SLOT_SIZE
         );
-        context.drawItem(slot.getRenderStack(), centerX - 8, height / 2 - 105);
+        graphics.fakeItem(slot.getRenderStack(), centerX - 8, height / 2 - 105);
 
-        context.drawTextWithShadow(
-                textRenderer,
-                Text.translatable("screen.radial.editor.name"),
+        graphics.text(
+                font,
+                Component.translatable("screen.radial.editor.name"),
                 left,
                 baseY - 12,
                 0xFFAAAAAA
         );
 
         if (slot.mode == SlotMode.SUBMENU) {
-            context.drawTextWithShadow(
-                    textRenderer,
-                    Text.translatable("screen.radial.editor.submenu"),
+            graphics.text(
+                    font,
+                    Component.translatable("screen.radial.editor.submenu"),
                     left,
                     baseY + GAP * 2 - 12,
                     0xFFAAAAAA
             );
         } else if (slot.mode != SlotMode.EMPTY) {
-            context.drawTextWithShadow(
-                    textRenderer,
-                    Text.translatable("screen.radial.editor.value"),
+            graphics.text(
+                    font,
+                    Component.translatable("screen.radial.editor.value"),
                     left,
                     baseY + GAP * 2 - 12,
                     0xFFAAAAAA
@@ -293,20 +288,20 @@ public class RadialSlotEditorScreen extends Screen {
         }
 
         if (slot.mode != SlotMode.EMPTY) {
-            context.drawTextWithShadow(
-                    textRenderer,
-                    Text.translatable("screen.radial.editor.icon"),
+            graphics.text(
+                    font,
+                    Component.translatable("screen.radial.editor.icon"),
                     left,
                     baseY + GAP * 3 - 12,
                     0xFFAAAAAA
             );
         }
 
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         if (saveButton != null && !saveButton.isFocused()) {
             slot.name = oldName;
             slot.value = oldValue;
@@ -316,11 +311,11 @@ public class RadialSlotEditorScreen extends Screen {
             slot.clearCache();
         }
 
-        Objects.requireNonNull(client).setScreen(null);
+        Objects.requireNonNull(minecraft).setScreen(null);
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 }

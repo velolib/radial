@@ -1,7 +1,7 @@
 name: Release Build
 on:
   push:
-    tags: ["v*"] # Triggers only when you push a tag like v1.0.0-1.21.10
+    tags: ["v*"] # Triggers only when you push a tag like v1.0.0+26.1.2
 
 jobs:
   build:
@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '25'
 
       - name: Cache Gradle Packages
         uses: actions/cache@v4
@@ -36,32 +36,14 @@ jobs:
       - name: Build JAR
         run: ./gradlew build --stacktrace --no-daemon
 
-      - name: Rename and Clean Artifacts
+      - name: Clean Extra Artifacts
         run: |
-          # 1. Get version from tag (e.g. v1.0.0-1.21.10 -> 1.0.0-1.21.10)
-          CLEAN_VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
-          
-          # 2. Find the MAIN jar (not sources, not dev)
-          # We look for a jar that doesn't have "sources" or "dev" in the name
-          MAIN_JAR=$(find build/libs -maxdepth 1 -type f -name "*.jar" ! -name "*-sources.jar" ! -name "*-dev.jar" | head -n 1)
-          
-          if [ -z "$MAIN_JAR" ]; then
-            echo "Error: Could not find the main JAR file!"
-            exit 1
-          fi
-
-          echo "Found main JAR: $MAIN_JAR"
-          
-          # 3. Rename it to the target name
-          mv "$MAIN_JAR" "build/libs/radial-$CLEAN_VERSION.jar"
-          
-          # 4. Cleanup extra jars so they don't get uploaded
+          # Cleanup extra jars so only the main production jar gets uploaded
           rm build/libs/*-sources.jar build/libs/*-dev.jar || true
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: radial-${{ github.ref_name }}
-          # Upload only our specifically renamed jar
-          path: build/libs/radial-*.jar
+          path: build/libs/*.jar
           if-no-files-found: error

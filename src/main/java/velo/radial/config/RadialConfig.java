@@ -73,7 +73,7 @@ public class RadialConfig {
             if (loaded != null) {
                 // Handle version upgrades
                 if (loaded.version < INSTANCE.version) {
-                    loaded = handleMigration(loaded);
+                    handleMigration(loaded);
                 }
 
                 INSTANCE = loaded;
@@ -90,12 +90,11 @@ public class RadialConfig {
     /**
      * Placeholder for future data transformations.
      */
-    private static RadialConfig handleMigration(RadialConfig loaded) {
+    private static void handleMigration(RadialConfig loaded) {
         // Logic for converting version 1 to 2, etc., goes here.
         // Currently does nothing but update the version number.
         loaded.version = INSTANCE.version;
         save();
-        return loaded;
     }
 
     /**

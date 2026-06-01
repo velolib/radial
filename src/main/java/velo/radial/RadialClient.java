@@ -1,19 +1,21 @@
 package velo.radial;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import velo.radial.mixin.KeyBindingAccessor;
+import velo.radial.mixin.KeyMappingAccessor;
 import velo.radial.ui.RadialScreen;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,29 +23,32 @@ public class RadialClient implements ClientModInitializer {
 
     public static final String MOD_ID = "radial";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-    private static final KeyBinding.Category CATEGORY =
-            KeyBinding.Category.create(Identifier.of(MOD_ID, "main"));
-    public static final KeyBinding OPEN_RADIAL =
-            KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                    "key.radial.open",
-                    InputUtil.Type.KEYSYM,
+
+    private static final KeyMapping.Category CATEGORY =
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
+
+    public static final KeyMapping OPEN_RADIAL = KeyMappingHelper.registerKeyMapping(
+            new KeyMapping(
+                    "key." + MOD_ID + ".open",
+                    InputConstants.Type.KEYSYM,
                     GLFW.GLFW_KEY_R,
-                    CATEGORY
-            ));
-    private static final Map<KeyBinding, Integer> keyPressQueue = new ConcurrentHashMap<>();
+                    CATEGORY // Now passing the required Category object, not a String
+            )
+    );
+
+    private static final Map<KeyMapping, Integer> keyPressQueue = new ConcurrentHashMap<>();
     private static boolean keyLocked = false;
 
     public static void lockKey() {
         keyLocked = true;
     }
 
-    public static void scheduleKeyPress(KeyBinding key) {
+    public static void scheduleKeyPress(KeyMapping key) {
         if (key == null) return;
 
-        KeyBindingAccessor accessor = (KeyBindingAccessor) key;
-        accessor.setTimesPressed(accessor.getTimesPressed() + 1);
+        KeyMappingAccessor accessor = (KeyMappingAccessor) key;
+        accessor.setClickCount(accessor.getClickCount() + 1);
 
-        // Keep the key pressed for a couple of ticks
         keyPressQueue.put(key, 2);
     }
 
@@ -55,35 +60,38 @@ public class RadialClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (graphics, tracker) -> {
+            if (!(Minecraft.getInstance().screen instanceof RadialScreen)) {
+
+            }
+        });
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
-            // Handle radial opening and lock state
-            if (OPEN_RADIAL.isPressed()) {
-                if (!keyLocked && client.currentScreen == null) {
+            if (OPEN_RADIAL.isDown()) {
+                if (!keyLocked && client.screen == null) {
                     client.setScreen(new RadialScreen());
                 }
             } else {
                 keyLocked = false;
             }
 
-            while (OPEN_RADIAL.wasPressed()) {
+            while (OPEN_RADIAL.consumeClick()) {
             }
 
-            // Process scheduled key presses
             if (!keyPressQueue.isEmpty()) {
-                Iterator<Map.Entry<KeyBinding, Integer>> it =
-                        keyPressQueue.entrySet().iterator();
+                var it = keyPressQueue.entrySet().iterator();
 
                 while (it.hasNext()) {
-                    Map.Entry<KeyBinding, Integer> entry = it.next();
-                    KeyBinding key = entry.getKey();
+                    var entry = it.next();
+                    KeyMapping key = entry.getKey();
                     int ticksLeft = entry.getValue();
 
                     if (ticksLeft > 0) {
-                        key.setPressed(true);
+                        key.setDown(true);
                         entry.setValue(ticksLeft - 1);
                     } else {
-                        key.setPressed(false);
+                        key.setDown(false);
                         it.remove();
                     }
                 }

@@ -1,11 +1,11 @@
 package velo.radial.config;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public enum SlotMode {
     EMPTY, CHAT, KEYBIND, SUBMENU;
 
-    public Text getTranslatedName() {
-        return Text.translatable("radial.mode." + this.name().toLowerCase());
+    public Component getTranslatedName() {
+        return Component.translatable("radial.mode." + this.name().toLowerCase());
     }
 }

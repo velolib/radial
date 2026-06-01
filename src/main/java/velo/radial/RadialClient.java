@@ -62,7 +62,7 @@ public class RadialClient implements ClientModInitializer {
     public void onInitializeClient() {
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (graphics, tracker) -> {
             if (!(Minecraft.getInstance().screen instanceof RadialScreen)) {
-
+                original.extractRenderState(graphics, tracker);
             }
         });
 

@@ -33,3 +33,12 @@
 2.  **Navigate:** Hover your cursor over the desired slot to highlight it.
 3.  **Execute:** Click to trigger the action instantly.
 4.  **Manage:** Right-click a slot to open the built-in editor, or use the config screen for layout adjustments.
+
+## Version Support & Backports
+
+To keep development focused and maintain a healthy workflow, this mod operates on a **forward-only** development cycle.
+
+- **Active Development:** I am currently only developing and testing for the newest targeted Minecraft version. New features, improvements, and bug fixes will only be applied to this latest version.
+- **No Backporting:** I do not backport features or patch bugs for older versions of Minecraft.
+- **Older Releases:** Past versions of the mod will remain available to download for players using older modpacks, but they are provided "as-is" and will not receive further updates.
+- **Community Contributions:** If you are passionate about a specific older version, feel free to fork the repository and submit a Pull Request! I am more than happy to review and accept community-driven backports, bug fixes, or maintenance updates for older versions.

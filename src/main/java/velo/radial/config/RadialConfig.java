@@ -21,12 +21,18 @@ public class RadialConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static RadialConfig INSTANCE = new RadialConfig();
 
+    public enum ActivationMode {
+        CLICK,
+        RELEASE // This represents the "Hover and release key" behavior
+    }
+
     public int version = 1;
     public int slotCount = 8;
     public int ringRadius = 75;
     public int innerPadding = 40;
     public int outerReach = 100;
     public int animationSpeedMs = 200;
+    public ActivationMode activationMode = ActivationMode.CLICK;
     public List<RadialSlot> slots = new ArrayList<>();
 
     public RadialConfig() {
@@ -46,6 +52,10 @@ public class RadialConfig {
 
         if (this.slots == null) {
             this.slots = new ArrayList<>();
+        }
+
+        if (this.activationMode == null) {
+            this.activationMode = ActivationMode.CLICK;
         }
 
         for (RadialSlot slot : this.slots) {

@@ -20,6 +20,7 @@
   "radial.mode.empty": "Empty",
   "radial.mode.chat": "Chat/Command",
   "radial.mode.keybind": "Keybind",
+  "radial.mode.malilib": "MaLiLib",
   "radial.mode.submenu": "Submenu",
 
   "screen.radial.config.title": "Radial Menu Layout Configuration",
@@ -42,6 +43,8 @@
   "screen.radial.config.preview": "Live Preview",
   "screen.radial.config.show_preview": "Live Preview",
   "screen.radial.config.show_preview.tooltip": "Show the live GUI preview.",
+  "screen.radial.config.activation_mode": "Activation Mode",
+  "screen.radial.config.activation_mode.tooltip": "Choose how to select items in the radial wheel.\n\nClick: Requires clicking the slot.\nRelease: Selects the hovered slot when the hotkey is released. §e(Note: Submenus must still be clicked to open)§r",
 
   "modmenu.nameTranslation.radial": "Radial",
   "modmenu.descriptionTranslate.modmenu": "A simple and opinionated Minecraft radial menu."

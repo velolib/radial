@@ -2,6 +2,7 @@ package velo.radial.config;
 
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
+import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerSliderControllerBuilder;
 import dev.isxander.yacl3.api.utils.Dimension;
 import dev.isxander.yacl3.gui.AbstractWidget;
@@ -116,6 +117,16 @@ public class RadialConfigScreen {
                                         .description(OptionDescription.of(Component.translatable("screen.radial.config.animation_speed.tooltip")))
                                         .binding(200, () -> config.animationSpeedMs, v -> config.animationSpeedMs = v)
                                         .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(0, 2000).step(10))
+                                        .build())
+                                .option(Option.<RadialConfig.ActivationMode>createBuilder()
+                                        .name(Component.translatable("screen.radial.config.activation_mode"))
+                                        .description(OptionDescription.of(Component.translatable("screen.radial.config.activation_mode.tooltip")))
+                                        .binding(
+                                                RadialConfig.ActivationMode.CLICK,
+                                                () -> RadialConfig.INSTANCE.activationMode,
+                                                val -> RadialConfig.INSTANCE.activationMode = val
+                                        )
+                                        .controller(opt -> EnumControllerBuilder.create(opt).enumClass(RadialConfig.ActivationMode.class))
                                         .build())
                                 .build())
                         .build())

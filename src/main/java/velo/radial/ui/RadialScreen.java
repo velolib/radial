@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
@@ -17,7 +18,6 @@ import velo.radial.config.RadialSlot;
 import velo.radial.config.SlotMode;
 
 import java.util.List;
-import java.util.Objects;
 
 public class RadialScreen extends Screen {
 
@@ -49,25 +49,31 @@ public class RadialScreen extends Screen {
     }
 
     @Override
-    public void tick() {
-        super.tick();
-
-        int keyCode = KeyMappingHelper
-                .getBoundKeyOf(RadialClient.OPEN_RADIAL)
-                .getValue();
-
-        long handle = Minecraft.getInstance()
-                .getWindow()
-                .handle();
-
-        // Close when the hotkey is released
-        if (GLFW.glfwGetKey(handle, keyCode) == GLFW.GLFW_RELEASE) {
-            onClose();
-        }
-    }
-
-    @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        int keyCode = KeyMappingHelper.getBoundKeyOf(RadialClient.OPEN_RADIAL).getValue();
+        long handle = Minecraft.getInstance().getWindow().handle();
+
+// Check if the hotkey was just released
+        if (GLFW.glfwGetKey(handle, keyCode) == GLFW.GLFW_RELEASE) {
+
+            if (RadialConfig.INSTANCE.activationMode == RadialConfig.ActivationMode.RELEASE) {
+
+                if (hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
+                    RadialSlot slot = activeSlots.get(hoveredSlot);
+
+                    // FIX: Added `&& slot.mode != SlotMode.EMPTY`
+                    if (slot.mode != SlotMode.SUBMENU && slot.mode != SlotMode.EMPTY) {
+                        performAction(slot);
+                        return;
+                    }
+                }
+            }
+
+            // Closes safely if hovering empty space, an empty slot, or a submenu
+            onClose();
+            return;
+        }
+
         RadialConfig config = RadialConfig.INSTANCE;
 
         // Skip animation if speed is 0
@@ -80,7 +86,9 @@ public class RadialScreen extends Screen {
             }
         }
 
-        float ease = 1.0f - (float) Math.pow(1.0f - animProgress, 3);
+        // 2. Performance: Replaced expensive Math.pow(..., 3) with simple multiplication
+        float inverseProgress = 1.0f - animProgress;
+        float ease = 1.0f - (inverseProgress * inverseProgress * inverseProgress);
 
         int cx = width / 2;
         int cy = height / 2;
@@ -114,6 +122,11 @@ public class RadialScreen extends Screen {
             hoveredSlot = -1;
         }
 
+        // 3. Bounds Check: Ensure hoveredSlot doesn't exceed the actual active slots size
+        if (hoveredSlot >= activeSlots.size()) {
+            hoveredSlot = -1;
+        }
+
         if (activeSlots != rootSlots) {
             drawSlot(graphics, backX, backY, backHovered, ease, -1);
         }
@@ -128,7 +141,7 @@ public class RadialScreen extends Screen {
             drawSlot(graphics, x, y, i == hoveredSlot, ease, i);
         }
 
-        if (hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
+        if (hoveredSlot != -1) {
             String name = activeSlots.get(hoveredSlot).name;
             int alpha = (int) (ease * 255);
 
@@ -201,6 +214,7 @@ public class RadialScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        // Doesn't matter which mode we are in, always execute when clicked.
         if (click.button() == 0) {
             if (backHovered) {
                 goBack();
@@ -215,7 +229,7 @@ public class RadialScreen extends Screen {
             return true;
         }
 
-        if (click.button() == 1 && hoveredSlot != -1) {
+        if (click.button() == 1 && hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
             minecraft.setScreen(
                     new RadialSlotEditorScreen(
                             activeSlots.get(hoveredSlot),
@@ -240,24 +254,32 @@ public class RadialScreen extends Screen {
 
         Minecraft client = Minecraft.getInstance();
 
+        RadialClient.lockKey();
+        onClose();
+
+        // Execute *after* the screen is closed
+
         if (slot.mode == SlotMode.CHAT) {
-            if (slot.value.startsWith("/")) {
-                Objects.requireNonNull(client.getConnection())
-                        .sendCommand(slot.value.substring(1));
-            } else {
-                Objects.requireNonNull(client.getConnection())
-                        .sendChat(slot.value);
+            ClientPacketListener connection = client.getConnection();
+            if (connection != null) {
+                if (slot.value.startsWith("/")) {
+                    connection.sendCommand(slot.value.substring(1));
+                } else {
+                    connection.sendChat(slot.value);
+                }
             }
         } else if (slot.mode == SlotMode.KEYBIND) {
             for (KeyMapping key : client.options.keyMappings) {
                 if (key.getName().equals(slot.value)) {
                     RadialClient.scheduleKeyPress(key);
+                    break;
                 }
             }
+        } else if (slot.mode == SlotMode.MALILIB) {
+            if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("malilib")) {
+                velo.radial.integration.MalilibBridge.executeHotkey(slot.value);
+            }
         }
-
-        RadialClient.lockKey();
-        onClose();
     }
 
     private void goBack() {

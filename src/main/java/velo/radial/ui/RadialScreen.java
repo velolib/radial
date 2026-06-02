@@ -53,7 +53,23 @@ public class RadialScreen extends Screen {
         int keyCode = KeyMappingHelper.getBoundKeyOf(RadialClient.OPEN_RADIAL).getValue();
         long handle = Minecraft.getInstance().getWindow().handle();
 
+// Check if the hotkey was just released
         if (GLFW.glfwGetKey(handle, keyCode) == GLFW.GLFW_RELEASE) {
+
+            if (RadialConfig.INSTANCE.activationMode == RadialConfig.ActivationMode.RELEASE) {
+
+                if (hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
+                    RadialSlot slot = activeSlots.get(hoveredSlot);
+
+                    // FIX: Added `&& slot.mode != SlotMode.EMPTY`
+                    if (slot.mode != SlotMode.SUBMENU && slot.mode != SlotMode.EMPTY) {
+                        performAction(slot);
+                        return;
+                    }
+                }
+            }
+
+            // Closes safely if hovering empty space, an empty slot, or a submenu
             onClose();
             return;
         }
@@ -198,6 +214,7 @@ public class RadialScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+        // Doesn't matter which mode we are in, always execute when clicked.
         if (click.button() == 0) {
             if (backHovered) {
                 goBack();

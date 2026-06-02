@@ -1,5 +1,6 @@
 package velo.radial.ui;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,7 +17,6 @@ import velo.radial.config.RadialSlot;
 import velo.radial.config.SlotMode;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class RadialSlotEditorScreen extends Screen {
 
@@ -28,10 +28,11 @@ public class RadialSlotEditorScreen extends Screen {
     private final RadialSlot slot;
     private final boolean isRoot;
 
-    // Used to restore state when cancelling
     private final String oldName, oldValue, oldId;
     private final SlotMode oldMode;
     private final int oldChildCount;
+
+    private boolean isSaved = false;
 
     private EditBox nameField;
     private EditBox valueField;
@@ -78,15 +79,11 @@ public class RadialSlotEditorScreen extends Screen {
         modeButton = Button.builder(
                 Component.nullToEmpty("Type: " + slot.mode.getTranslatedName().getString()),
                 btn -> {
-                    slot.mode = SlotMode.values()[
-                            (slot.mode.ordinal() + 1) % SlotMode.values().length
-                            ];
-
-                    if (!isRoot && slot.mode == SlotMode.SUBMENU) {
-                        slot.mode = SlotMode.values()[
-                                (slot.mode.ordinal() + 1) % SlotMode.values().length
-                                ];
-                    }
+                    // Robust Mode Cycling
+                    do {
+                        slot.mode = SlotMode.values()[(slot.mode.ordinal() + 1) % SlotMode.values().length];
+                    } while ((!isRoot && slot.mode == SlotMode.SUBMENU) ||
+                            (slot.mode == SlotMode.MALILIB && !FabricLoader.getInstance().isModLoaded("malilib")));
 
                     btn.setMessage(Component.nullToEmpty("Type: " + slot.mode.getTranslatedName().getString()));
                     refreshWidgets();
@@ -105,10 +102,25 @@ public class RadialSlotEditorScreen extends Screen {
 
         valueBrowseButton = Button.builder(
                 Component.literal("..."),
-                _ -> minecraft.setScreen(new KeybindPickerScreen(this, id -> {
-                    valueField.setValue(id);
-                    slot.value = id;
-                }))
+                _ -> {
+                    if (slot.mode == SlotMode.MALILIB) {
+                        minecraft.setScreen(new MalilibSelectionScreen(this, action -> {
+                            valueField.setValue(action.id());
+                            slot.value = action.id();
+                            // Auto-update the icon and name if they are empty or default
+                            if (slot.name == null || slot.name.startsWith("Empty Slot") || slot.name.isEmpty()) {
+                                slot.name = action.displayName();
+                                nameField.setValue(slot.name);
+                            }
+                            slot.clearCache();
+                        }));
+                    } else {
+                        minecraft.setScreen(new KeybindPickerScreen(this, id -> {
+                            valueField.setValue(id);
+                            slot.value = id;
+                        }));
+                    }
+                }
         ).bounds(left + contentWidth - 25, baseY + GAP * 2, 25, 20).build();
         addRenderableWidget(valueBrowseButton);
 
@@ -171,7 +183,7 @@ public class RadialSlotEditorScreen extends Screen {
                         ItemStack stack = minecraft.player.getMainHandItem();
                         String id;
                         if (!stack.isEmpty()) {
-                             id = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+                            id = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
                         } else {
                             id = "minecraft:air";
                         }
@@ -189,8 +201,9 @@ public class RadialSlotEditorScreen extends Screen {
         saveButton = Button.builder(
                 Component.translatable("screen.radial.editor.save"),
                 _ -> {
+                    this.isSaved = true;
                     RadialConfig.save();
-                    minecraft.setScreen(null);
+                    onClose();
                 }
         ).bounds(left, actionY, halfWidth, 20).build();
         addRenderableWidget(saveButton);
@@ -227,13 +240,17 @@ public class RadialSlotEditorScreen extends Screen {
         boolean isSub = slot.mode == SlotMode.SUBMENU;
         boolean isEmpty = slot.mode == SlotMode.EMPTY;
         boolean isKey = slot.mode == SlotMode.KEYBIND;
+        boolean isMalilib = slot.mode == SlotMode.MALILIB;
 
         if (isSub) {
             ensureChildren();
         }
 
         valueField.setVisible(!isEmpty && !isSub);
-        valueBrowseButton.visible = isKey;
+        valueBrowseButton.visible = isKey || isMalilib;
+
+        int contentWidth = Math.min(300, (int) (width * 0.9));
+        valueField.setWidth(valueBrowseButton.visible ? contentWidth - 30 : contentWidth);
 
         subCountSlider.visible = isSub;
 
@@ -302,7 +319,7 @@ public class RadialSlotEditorScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (saveButton != null && !saveButton.isFocused()) {
+        if (!this.isSaved) {
             slot.name = oldName;
             slot.value = oldValue;
             slot.itemId = oldId;
@@ -311,7 +328,9 @@ public class RadialSlotEditorScreen extends Screen {
             slot.clearCache();
         }
 
-        Objects.requireNonNull(minecraft).setScreen(null);
+        if (minecraft != null) {
+            minecraft.setScreen(null);
+        }
     }
 
     @Override

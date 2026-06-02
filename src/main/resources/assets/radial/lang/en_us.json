@@ -20,6 +20,7 @@
   "radial.mode.empty": "Empty",
   "radial.mode.chat": "Chat/Command",
   "radial.mode.keybind": "Keybind",
+  "radial.mode.malilib": "MaLiLib",
   "radial.mode.submenu": "Submenu",
 
   "screen.radial.config.title": "Radial Menu Layout Configuration",

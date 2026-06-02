@@ -26,6 +26,7 @@
 * **On-the-Fly Editing:** Customize your layout without leaving the game. Right-click any slot while the menu is open to change its icon, action, or name.
 * **Deep Configuration:** Tweak the slot count, ring radius, and animation speeds via **ModMenu** and **YACL**, complete with a live preview.
 * **Submenus:** Keep your workflow clean by organizing related actions into nested radial menus.
+* **Integration with MaLiLib:** Now works with mods that use MaLiLib, like Litematica and MiniHUD.
 
 ## Usage
 

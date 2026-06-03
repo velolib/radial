@@ -1,5 +1,7 @@
 package velo.radial.config;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
@@ -8,11 +10,13 @@ import dev.isxander.yacl3.api.utils.Dimension;
 import dev.isxander.yacl3.gui.AbstractWidget;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NonNull;
 
 public class RadialConfigScreen {
@@ -30,7 +34,7 @@ public class RadialConfigScreen {
                         .name(Component.translatable("screen.radial.config.category.layout"))
                         .tooltip(Component.translatable("screen.radial.config.description.main"))
 
-                        // Toggle for showing preview
+                        // Toggle for showing preview, not saved to file
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("screen.radial.config.show_preview"))
                                 .description(OptionDescription.of(Component.translatable("screen.radial.config.show_preview.tooltip")))
@@ -41,7 +45,8 @@ public class RadialConfigScreen {
                         // Preview widget
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("screen.radial.config.preview"))
-                                .binding(false, () -> false, _ -> {})
+                                .binding(false, () -> false, _ -> {
+                                })
                                 .customController(opt -> new Controller<>() {
                                     private AbstractWidget widget;
 
@@ -60,12 +65,12 @@ public class RadialConfigScreen {
                                         if (widget == null) {
                                             widget = new AbstractWidget(dimension) {
                                                 @Override
-                                                public void setFocused(boolean focused) {
+                                                public boolean isFocused() {
+                                                    return false;
                                                 }
 
                                                 @Override
-                                                public boolean isFocused() {
-                                                    return false;
+                                                public void setFocused(boolean focused) {
                                                 }
 
                                                 @Override
@@ -81,6 +86,7 @@ public class RadialConfigScreen {
                                 })
                                 .build())
 
+                        // Config options that are actually saved to file
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("screen.radial.config.category.settings"))
 
@@ -156,21 +162,87 @@ public class RadialConfigScreen {
         }
     }
 
-    private static void renderSmoothDonut(GuiGraphicsExtractor graphics, int cx, int cy, int inner, int outer) {
-        if (outer <= 0) return;
+    private static void renderSmoothDonut(GuiGraphicsExtractor graphics, int cx, int cy, float inner, float outer) {
+        if (outer <= 0 || inner >= outer) return;
 
-        // TODO: Add anti-aliasing
-        for (int y = -outer; y <= outer; y++) {
-            int xOuter = (int) Math.sqrt(outer * outer - y * y);
-            int xInner = 0;
-            if (Math.abs(y) < inner) {
-                xInner = (int) Math.sqrt(inner * inner - y * y);
+        int baseColor = 0x44000000;
+        int maxRadius = (int) Math.ceil(outer + 1);
+
+        // We calculate 1 quadrant (bottom-right) and mirror it to the other 3
+        for (int y = 0; y <= maxRadius; y++) {
+            float py = y + 0.5f; // Measure from pixel center
+            boolean inSolid = false;
+            int solidXStart = 0;
+
+            for (int x = 0; x <= maxRadius; x++) {
+                float px = x + 0.5f;
+                float dist = (float) Math.hypot(px, py);
+
+                // Calculate AA alpha based on distance.
+                // This creates a 1-pixel wide gradient at the inner and outer edges.
+                float outerAlpha = Math.max(0.0f, Math.min(1.0f, outer - dist + 0.5f));
+                float innerAlpha = Math.max(0.0f, Math.min(1.0f, dist - inner + 0.5f));
+                float alphaMask = Math.min(outerAlpha, innerAlpha);
+
+                if (alphaMask >= 0.99f) {
+                    // We hit solid color. Mark the start X but don't draw yet.
+                    if (!inSolid) {
+                        inSolid = true;
+                        solidXStart = x;
+                    }
+                } else {
+                    // We hit an edge or transparent space
+                    if (inSolid) {
+                        // Flush the solid horizontal chunk for all 4 quadrants at once
+                        drawFourQuadrantsSolid(graphics, cx, cy, solidXStart, x, y, baseColor);
+                        inSolid = false;
+                    }
+
+                    if (alphaMask > 0.01f) {
+                        // Draw the semi-transparent anti-aliased edge pixel
+                        int edgeColor = applyAlpha(baseColor, alphaMask);
+                        drawFourQuadrantsPixel(graphics, cx, cy, x, y, edgeColor);
+                    }
+                }
             }
-            if (xOuter > xInner) {
-                // Draw horizontal lines 1 pixel tall
-                graphics.fill(cx - xOuter, cy + y, cx - xInner, cy + y + 1, 0x44000000);
-                graphics.fill(cx + xInner, cy + y, cx + xOuter, cy + y + 1, 0x44000000);
+
+            // Safety flush if the solid line somehow touched the bounding box edge
+            if (inSolid) {
+                drawFourQuadrantsSolid(graphics, cx, cy, solidXStart, maxRadius + 1, y, baseColor);
             }
         }
+    }
+
+    private static void drawFourQuadrantsSolid(GuiGraphicsExtractor graphics, int cx, int cy, int xStart, int xEnd, int y, int color) {
+        if (xStart >= xEnd) return;
+        // Bottom Right
+        graphics.fill(cx + xStart, cy + y, cx + xEnd, cy + y + 1, color);
+        // Bottom Left
+        graphics.fill(cx - xEnd, cy + y, cx - xStart, cy + y + 1, color);
+        // Top Right
+        graphics.fill(cx + xStart, cy - y - 1, cx + xEnd, cy - y, color);
+        // Top Left
+        graphics.fill(cx - xEnd, cy - y - 1, cx - xStart, cy - y, color);
+    }
+
+    private static void drawFourQuadrantsPixel(GuiGraphicsExtractor graphics, int cx, int cy, int x, int y, int color) {
+        // Bottom Right
+        graphics.fill(cx + x, cy + y, cx + x + 1, cy + y + 1, color);
+        // Bottom Left
+        graphics.fill(cx - x - 1, cy + y, cx - x, cy + y + 1, color);
+        // Top Right
+        graphics.fill(cx + x, cy - y - 1, cx + x + 1, cy - y, color);
+        // Top Left
+        graphics.fill(cx - x - 1, cy - y - 1, cx - x, cy - y, color);
+    }
+
+    private static int applyAlpha(int baseColor, float alphaMultiplier) {
+        int a = (baseColor >> 24) & 0xFF;
+        int r = (baseColor >> 16) & 0xFF;
+        int g = (baseColor >>  8) & 0xFF;
+        int b =  baseColor        & 0xFF;
+
+        int newA = (int) (a * alphaMultiplier);
+        return (newA << 24) | (r << 16) | (g << 8) | b;
     }
 }

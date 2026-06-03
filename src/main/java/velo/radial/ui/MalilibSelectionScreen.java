@@ -4,13 +4,16 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import velo.radial.integration.MalilibBridge;
 import velo.radial.integration.MalilibBridge.MalilibAction;
-import net.minecraft.client.input.MouseButtonEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -21,16 +24,13 @@ public class MalilibSelectionScreen extends Screen {
     private final Screen parent;
     private final Consumer<MalilibAction> onSelect;
     private final Map<String, List<MalilibAction>> actionsByMod;
-
+    // Store tab buttons to dynamically update them without rebuilding UI
+    private final List<Button> tabButtons = new ArrayList<>();
     private String currentTab = null;
     private List<MalilibAction> currentActions = new ArrayList<>();
     private List<MalilibAction> filteredActions = new ArrayList<>();
     private int scrollOffset = 0;
-
     private EditBox searchField;
-
-    // Store tab buttons to dynamically update them without rebuilding UI
-    private final List<Button> tabButtons = new ArrayList<>();
 
     public MalilibSelectionScreen(Screen parent, Consumer<MalilibAction> onSelect) {
         super(Component.literal("Select Malilib Action"));
@@ -72,10 +72,21 @@ public class MalilibSelectionScreen extends Screen {
     }
 
     // --- Layout Helpers (DRY Principle) ---
-    private int getListStartY() { return 60; }
-    private int getListWidth() { return Math.min(350, (int) (width * 0.9)); }
-    private int getListLeft() { return width / 2 - getListWidth() / 2; }
-    private int getMaxEntries() { return Math.max(1, (height - getListStartY() - 40) / ENTRY_HEIGHT); }
+    private int getListStartY() {
+        return 60;
+    }
+
+    private int getListWidth() {
+        return Math.min(350, (int) (width * 0.9));
+    }
+
+    private int getListLeft() {
+        return width / 2 - getListWidth() / 2;
+    }
+
+    private int getMaxEntries() {
+        return Math.max(1, (height - getListStartY() - 40) / ENTRY_HEIGHT);
+    }
 
     @Override
     protected void init() {

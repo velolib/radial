@@ -4,11 +4,11 @@ import com.mojang.brigadier.StringReader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;

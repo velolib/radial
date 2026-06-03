@@ -20,12 +20,6 @@ public class RadialConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static RadialConfig INSTANCE = new RadialConfig();
-
-    public enum ActivationMode {
-        CLICK,
-        RELEASE // This represents the "Hover and release key" behavior
-    }
-
     public int version = 1;
     public int slotCount = 8;
     public int ringRadius = 75;
@@ -34,38 +28,7 @@ public class RadialConfig {
     public int animationSpeedMs = 200;
     public ActivationMode activationMode = ActivationMode.CLICK;
     public List<RadialSlot> slots = new ArrayList<>();
-
     public RadialConfig() {
-        ensureSlotCapacity();
-    }
-
-    /**
-     * Clamps all values to valid ranges. This acts as a firewall against
-     * corrupted or manually malformed JSON files.
-     */
-    public void validate() {
-        this.slotCount = Math.max(3, Math.min(this.slotCount, 12));
-        this.ringRadius = Math.max(30, Math.min(this.ringRadius, 200));
-        this.innerPadding = Math.max(0, Math.min(this.innerPadding, 200));
-        this.outerReach = Math.max(10, Math.min(this.outerReach, 300));
-        this.animationSpeedMs = Math.max(0, Math.min(this.animationSpeedMs, 2000));
-
-        if (this.slots == null) {
-            this.slots = new ArrayList<>();
-        }
-
-        if (this.activationMode == null) {
-            this.activationMode = ActivationMode.CLICK;
-        }
-
-        for (RadialSlot slot : this.slots) {
-            if (slot == null) continue;
-            if (slot.name == null) slot.name = "";
-            if (slot.mode == null) slot.mode = SlotMode.EMPTY;
-            if (slot.value == null) slot.value = "";
-            if (slot.itemId == null) slot.itemId = "minecraft:air";
-        }
-
         ensureSlotCapacity();
     }
 
@@ -102,7 +65,7 @@ public class RadialConfig {
      */
     private static void handleMigration(RadialConfig loaded) {
         // Logic for converting version 1 to 2, etc., goes here.
-        // Currently does nothing but update the version number.
+        // This currently does nothing but update the version number.
         loaded.version = INSTANCE.version;
         save();
     }
@@ -130,6 +93,36 @@ public class RadialConfig {
         }
     }
 
+    /**
+     * Clamps all values to valid ranges. This acts as a firewall against
+     * corrupted or manually malformed JSON files.
+     */
+    public void validate() {
+        this.slotCount = Math.max(3, Math.min(this.slotCount, 12));
+        this.ringRadius = Math.max(30, Math.min(this.ringRadius, 200));
+        this.innerPadding = Math.max(0, Math.min(this.innerPadding, 200));
+        this.outerReach = Math.max(10, Math.min(this.outerReach, 300));
+        this.animationSpeedMs = Math.max(0, Math.min(this.animationSpeedMs, 2000));
+
+        if (this.slots == null) {
+            this.slots = new ArrayList<>();
+        }
+
+        if (this.activationMode == null) {
+            this.activationMode = ActivationMode.CLICK;
+        }
+
+        for (RadialSlot slot : this.slots) {
+            if (slot == null) continue;
+            if (slot.name == null) slot.name = "";
+            if (slot.mode == null) slot.mode = SlotMode.EMPTY;
+            if (slot.value == null) slot.value = "";
+            if (slot.itemId == null) slot.itemId = "minecraft:air";
+        }
+
+        ensureSlotCapacity();
+    }
+
     private void ensureSlotCapacity() {
         while (slots.size() < 12) {
             slots.add(new RadialSlot(
@@ -139,5 +132,10 @@ public class RadialConfig {
                     "minecraft:air"
             ));
         }
+    }
+
+    public enum ActivationMode {
+        CLICK,
+        RELEASE // This represents the "Hover and release key" behavior
     }
 }

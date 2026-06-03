@@ -1,13 +1,13 @@
 package velo.radial.ui;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class ItemPickerScreen extends Screen {
                 15,
                 searchWidth,
                 20,
-                Component.literal("Search...")
+                Component.translatable("gui.recipebook.search_hint")
         );
 
         this.searchField.setHint(Component.translatable("gui.recipebook.search_hint"));

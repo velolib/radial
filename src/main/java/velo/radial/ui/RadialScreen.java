@@ -1,13 +1,13 @@
 package velo.radial.ui;
 
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.KeyMapping;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
@@ -19,6 +19,9 @@ import velo.radial.config.SlotMode;
 
 import java.util.List;
 
+/**
+ * The in-game screen that opens when holding the Radial key.
+ */
 public class RadialScreen extends Screen {
 
     private static final Identifier SLOT_TEXTURE =
@@ -53,7 +56,7 @@ public class RadialScreen extends Screen {
         int keyCode = KeyMappingHelper.getBoundKeyOf(RadialClient.OPEN_RADIAL).getValue();
         long handle = Minecraft.getInstance().getWindow().handle();
 
-// Check if the hotkey was just released
+        // Check if the hotkey was just released
         if (GLFW.glfwGetKey(handle, keyCode) == GLFW.GLFW_RELEASE) {
 
             if (RadialConfig.INSTANCE.activationMode == RadialConfig.ActivationMode.RELEASE) {
@@ -61,7 +64,6 @@ public class RadialScreen extends Screen {
                 if (hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
                     RadialSlot slot = activeSlots.get(hoveredSlot);
 
-                    // FIX: Added `&& slot.mode != SlotMode.EMPTY`
                     if (slot.mode != SlotMode.SUBMENU && slot.mode != SlotMode.EMPTY) {
                         performAction(slot);
                         return;
@@ -289,5 +291,6 @@ public class RadialScreen extends Screen {
     }
 
     @Override
-    public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {}
+    public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    }
 }

@@ -2,15 +2,15 @@ package velo.radial.ui;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 import velo.radial.config.RadialConfig;
 import velo.radial.config.RadialSlot;
@@ -302,9 +302,6 @@ public class RadialSlotEditorScreen extends Screen {
                     baseY + GAP * 2 - 12,
                     0xFFAAAAAA
             );
-        }
-
-        if (slot.mode != SlotMode.EMPTY) {
             graphics.text(
                     font,
                     Component.translatable("screen.radial.editor.icon"),

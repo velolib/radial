@@ -108,11 +108,11 @@ public class RadialSlotEditorScreen extends Screen {
                             valueField.setValue(action.id());
                             slot.value = action.id();
                             // Auto-update the icon and name if they are empty or default
-                            if (slot.name == null || slot.name.startsWith("Empty Slot") || slot.name.isEmpty()) {
-                                slot.name = action.displayName();
-                                nameField.setValue(slot.name);
-                            }
-                            slot.clearCache();
+                            // if (slot.name == null || slot.name.startsWith("Empty Slot") || slot.name.isEmpty()) {
+                            //     slot.name = action.displayName();
+                            //     nameField.setValue(slot.name);
+                            // }
+                            // slot.clearCache();
                         }));
                     } else {
                         minecraft.setScreen(new KeybindPickerScreen(this, id -> {

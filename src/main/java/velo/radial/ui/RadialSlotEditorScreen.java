@@ -173,7 +173,7 @@ public class RadialSlotEditorScreen extends Screen {
         browseIconButton = Button.builder(
                 Component.translatable("screen.radial.editor.browse"),
                 _ -> {
-                    minecraft.setScreen(new ItemPickerScreen(this, id -> {
+                    minecraft.setScreen(new IconPickerScreen(this, id -> {
                         iconField.setValue(id);
                         slot.itemId = id;
                         slot.clearCache();

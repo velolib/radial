@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -18,7 +19,10 @@ public class RadialConfig {
     private static final File TEMP_FILE =
             FabricLoader.getInstance().getConfigDir().resolve("radial.json.tmp").toFile();
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(Color.class, new ColorTypeAdapter())
+            .create();
     public static RadialConfig INSTANCE = new RadialConfig();
     public int version = 1;
     public int slotCount = 8;
@@ -27,7 +31,12 @@ public class RadialConfig {
     public int outerReach = 100;
     public int animationSpeedMs = 200;
     public ActivationMode activationMode = ActivationMode.CLICK;
+    public boolean showActivationZone = true;
+    public float sectorGap = 2;
+    public Color activationColor = new Color(255, 255, 0, 50);
+    public Color backgroundColor = new Color(0, 0, 0, 50);
     public List<RadialSlot> slots = new ArrayList<>();
+
     public RadialConfig() {
         ensureSlotCapacity();
     }
@@ -103,6 +112,7 @@ public class RadialConfig {
         this.innerPadding = Math.max(0, Math.min(this.innerPadding, 200));
         this.outerReach = Math.max(10, Math.min(this.outerReach, 300));
         this.animationSpeedMs = Math.max(0, Math.min(this.animationSpeedMs, 2000));
+        this.sectorGap = Math.max(0, Math.min(this.sectorGap, 20));
 
         if (this.slots == null) {
             this.slots = new ArrayList<>();

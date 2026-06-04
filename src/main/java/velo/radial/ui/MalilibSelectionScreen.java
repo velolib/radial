@@ -24,7 +24,7 @@ public class MalilibSelectionScreen extends Screen {
     private final Screen parent;
     private final Consumer<MalilibAction> onSelect;
     private final Map<String, List<MalilibAction>> actionsByMod;
-    // Store tab buttons to dynamically update them without rebuilding UI
+
     private final List<Button> tabButtons = new ArrayList<>();
     private String currentTab = null;
     private List<MalilibAction> currentActions = new ArrayList<>();
@@ -39,7 +39,6 @@ public class MalilibSelectionScreen extends Screen {
 
         List<MalilibAction> actions = MalilibBridge.getAllActions();
 
-        // Force deterministic (alphabetical) order for tabs using TreeMap
         this.actionsByMod = actions.stream().collect(Collectors.groupingBy(
                 MalilibAction::modName,
                 TreeMap::new,
@@ -71,9 +70,9 @@ public class MalilibSelectionScreen extends Screen {
         this.scrollOffset = 0;
     }
 
-    // --- Layout Helpers (DRY Principle) ---
+    // --- Layout Helpers ---
     private int getListStartY() {
-        return 60;
+        return 65; // Pushed down slightly to accommodate tabs & search
     }
 
     private int getListWidth() {
@@ -90,7 +89,7 @@ public class MalilibSelectionScreen extends Screen {
 
     @Override
     protected void init() {
-        this.tabButtons.clear(); // Ensure list clears if screen resizes
+        this.tabButtons.clear();
 
         if (actionsByMod.isEmpty()) {
             addRenderableWidget(Button.builder(
@@ -108,7 +107,7 @@ public class MalilibSelectionScreen extends Screen {
                     Component.literal(modName),
                     button -> {
                         setTab(modName);
-                        updateTabButtonStates(); // Update state dynamically
+                        updateTabButtonStates();
                     }
             ).bounds(xOffset, 10, tabWidth, 20).build();
 

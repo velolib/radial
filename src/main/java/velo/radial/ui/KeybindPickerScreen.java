@@ -77,9 +77,9 @@ public class KeybindPickerScreen extends Screen {
                 15,
                 searchWidth,
                 20,
-                Component.literal("Search...")
+                Component.translatable("screen.radial.editor.search")
         );
-        searchField.setHint(Component.literal("Search Keybinds..."));
+        searchField.setHint(Component.translatable("screen.radial.editor.search"));
         searchField.setResponder(this::updateSearch);
 
         addRenderableWidget(searchField);

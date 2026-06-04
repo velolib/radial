@@ -25,18 +25,16 @@
   "screen.radial.editor.browse": "Icons",
   "screen.radial.editor.hand": "Hand",
   "screen.radial.editor.select": "Select",
+  "screen.radial.editor.search": "Search...",
 
   "screen.radial.config.title": "Radial Configuration",
-  "screen.radial.config.category.layout": "Menu Layout",
   "screen.radial.config.category.settings": "Settings",
   "screen.radial.config.description.main": "Radial by velolib - A simple and opinionated Minecraft radial menu.",
-  "screen.radial.config.description.left_click": "Left-click a slot in-game to trigger its action.",
-  "screen.radial.config.description.right_click": "Right-click a slot in-game to edit its properties.",
-
   "screen.radial.config.preview": "Live Preview",
   "screen.radial.config.show_preview": "Show Live Preview",
   "screen.radial.config.show_preview.tooltip": "Renders a live, interactive preview of your radial menu.",
 
+  "screen.radial.config.group.layout": "Dimensions & Layout",
   "screen.radial.config.slot_count": "Slot Count",
   "screen.radial.config.slot_count.tooltip": "The number of selectable slices in the root radial menu.",
   "screen.radial.config.radius": "Menu Radius",
@@ -46,6 +44,7 @@
   "screen.radial.config.outer_reach": "Outer Detection Reach",
   "screen.radial.config.outer_reach.tooltip": "How far outward the cursor can travel before it stops selecting a slot.",
 
+  "screen.radial.config.group.appearance": "Appearance & Colors",
   "screen.radial.config.background_color": "Background Color",
   "screen.radial.config.background_color.tooltip": "The default color of the unselected menu sectors.",
   "screen.radial.config.activation_color": "Highlight Color",
@@ -55,6 +54,7 @@
   "screen.radial.config.sector_gap": "Sector Gap",
   "screen.radial.config.sector_gap.tooltip": "The visual spacing between each slice. This is purely cosmetic and does not affect the clickable hitbox area.",
 
+  "screen.radial.config.group.behavior": "Interaction & Behavior",
   "screen.radial.config.activation_mode": "Activation Mode",
   "screen.radial.config.activation_mode.tooltip": "How actions are triggered.\n\nClick: Requires actively clicking the mouse.\nRelease: Triggers automatically when letting go of the menu hotkey.\n\n§e(Note: Submenus will always require a click to open)§r",
   "screen.radial.config.animation_speed": "Animation Duration (ms)",

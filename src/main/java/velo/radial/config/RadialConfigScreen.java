@@ -46,7 +46,7 @@ public class RadialConfigScreen {
 
                 // TAB 1: SETTINGS
                 .category(ConfigCategory.createBuilder()
-                        .name(Component.literal("Settings")) // The name of the Tab
+                        .name(Component.translatable("screen.radial.config.category.settings"))
                         .tooltip(Component.translatable("screen.radial.config.description.main"))
 
                         // Toggle for showing preview, not saved to file
@@ -59,7 +59,7 @@ public class RadialConfigScreen {
 
                         // Preview widget (Injected into the Settings tab)
                         .option(Option.<Boolean>createBuilder()
-                                .name(Component.literal(" ")) // Blank name so it doesn't take up text space
+                                .name(Component.empty()) // Blank name so it doesn't take up text space
                                 .binding(false, () -> false, _ -> {
                                 })
                                 .customController(opt -> createPreviewController(opt, config))
@@ -68,7 +68,7 @@ public class RadialConfigScreen {
                         // GROUP 1: DIMENSIONS & LAYOUT
                         // Controls the physical shape, size, and capacity of the ring.
                         .group(OptionGroup.createBuilder()
-                                .name(Component.literal("Dimensions & Layout"))
+                                .name(Component.translatable("screen.radial.config.group.layout"))
                                 .option(Option.<Integer>createBuilder()
                                         .name(Component.translatable("screen.radial.config.slot_count"))
                                         .description(OptionDescription.of(Component.translatable("screen.radial.config.slot_count.tooltip")))
@@ -98,7 +98,7 @@ public class RadialConfigScreen {
                         // GROUP 2: APPEARANCE & COLORS
                         // Controls the visual style, colors, and borders.
                         .group(OptionGroup.createBuilder()
-                                .name(Component.literal("Appearance & Colors"))
+                                .name(Component.translatable("screen.radial.config.group.appearance"))
                                 .option(Option.<Color>createBuilder()
                                         .name(Component.translatable("screen.radial.config.background_color"))
                                         .description(OptionDescription.of(Component.translatable("screen.radial.config.background_color.tooltip")))
@@ -132,7 +132,7 @@ public class RadialConfigScreen {
                         // GROUP 3: INTERACTION & BEHAVIOR
                         // Controls animations and how the user triggers actions.
                         .group(OptionGroup.createBuilder()
-                                .name(Component.literal("Interaction & Behavior"))
+                                .name(Component.translatable("screen.radial.config.group.behavior"))
                                 .option(Option.<RadialConfig.ActivationMode>createBuilder()
                                         .name(Component.translatable("screen.radial.config.activation_mode"))
                                         .description(OptionDescription.of(Component.translatable("screen.radial.config.activation_mode.tooltip")))
@@ -154,7 +154,7 @@ public class RadialConfigScreen {
 
                 // TAB 2: LIVE PREVIEW ONLY
                 .category(ConfigCategory.createBuilder()
-                        .name(Component.literal("Live Preview")) // The name of the second Tab
+                        .name(Component.translatable("screen.radial.config.preview")) // The name of the second Tab
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.empty()) // Invisible name
                                 .binding(false, () -> false, _ -> {

@@ -124,9 +124,9 @@ public class MalilibSelectionScreen extends Screen {
                 35,
                 searchWidth,
                 20,
-                Component.literal("Search...")
+                Component.translatable("screen.radial.editor.search")
         );
-        this.searchField.setHint(Component.literal("Search actions..."));
+        this.searchField.setHint(Component.translatable("screen.radial.editor.search"));
         this.searchField.setResponder(this::updateSearch);
         addRenderableWidget(this.searchField);
 

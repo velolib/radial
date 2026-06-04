@@ -266,7 +266,7 @@ public class RadialSlotEditorScreen extends Screen {
     }
 
     private ItemStack resolveDynamicItem(String itemId) {
-        if (minecraft == null || minecraft.player == null) return null;
+        if (minecraft.player == null) return null;
 
         if (itemId != null && itemId.startsWith("radial:slot.")) {
             String[] parts = itemId.split("\\.");
@@ -392,9 +392,7 @@ public class RadialSlotEditorScreen extends Screen {
             slot.clearCache();
         }
 
-        if (minecraft != null) {
-            minecraft.setScreen(null);
-        }
+        minecraft.setScreen(null);
     }
 
     @Override

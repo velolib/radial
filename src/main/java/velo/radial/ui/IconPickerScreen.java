@@ -206,7 +206,7 @@ public class IconPickerScreen extends Screen {
     }
 
     private void renderInventoryTab(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        if (minecraft == null || minecraft.player == null) return;
+        if (minecraft.player == null) return;
         Inventory inv = minecraft.player.getInventory();
 
         int bgX = width / 2 - INV_WIDTH / 2;
@@ -386,8 +386,6 @@ public class IconPickerScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (minecraft != null) {
-            minecraft.setScreen(parent);
-        }
+        minecraft.setScreen(parent);
     }
 }

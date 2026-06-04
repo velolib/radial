@@ -325,7 +325,7 @@ public class RadialScreen extends Screen {
     }
 
     private ItemStack resolveDynamicItem(String itemId) {
-        if (minecraft == null || minecraft.player == null) return null;
+        if (minecraft.player == null) return null;
 
         if (itemId != null && itemId.startsWith("radial:slot.")) {
             String[] parts = itemId.split("\\.");

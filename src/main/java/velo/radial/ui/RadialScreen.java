@@ -10,8 +10,13 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 import velo.radial.RadialClient;
@@ -20,6 +25,7 @@ import velo.radial.config.RadialSlot;
 import velo.radial.config.SlotMode;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The in-game screen that opens when holding the Radial key.
@@ -318,13 +324,82 @@ public class RadialScreen extends Screen {
         return ((int) (((color >> 24) & 0xFF) * alpha) << 24) | (color & 0x00FFFFFF);
     }
 
+    private ItemStack resolveDynamicItem(String itemId) {
+        if (minecraft == null || minecraft.player == null) return null;
+
+        if (itemId != null && itemId.startsWith("radial:slot.")) {
+            String[] parts = itemId.split("\\.");
+            if (parts.length >= 2) {
+                String type = parts[1];
+                Inventory inv = minecraft.player.getInventory();
+
+                try {
+                    switch (type) {
+                        case "hotbar":
+                            if (parts.length >= 3) {
+                                int hbIndex = Integer.parseInt(parts[2]);
+                                if (hbIndex >= 0 && hbIndex < 9) {
+                                    return inv.getNonEquipmentItems().get(hbIndex);
+                                }
+                            }
+                            break;
+                        case "inventory":
+                            if (parts.length >= 3) {
+                                int invIndex = Integer.parseInt(parts[2]);
+                                if (invIndex >= 0 && invIndex < 27) {
+                                    // Main inventory starts at index 9 internally
+                                    return inv.getNonEquipmentItems().get(invIndex + 9);
+                                }
+                            }
+                            break;
+                        case "armor":
+                            if (parts.length >= 3) {
+                                String armorSlot = parts[2];
+                                switch (armorSlot) {
+                                    case "head": return minecraft.player.getItemBySlot(EquipmentSlot.HEAD);
+                                    case "chest": return minecraft.player.getItemBySlot(EquipmentSlot.CHEST);
+                                    case "legs": return minecraft.player.getItemBySlot(EquipmentSlot.LEGS);
+                                    case "feet": return minecraft.player.getItemBySlot(EquipmentSlot.FEET);
+                                }
+                            }
+                            break;
+                        case "offhand":
+                            return minecraft.player.getOffhandItem();
+                    }
+                } catch (NumberFormatException ignored) {
+                    // Silently fail and return empty if the string was mangled
+                }
+            }
+            // If it's a radial namespace but failed to match, return an empty item
+            return ItemStack.EMPTY;
+        }
+
+        // Return null to signal that this is NOT a dynamic item
+        return null;
+    }
+
+    private ItemStack getDisplayStack(RadialSlot slot) {
+        // 1. Handle Effects
+        if (slot.itemId.startsWith("radial:effect.")) {
+            // Effects don't have an ItemStack natively, so we use a placeholder or empty
+            return ItemStack.EMPTY;
+        }
+        // 2. Handle Dynamic Inventory Items
+        ItemStack dynamic = resolveDynamicItem(slot.itemId);
+        if (dynamic != null) return dynamic;
+
+        // 3. Default to Cache
+        return slot.getRenderStack();
+    }
+
     private void drawSlot(GuiGraphicsExtractor graphics, float x, float y, boolean hovered, float ease, int index) {
         int alpha = (int) (ease * 255);
         int color = (alpha << 24) | 0xFFFFFF;
 
         graphics.pose().pushMatrix();
-        graphics.pose().translate(x, y);
+        graphics.pose().translate(x, y); // x and y are the slot's origin
 
+        // Draw background slot
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, 0, 0, SLOT_SIZE, SLOT_SIZE, color);
 
         if (hovered) {
@@ -332,7 +407,25 @@ public class RadialScreen extends Screen {
         }
 
         if (index >= 0 && index < activeSlots.size()) {
-            graphics.fakeItem(activeSlots.get(index).getRenderStack(), 5, 5);
+            RadialSlot slot = activeSlots.get(index);
+
+            if (slot.itemId.startsWith("radial:effect.")) {
+                String effectKey = slot.itemId.substring(14);
+                Identifier id = Identifier.parse(effectKey);
+
+                BuiltInRegistries.MOB_EFFECT.get(id).ifPresent(holder -> {
+                    MobEffect effect = holder.value();
+
+                    String path = Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(effect)).getPath();
+                    Identifier spriteId = Identifier.fromNamespaceAndPath("minecraft", "mob_effect/" + path);
+                    graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteId, 4, 4, 18, 18);
+                });
+            } else {
+                ItemStack stack = getDisplayStack(slot);
+                if (stack != null && !stack.isEmpty()) {
+                    graphics.fakeItem(stack, 5, 5);
+                }
+            }
         } else if (index == -1) {
             String icon = "✖";
             int xOff = (SLOT_SIZE - font.width(icon)) / 2;

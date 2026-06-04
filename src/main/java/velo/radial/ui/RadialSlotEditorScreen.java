@@ -10,6 +10,9 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 import velo.radial.config.RadialConfig;
@@ -17,6 +20,7 @@ import velo.radial.config.RadialSlot;
 import velo.radial.config.SlotMode;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class RadialSlotEditorScreen extends Screen {
 
@@ -172,13 +176,11 @@ public class RadialSlotEditorScreen extends Screen {
         int browseIconX = left + iconFieldWidth + HORIZ_GAP;
         browseIconButton = Button.builder(
                 Component.translatable("screen.radial.editor.browse"),
-                _ -> {
-                    minecraft.setScreen(new IconPickerScreen(this, id -> {
-                        iconField.setValue(id);
-                        slot.itemId = id;
-                        slot.clearCache();
-                    }));
-                }
+                _ -> minecraft.setScreen(new IconPickerScreen(this, id -> {
+                    iconField.setValue(id);
+                    slot.itemId = id;
+                    slot.clearCache();
+                }))
         ).bounds(browseIconX, row4Y, ICON_BTN_WIDTH, ROW_HEIGHT).build();
         addRenderableWidget(browseIconButton);
 
@@ -263,6 +265,69 @@ public class RadialSlotEditorScreen extends Screen {
         handButton.visible = !isEmpty;
     }
 
+    private ItemStack resolveDynamicItem(String itemId) {
+        if (minecraft == null || minecraft.player == null) return null;
+
+        if (itemId != null && itemId.startsWith("radial:slot.")) {
+            String[] parts = itemId.split("\\.");
+            if (parts.length >= 2) {
+                String type = parts[1];
+                Inventory inv = minecraft.player.getInventory();
+
+                try {
+                    switch (type) {
+                        case "hotbar":
+                            if (parts.length >= 3) {
+                                int hbIndex = Integer.parseInt(parts[2]);
+                                if (hbIndex >= 0 && hbIndex < 9) {
+                                    return inv.getNonEquipmentItems().get(hbIndex);
+                                }
+                            }
+                            break;
+                        case "inventory":
+                            if (parts.length >= 3) {
+                                int invIndex = Integer.parseInt(parts[2]);
+                                if (invIndex >= 0 && invIndex < 27) {
+                                    return inv.getNonEquipmentItems().get(invIndex + 9);
+                                }
+                            }
+                            break;
+                        case "armor":
+                            if (parts.length >= 3) {
+                                String armorSlot = parts[2];
+                                switch (armorSlot) {
+                                    case "head": return minecraft.player.getItemBySlot(EquipmentSlot.HEAD);
+                                    case "chest": return minecraft.player.getItemBySlot(EquipmentSlot.CHEST);
+                                    case "legs": return minecraft.player.getItemBySlot(EquipmentSlot.LEGS);
+                                    case "feet": return minecraft.player.getItemBySlot(EquipmentSlot.FEET);
+                                }
+                            }
+                            break;
+                        case "offhand":
+                            return minecraft.player.getOffhandItem();
+                    }
+                } catch (NumberFormatException ignored) {
+                }
+            }
+            return ItemStack.EMPTY;
+        }
+        return null;
+    }
+
+    private ItemStack getDisplayStack(RadialSlot slot) {
+        // 1. Handle Effects
+        if (slot.itemId.startsWith("radial:effect.")) {
+            // Effects don't have an ItemStack natively, so we use a placeholder or empty
+            return ItemStack.EMPTY;
+        }
+        // 2. Handle Dynamic Inventory Items
+        ItemStack dynamic = resolveDynamicItem(slot.itemId);
+        if (dynamic != null) return dynamic;
+
+        // 3. Default to Cache
+        return slot.getRenderStack();
+    }
+
     @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
@@ -283,7 +348,25 @@ public class RadialSlotEditorScreen extends Screen {
                 SLOT_SIZE,
                 SLOT_SIZE
         );
-        graphics.fakeItem(slot.getRenderStack(), centerX - 8, height / 2 - 105);
+
+        if (slot.itemId.startsWith("radial:effect.")) {
+            String effectKey = slot.itemId.substring(14);
+            Identifier id = Identifier.parse(effectKey);
+
+            BuiltInRegistries.MOB_EFFECT.get(id).ifPresent(holder -> {
+                MobEffect effect = holder.value();
+
+                String path = Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(effect)).getPath();
+                Identifier spriteId = Identifier.fromNamespaceAndPath("minecraft", "mob_effect/" + path);
+
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteId, centerX - 9, height / 2 - 106, 18, 18);
+            });
+        } else {
+            ItemStack stack = getDisplayStack(slot);
+            if (stack != null && !stack.isEmpty()) {
+                graphics.fakeItem(stack, centerX - 8, height / 2 - 105);
+            }
+        }
 
         // Labels
         graphics.text(font, Component.translatable("screen.radial.editor.name"), left, row1Y - 12, 0xFFAAAAAA);

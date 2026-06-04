@@ -24,6 +24,7 @@
   "screen.radial.editor.cancel": "Cancel",
   "screen.radial.editor.browse": "Icons",
   "screen.radial.editor.hand": "Hand",
+  "screen.radial.editor.select": "Select",
 
   "screen.radial.config.title": "Radial Configuration",
   "screen.radial.config.category.layout": "Menu Layout",

@@ -4,13 +4,16 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 import velo.radial.integration.MalilibBridge;
 import velo.radial.integration.MalilibBridge.MalilibAction;
-import net.minecraft.client.input.MouseButtonEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -22,15 +25,12 @@ public class MalilibSelectionScreen extends Screen {
     private final Consumer<MalilibAction> onSelect;
     private final Map<String, List<MalilibAction>> actionsByMod;
 
+    private final List<Button> tabButtons = new ArrayList<>();
     private String currentTab = null;
     private List<MalilibAction> currentActions = new ArrayList<>();
     private List<MalilibAction> filteredActions = new ArrayList<>();
     private int scrollOffset = 0;
-
     private EditBox searchField;
-
-    // Store tab buttons to dynamically update them without rebuilding UI
-    private final List<Button> tabButtons = new ArrayList<>();
 
     public MalilibSelectionScreen(Screen parent, Consumer<MalilibAction> onSelect) {
         super(Component.literal("Select Malilib Action"));
@@ -39,7 +39,6 @@ public class MalilibSelectionScreen extends Screen {
 
         List<MalilibAction> actions = MalilibBridge.getAllActions();
 
-        // Force deterministic (alphabetical) order for tabs using TreeMap
         this.actionsByMod = actions.stream().collect(Collectors.groupingBy(
                 MalilibAction::modName,
                 TreeMap::new,
@@ -71,15 +70,26 @@ public class MalilibSelectionScreen extends Screen {
         this.scrollOffset = 0;
     }
 
-    // --- Layout Helpers (DRY Principle) ---
-    private int getListStartY() { return 60; }
-    private int getListWidth() { return Math.min(350, (int) (width * 0.9)); }
-    private int getListLeft() { return width / 2 - getListWidth() / 2; }
-    private int getMaxEntries() { return Math.max(1, (height - getListStartY() - 40) / ENTRY_HEIGHT); }
+    // --- Layout Helpers ---
+    private int getListStartY() {
+        return 65; // Pushed down slightly to accommodate tabs & search
+    }
+
+    private int getListWidth() {
+        return Math.min(350, (int) (width * 0.9));
+    }
+
+    private int getListLeft() {
+        return width / 2 - getListWidth() / 2;
+    }
+
+    private int getMaxEntries() {
+        return Math.max(1, (height - getListStartY() - 40) / ENTRY_HEIGHT);
+    }
 
     @Override
     protected void init() {
-        this.tabButtons.clear(); // Ensure list clears if screen resizes
+        this.tabButtons.clear();
 
         if (actionsByMod.isEmpty()) {
             addRenderableWidget(Button.builder(
@@ -97,7 +107,7 @@ public class MalilibSelectionScreen extends Screen {
                     Component.literal(modName),
                     button -> {
                         setTab(modName);
-                        updateTabButtonStates(); // Update state dynamically
+                        updateTabButtonStates();
                     }
             ).bounds(xOffset, 10, tabWidth, 20).build();
 
@@ -114,9 +124,9 @@ public class MalilibSelectionScreen extends Screen {
                 35,
                 searchWidth,
                 20,
-                Component.literal("Search...")
+                Component.translatable("screen.radial.editor.search")
         );
-        this.searchField.setHint(Component.literal("Search actions..."));
+        this.searchField.setHint(Component.translatable("screen.radial.editor.search"));
         this.searchField.setResponder(this::updateSearch);
         addRenderableWidget(this.searchField);
 

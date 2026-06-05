@@ -1,17 +1,15 @@
 package velo.radial.integration;
 
+import fi.dy.masa.malilib.event.InputEventHandler;
+import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.hotkeys.KeybindCategory;
-import fi.dy.masa.malilib.hotkeys.IHotkey;
-import fi.dy.masa.malilib.event.InputEventHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MalilibBridge {
-
-    public record MalilibAction(String modName, String category, String name, String id, String displayName) {}
 
     public static void init() {
         velo.radial.RadialClient.LOGGER.info("[Radial] Malilib logic active.");
@@ -61,5 +59,8 @@ public class MalilibBridge {
         } catch (Exception e) {
             velo.radial.RadialClient.LOGGER.error("Failed to execute Malilib hotkey", e);
         }
+    }
+
+    public record MalilibAction(String modName, String category, String name, String id, String displayName) {
     }
 }

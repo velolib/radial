@@ -136,17 +136,20 @@ public class RadialSlotEditorScreen extends Screen {
         subCountSlider = new AbstractSliderButton(
                 left, row3Y, contentWidth, ROW_HEIGHT,
                 getSliderText(slot.childSlotCount),
-                (slot.childSlotCount - 2) / 9.0
+                // Change 9.0 to 10.0 to expand the initial value scale
+                (slot.childSlotCount - 2) / 10.0
         ) {
             @Override
             protected void updateMessage() {
-                int val = 2 + (int) (value * 9);
+                // Multiply by 10 and use Math.round() for cleaner snapping
+                int val = 2 + (int) Math.round(value * 10);
                 setMessage(getSliderText(val));
             }
 
             @Override
             protected void applyValue() {
-                slot.childSlotCount = 2 + (int) (value * 9);
+                // Apply the exact same math here
+                slot.childSlotCount = 2 + (int) Math.round(value * 10);
                 if (slot.mode == SlotMode.SUBMENU) {
                     ensureChildren();
                 }

@@ -3,6 +3,7 @@ package velo.radial.config;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import velo.radial.RadialClient;
 
 import java.awt.*;
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class ColorTypeAdapter extends TypeAdapter<Color> {
             return new Color((int) Long.parseLong(cleanHex, 16), true);
         } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
             // Log the error to console so the user knows why their color reset
-            System.err.println("[Radial] Failed to parse color '" + hex + "'. Falling back to transparent black.");
+            RadialClient.LOGGER.error("[Radial] Failed to parse color '{}'. Falling back to transparent black.", hex);
             // Fallback: Return transparent black (0x00000000)
             return new Color(0, 0, 0, 0);
         }

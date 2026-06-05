@@ -3,6 +3,7 @@ package velo.radial.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import velo.radial.RadialClient;
 
 import java.awt.*;
 import java.io.File;
@@ -62,7 +63,7 @@ public class RadialConfig {
                 INSTANCE.validate();
             }
         } catch (Exception e) {
-            System.err.println("[Radial] Failed to load config! Creating backup.");
+            RadialClient.LOGGER.error("Failed to load config! Creating backup.");
             backupCorruptedConfig();
             INSTANCE = new RadialConfig();
             save();
@@ -90,8 +91,7 @@ public class RadialConfig {
             Files.move(TEMP_FILE.toPath(), CONFIG_FILE.toPath(),
                     StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (Exception e) {
-            System.err.println("[Radial] Critical error during config save!");
-            e.printStackTrace();
+            RadialClient.LOGGER.error("Critical error during config save!", e);
         }
     }
 

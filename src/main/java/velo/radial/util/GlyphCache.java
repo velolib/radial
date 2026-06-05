@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import velo.radial.RadialClient;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -67,13 +68,13 @@ public final class GlyphCache {
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Failed to parse dynamic glyphs: " + e.getMessage());
+                RadialClient.LOGGER.error("Failed to parse dynamic glyphs: {}", e.getMessage());
             }
         }
 
         // Safety Fallback: If parsing fails or yields nothing, provide a clean curated list
         if (cachedGlyphs.isEmpty()) {
-            System.err.println("Glyph cache parsed empty, using fallback list.");
+            RadialClient.LOGGER.error("Glyph cache parsed empty, using fallback list.");
             cachedGlyphs.addAll(List.of(
                     "★", "☆", "♥", "♦", "♣", "♠", "☠", "☢", "☣", "⚠", "⚡",
                     "↑", "↓", "←", "→", "↕", "↔", "⟳", "✖", "✔", "⚙", "⌂", "✉",

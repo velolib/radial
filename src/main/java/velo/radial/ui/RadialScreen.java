@@ -10,13 +10,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 import velo.radial.RadialClient;
@@ -25,7 +20,6 @@ import velo.radial.config.RadialSlot;
 import velo.radial.config.SlotMode;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * The in-game screen that opens when holding the Radial key.
@@ -185,11 +179,9 @@ public class RadialScreen extends Screen {
     }
 
     private void renderOptimizedDonut(GuiGraphicsExtractor graphics, int cx, int cy, float inner, float outer, int count, float ease) {
-        // We use the absolute outer reach to size our texture
         int size = (int) (outer) * 2 + 2;
         if (size <= 0) return;
 
-        // Initialize or resize the texture buffer if needed
         if (donutTexture == null || donutTexture.getPixels().getWidth() != size || count != lastRenderedSlotCount) {
             if (donutTexture != null) donutTexture.close();
 
@@ -198,12 +190,10 @@ public class RadialScreen extends Screen {
 
             donutTextureId = Identifier.fromNamespaceAndPath("radial", "radial_donut");
             Minecraft.getInstance().getTextureManager().register(donutTextureId, donutTexture);
-            lastRenderedHoverSlot = -2; // Force an update
+            lastRenderedHoverSlot = -2;
             lastRenderedSlotCount = count;
         }
 
-        // ONLY re-calculate pixels if the hovered slot changes.
-        // It now bakes the texture at 100% scale!
         if (hoveredSlot != lastRenderedHoverSlot) {
             generateDonutPixels(donutTexture.getPixels(), inner, outer, count);
             donutTexture.upload();
@@ -213,13 +203,10 @@ public class RadialScreen extends Screen {
         int alpha = (int) (ease * 255);
         int tintColor = (alpha << 24) | 0xFFFFFF;
 
-        // --- THE ANIMATION FIX ---
-        // Let the GPU scale the texture from the center
         graphics.pose().pushMatrix();
         graphics.pose().translate(cx, cy);
         graphics.pose().scale(ease, ease);
 
-        // Draw the cached texture offset by half its size so it centers on 0,0
         int offset = -size / 2;
         graphics.blit(RenderPipelines.GUI_TEXTURED, donutTextureId, offset, offset, 0, 0, size, size, size, size, tintColor);
 
@@ -237,7 +224,6 @@ public class RadialScreen extends Screen {
 
         float gapWidth = RadialConfig.INSTANCE.sectorGap;
 
-        // Clear the image buffer to transparent
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
                 image.setPixel(x, y, 0x00000000);
@@ -250,48 +236,36 @@ public class RadialScreen extends Screen {
                 float dy = y - center + 0.5f;
                 float distSq = dx * dx + dy * dy;
 
-                // Broad-phase bounds check (with a 2px padding to allow for smooth fading)
                 if (distSq < (inner - 2) * (inner - 2) || distSq > (outer + 2) * (outer + 2)) {
-                    continue; // Skip heavy math for deep-empty pixels
+                    continue;
                 }
 
                 float dist = (float) Math.sqrt(distSq);
                 double angle = Math.atan2(dy, dx) + Math.PI / 2;
                 if (angle < 0) angle += Math.PI * 2;
 
-                // Anti-Alias Inner and Outer Edges
-                // Distance to the closest ring edge. +0.5 shifts the 0-point to center the AA fade.
                 float edgeDist = Math.min(dist - inner, outer - dist);
                 float alphaMod = Math.max(0.0f, Math.min(1.0f, edgeDist + 0.5f));
 
-                if (alphaMod <= 0.0f) continue; // It's completely outside the ring
+                if (alphaMod <= 0.0f) continue;
 
-                // Anti-Alias Gaps
                 if (gapWidth > 0.0f) {
                     double relativeAngle = (angle + sectorSize / 2.0) % sectorSize;
                     double angularDistToNearestEdge = Math.min(relativeAngle, sectorSize - relativeAngle);
-
-                    // Convert angular distance to physical pixel distance (Arc Length)
                     double pixelDistToSectorEdge = angularDistToNearestEdge * dist;
-
-                    // Fade alpha to 0 as we approach the gap boundary
                     float gapAlpha = Math.max(0.0f, Math.min(1.0f, (float) (pixelDistToSectorEdge - (gapWidth / 2.0f) + 0.5f)));
                     alphaMod *= gapAlpha;
                 }
 
-                // Anti-Alias Hover Color Blending
                 int color = base;
                 if (showHover && hoveredSlot != -1) {
                     double targetAngle = hoveredSlot * sectorSize;
                     double angleDiff = Math.abs(angle - targetAngle);
                     if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
 
-                    // Distance from pixel to the edge of the hovered sector
                     double angularDistToHoverEdge = angleDiff - (sectorSize / 2.0);
                     double pixelDistToHoverEdge = angularDistToHoverEdge * dist;
 
-                    // Smoothstep the color transition.
-                    // If a pixel sits exactly on the border of a hovered and unhovered slot, it blends 50/50.
                     float hoverRatio = Math.max(0.0f, Math.min(1.0f, (float) (0.5f - pixelDistToHoverEdge)));
                     if (hoverRatio > 0.0f) {
                         color = blendColors(base, hover, hoverRatio);
@@ -324,80 +298,12 @@ public class RadialScreen extends Screen {
         return ((int) (((color >> 24) & 0xFF) * alpha) << 24) | (color & 0x00FFFFFF);
     }
 
-    private ItemStack resolveDynamicItem(String itemId) {
-        if (minecraft.player == null) return null;
-
-        if (itemId != null && itemId.startsWith("radial:slot.")) {
-            String[] parts = itemId.split("\\.");
-            if (parts.length >= 2) {
-                String type = parts[1];
-                Inventory inv = minecraft.player.getInventory();
-
-                try {
-                    switch (type) {
-                        case "hotbar":
-                            if (parts.length >= 3) {
-                                int hbIndex = Integer.parseInt(parts[2]);
-                                if (hbIndex >= 0 && hbIndex < 9) {
-                                    return inv.getNonEquipmentItems().get(hbIndex);
-                                }
-                            }
-                            break;
-                        case "inventory":
-                            if (parts.length >= 3) {
-                                int invIndex = Integer.parseInt(parts[2]);
-                                if (invIndex >= 0 && invIndex < 27) {
-                                    // Main inventory starts at index 9 internally
-                                    return inv.getNonEquipmentItems().get(invIndex + 9);
-                                }
-                            }
-                            break;
-                        case "armor":
-                            if (parts.length >= 3) {
-                                String armorSlot = parts[2];
-                                switch (armorSlot) {
-                                    case "head": return minecraft.player.getItemBySlot(EquipmentSlot.HEAD);
-                                    case "chest": return minecraft.player.getItemBySlot(EquipmentSlot.CHEST);
-                                    case "legs": return minecraft.player.getItemBySlot(EquipmentSlot.LEGS);
-                                    case "feet": return minecraft.player.getItemBySlot(EquipmentSlot.FEET);
-                                }
-                            }
-                            break;
-                        case "offhand":
-                            return minecraft.player.getOffhandItem();
-                    }
-                } catch (NumberFormatException ignored) {
-                    // Silently fail and return empty if the string was mangled
-                }
-            }
-            // If it's a radial namespace but failed to match, return an empty item
-            return ItemStack.EMPTY;
-        }
-
-        // Return null to signal that this is NOT a dynamic item
-        return null;
-    }
-
-    private ItemStack getDisplayStack(RadialSlot slot) {
-        // 1. Handle Effects
-        if (slot.itemId.startsWith("radial:effect.")) {
-            // Effects don't have an ItemStack natively, so we use a placeholder or empty
-            return ItemStack.EMPTY;
-        }
-        // 2. Handle Dynamic Inventory Items
-        ItemStack dynamic = resolveDynamicItem(slot.itemId);
-        if (dynamic != null) return dynamic;
-
-        // 3. Default to Cache
-        return slot.getRenderStack();
-    }
-
     private void drawSlot(GuiGraphicsExtractor graphics, float x, float y, boolean hovered, float ease, int index) {
         int alpha = (int) (ease * 255);
         int color = (alpha << 24) | 0xFFFFFF;
 
         graphics.pose().pushMatrix();
-        graphics.pose().translate(x, y); // x and y are the slot's origin
+        graphics.pose().translate(x, y);
 
         // Draw background slot
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, 0, 0, SLOT_SIZE, SLOT_SIZE, color);
@@ -408,24 +314,8 @@ public class RadialScreen extends Screen {
 
         if (index >= 0 && index < activeSlots.size()) {
             RadialSlot slot = activeSlots.get(index);
-
-            if (slot.itemId.startsWith("radial:effect.")) {
-                String effectKey = slot.itemId.substring(14);
-                Identifier id = Identifier.parse(effectKey);
-
-                BuiltInRegistries.MOB_EFFECT.get(id).ifPresent(holder -> {
-                    MobEffect effect = holder.value();
-
-                    String path = Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(effect)).getPath();
-                    Identifier spriteId = Identifier.fromNamespaceAndPath("minecraft", "mob_effect/" + path);
-                    graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteId, 4, 4, 18, 18);
-                });
-            } else {
-                ItemStack stack = getDisplayStack(slot);
-                if (stack != null && !stack.isEmpty()) {
-                    graphics.fakeItem(stack, 5, 5);
-                }
-            }
+            // Render the inner icon using our new helper class!
+            SlotRenderHelper.renderSlotIcon(graphics, slot, 0, 0);
         } else if (index == -1) {
             String icon = "✖";
             int xOff = (SLOT_SIZE - font.width(icon)) / 2;

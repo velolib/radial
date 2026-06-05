@@ -29,6 +29,7 @@
   "screen.radial.editor.icon_picker.items": "Items",
   "screen.radial.editor.icon_picker.inventory": "Inventory",
   "screen.radial.editor.icon_picker.effects": "Effects",
+  "screen.radial.editor.icon_picker.glyphs": "Glyphs",
   "screen.radial.editor.icon_picker.inventory.info": "Selected slots dynamically sync with the selected inventory position.",
 
   "screen.radial.config.title": "Radial Configuration",

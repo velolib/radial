@@ -73,7 +73,7 @@ public class RadialConfigScreen {
                                         .name(Component.translatable("screen.radial.config.slot_count"))
                                         .description(OptionDescription.of(Component.translatable("screen.radial.config.slot_count.tooltip")))
                                         .binding(8, () -> config.slotCount, v -> config.slotCount = v)
-                                        .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(3, 12).step(1))
+                                        .controller(opt -> IntegerSliderControllerBuilder.create(opt).range(2, 12).step(1))
                                         .build())
                                 .option(Option.<Integer>createBuilder()
                                         .name(Component.translatable("screen.radial.config.radius"))

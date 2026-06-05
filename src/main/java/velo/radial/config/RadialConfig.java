@@ -107,7 +107,7 @@ public class RadialConfig {
      * corrupted or manually malformed JSON files.
      */
     public void validate() {
-        this.slotCount = Math.max(3, Math.min(this.slotCount, 12));
+        this.slotCount = Math.max(2, Math.min(this.slotCount, 12));
         this.ringRadius = Math.max(30, Math.min(this.ringRadius, 200));
         this.innerPadding = Math.max(0, Math.min(this.innerPadding, 200));
         this.outerReach = Math.max(10, Math.min(this.outerReach, 300));

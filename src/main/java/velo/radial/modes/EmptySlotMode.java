@@ -1,7 +1,7 @@
 package velo.radial.modes;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.network.chat.Component;
 import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
 import velo.radial.api.SlotMode;

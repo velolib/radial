@@ -1,7 +1,6 @@
 package velo.radial.modes;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -10,8 +9,6 @@ import net.minecraft.network.chat.Component;
 import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
 import velo.radial.ui.screen.RadialSlotEditorScreen;
-
-import java.util.function.Consumer;
 
 public class ChatSlotMode extends IconEnabledSlotMode {
 

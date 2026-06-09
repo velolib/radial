@@ -7,6 +7,8 @@ import velo.radial.RadialClient;
 import velo.radial.api.RadialSlot;
 import velo.radial.api.RadialSlotModes;
 import velo.radial.api.SlotMode;
+import velo.radial.config.adapters.ColorTypeAdapter;
+import velo.radial.config.adapters.SlotModeTypeAdapter;
 
 import java.awt.*;
 import java.io.File;

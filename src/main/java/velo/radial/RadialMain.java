@@ -3,6 +3,7 @@ package velo.radial;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import velo.radial.config.RadialConfig;
+import velo.radial.integration.MalilibIntegration;
 
 public class RadialMain implements ModInitializer {
     @Override
@@ -11,7 +12,7 @@ public class RadialMain implements ModInitializer {
         RadialConfig.load();
 
         if (FabricLoader.getInstance().isModLoaded("malilib")) {
-            velo.radial.integration.MalilibBridge.init();
+            MalilibIntegration.init();
         }
     }
 }

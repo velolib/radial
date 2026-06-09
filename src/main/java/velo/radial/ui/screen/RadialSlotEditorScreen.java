@@ -1,4 +1,4 @@
-package velo.radial.ui;
+package velo.radial.ui.screen;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -14,6 +14,7 @@ import velo.radial.api.RadialSlot;
 import velo.radial.api.RadialSlotModes;
 import velo.radial.api.SlotMode;
 import velo.radial.config.RadialConfig;
+import velo.radial.render.SlotRenderHelper;
 import velo.radial.ui.widget.DropdownButtonWidget;
 import velo.radial.ui.widget.DropdownMenuWidget;
 

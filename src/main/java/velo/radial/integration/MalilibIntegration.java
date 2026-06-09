@@ -9,7 +9,7 @@ import fi.dy.masa.malilib.hotkeys.KeybindCategory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MalilibBridge {
+public class MalilibIntegration {
 
     public static void init() {
         velo.radial.RadialClient.LOGGER.info("[Radial] Malilib logic active.");

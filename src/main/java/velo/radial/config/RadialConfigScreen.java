@@ -1,6 +1,5 @@
 package velo.radial.config;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.api.utils.Dimension;
@@ -10,10 +9,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
+import velo.radial.render.RadialDonutRenderer;
 
 import java.awt.*;
 
@@ -21,22 +20,9 @@ public class RadialConfigScreen {
 
     private static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
     private static final Identifier SELECTION_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/selection");
+    private static final RadialDonutRenderer PREVIEW_RENDERER = new RadialDonutRenderer("preview");
     private static final int SLOT_SIZE = 26;
     private static boolean showPreview = true;
-
-    // Static Cache for the Config Preview Donut
-    private static DynamicTexture previewTexture;
-    private static Identifier previewTextureId;
-
-    // Trackers to detect if sliders were dragged
-    private static int lastSize = -1;
-    private static int lastCount = -1;
-    private static float lastGap = -1;
-    private static float lastInner = -1;
-    private static float lastOuter = -1;
-    private static int lastBgColor = -1;
-    private static int lastHoverColor = -1;
-    private static boolean lastShowHover = true;
 
     public static Screen create(Screen parent) {
         RadialConfig config = RadialConfig.INSTANCE;
@@ -222,7 +208,8 @@ public class RadialConfigScreen {
         int count = config.slotCount;
 
         if (config.showActivationZone && count > 0) {
-            renderOptimizedPreviewDonut(graphics, cx, cy, inner, outer, config);
+            // Draw the preview donut using supersampling scale of 2.0f, full ease (1.0f), hovering slot 0
+            PREVIEW_RENDERER.render(graphics, cx, cy, inner, outer, count, 0, 1.0f, 2.0f);
         }
 
         // Draw preview slots
@@ -243,140 +230,5 @@ public class RadialConfigScreen {
 
             graphics.pose().popMatrix();
         }
-    }
-
-    private static void renderOptimizedPreviewDonut(GuiGraphicsExtractor graphics, int cx, int cy, float inner, float outer, RadialConfig config) {
-        int size = (int) (outer) * 2 + 2;
-        if (size <= 0) return;
-
-        // Check if the texture buffer needs resizing
-        if (previewTexture == null || previewTexture.getPixels().getWidth() != size) {
-            if (previewTexture != null) previewTexture.close();
-
-            NativeImage image = new NativeImage(size, size, false);
-            previewTexture = new DynamicTexture(() -> "", image);
-
-            previewTextureId = Identifier.fromNamespaceAndPath("radial", "config_preview_donut");
-            Minecraft.getInstance().getTextureManager().register(previewTextureId, previewTexture);
-
-            // Force a regeneration on next frame
-            lastSize = -1;
-        }
-
-        // Check if ANY config variable changed that requires a visual redraw
-        if (size != lastSize || config.slotCount != lastCount || config.sectorGap != lastGap ||
-                inner != lastInner || outer != lastOuter ||
-                config.backgroundColor.getRGB() != lastBgColor || config.activationColor.getRGB() != lastHoverColor ||
-                config.showActivationZone != lastShowHover) {
-
-            generatePreviewPixels(previewTexture.getPixels(), inner, outer, config);
-            previewTexture.upload();
-
-            // Update trackers
-            lastSize = size;
-            lastCount = config.slotCount;
-            lastGap = config.sectorGap;
-            lastInner = inner;
-            lastOuter = outer;
-            lastBgColor = config.backgroundColor.getRGB();
-            lastHoverColor = config.activationColor.getRGB();
-            lastShowHover = config.showActivationZone;
-        }
-
-        int offset = -size / 2;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, previewTextureId, cx + offset, cy + offset, 0, 0, size, size, size, size, 0xFFFFFFFF);
-    }
-
-    private static void generatePreviewPixels(NativeImage image, float inner, float outer, RadialConfig config) {
-        int size = image.getWidth();
-        float center = size / 2.0f;
-        int count = config.slotCount;
-        double sectorSize = (Math.PI * 2) / count;
-
-        int base = config.backgroundColor.getRGB();
-        int hover = config.activationColor.getRGB();
-        boolean showHover = config.showActivationZone;
-        float gapWidth = config.sectorGap;
-
-        // Force slot 0 to be the active hovered slot for the preview
-        int hoveredSlot = 0;
-
-        // Clear the image buffer to transparent
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                image.setPixel(x, y, 0x00000000);
-            }
-        }
-
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                float dx = x - center + 0.5f;
-                float dy = y - center + 0.5f;
-                float distSq = dx * dx + dy * dy;
-
-                if (distSq < (inner - 2) * (inner - 2) || distSq > (outer + 2) * (outer + 2)) {
-                    continue;
-                }
-
-                float dist = (float) Math.sqrt(distSq);
-                double angle = Math.atan2(dy, dx) + Math.PI / 2;
-                if (angle < 0) angle += Math.PI * 2;
-
-                // Anti-Alias Edges
-                float edgeDist = Math.min(dist - inner, outer - dist);
-                float alphaMod = Math.max(0.0f, Math.min(1.0f, edgeDist + 0.5f));
-
-                if (alphaMod <= 0.0f) continue;
-
-                // Sector Gaps
-                if (gapWidth > 0.0f) {
-                    double relativeAngle = (angle + sectorSize / 2.0) % sectorSize;
-                    double angularDistToNearestEdge = Math.min(relativeAngle, sectorSize - relativeAngle);
-                    double pixelDistToSectorEdge = angularDistToNearestEdge * dist;
-
-                    float gapAlpha = Math.max(0.0f, Math.min(1.0f, (float) (pixelDistToSectorEdge - (gapWidth / 2.0f) + 0.5f)));
-                    alphaMod *= gapAlpha;
-                }
-
-                // Hover Color Blending
-                int color = base;
-                if (showHover) {
-                    double targetAngle = hoveredSlot * sectorSize;
-                    double angleDiff = Math.abs(angle - targetAngle);
-                    if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
-
-                    double angularDistToHoverEdge = angleDiff - (sectorSize / 2.0);
-                    double pixelDistToHoverEdge = angularDistToHoverEdge * dist;
-
-                    float hoverRatio = Math.max(0.0f, Math.min(1.0f, (float) (0.5f - pixelDistToHoverEdge)));
-                    if (hoverRatio > 0.0f) {
-                        color = blendColors(base, hover, hoverRatio);
-                    }
-                }
-
-                color = applyAlpha(color, alphaMod);
-                image.setPixelABGR(x, y, toABGR(color));
-            }
-        }
-    }
-
-    private static int toABGR(int argb) {
-        int a = (argb >> 24) & 0xFF;
-        int r = (argb >> 16) & 0xFF;
-        int g = (argb >> 8) & 0xFF;
-        int b = argb & 0xFF;
-        return (a << 24) | (b << 16) | (g << 8) | r;
-    }
-
-    private static int blendColors(int c1, int c2, float ratio) {
-        float inv = 1.0f - ratio;
-        return (int) (((c1 >> 24) & 0xFF) * inv + ((c2 >> 24) & 0xFF) * ratio) << 24 |
-                (int) (((c1 >> 16) & 0xFF) * inv + ((c2 >> 16) & 0xFF) * ratio) << 16 |
-                (int) (((c1 >> 8) & 0xFF) * inv + ((c2 >> 8) & 0xFF) * ratio) << 8 |
-                (int) ((c1 & 0xFF) * inv + (c2 & 0xFF) * ratio);
-    }
-
-    private static int applyAlpha(int color, float alpha) {
-        return ((int) (((color >> 24) & 0xFF) * alpha) << 24) | (color & 0x00FFFFFF);
     }
 }

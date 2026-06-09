@@ -1,4 +1,4 @@
-package velo.radial.ui;
+package velo.radial.ui.screen;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphicsExtractor;

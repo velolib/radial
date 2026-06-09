@@ -1,4 +1,4 @@
-package velo.radial.ui;
+package velo.radial.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;

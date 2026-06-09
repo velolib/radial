@@ -1,13 +1,11 @@
-package velo.radial.ui;
+package velo.radial.ui.screen;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
@@ -16,6 +14,8 @@ import velo.radial.RadialClient;
 import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
 import velo.radial.config.RadialConfig;
+import velo.radial.render.RadialDonutRenderer;
+import velo.radial.render.SlotRenderHelper;
 
 import java.util.List;
 
@@ -27,18 +27,13 @@ public class RadialScreen extends Screen {
     private static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
     private static final Identifier SELECTION_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/selection");
     private static final int SLOT_SIZE = 26;
-
+    private final RadialDonutRenderer donutRenderer = new RadialDonutRenderer("main");
     private final List<RadialSlot> rootSlots;
     private List<RadialSlot> activeSlots;
 
     private int currentSlotCount;
     private int hoveredSlot = -1;
     private boolean backHovered = false;
-
-    private DynamicTexture donutTexture;
-    private Identifier donutTextureId;
-    private int lastRenderedHoverSlot = -2;
-    private int lastRenderedSlotCount = -1;
 
     private float animProgress = 0f;
 
@@ -59,13 +54,10 @@ public class RadialScreen extends Screen {
         int keyCode = KeyMappingHelper.getBoundKeyOf(RadialClient.OPEN_RADIAL).getValue();
         long handle = Minecraft.getInstance().getWindow().handle();
 
-        // Check if the hotkey was just released
         if (GLFW.glfwGetKey(handle, keyCode) == GLFW.GLFW_RELEASE) {
             if (RadialConfig.INSTANCE.activationMode == RadialConfig.ActivationMode.RELEASE) {
                 if (hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
                     RadialSlot slot = activeSlots.get(hoveredSlot);
-
-                    // REFACTORED: Ask the mode if it supports release-activation
                     if (slot.mode.activateOnRelease()) {
                         performAction(slot);
                         return;
@@ -78,7 +70,6 @@ public class RadialScreen extends Screen {
 
         RadialConfig config = RadialConfig.INSTANCE;
 
-        // Skip animation if speed is 0
         if (config.animationSpeedMs <= 0) {
             animProgress = 1.0f;
         } else {
@@ -113,7 +104,6 @@ public class RadialScreen extends Screen {
         float innerRadiusLimit = Math.max(0, config.ringRadius - config.innerPadding);
         float outerRadiusLimit = config.ringRadius + config.outerReach;
 
-        // Sector Detection Math
         if (!backHovered && dist >= innerRadiusLimit && dist <= outerRadiusLimit) {
             double angle = Math.atan2(dy, dx) + Math.PI / 2;
             if (angle < 0) angle += Math.PI * 2;
@@ -129,18 +119,17 @@ public class RadialScreen extends Screen {
 
         // DRAW THE BACKGROUND DONUT
         if (RadialConfig.INSTANCE.showActivationZone && currentSlotCount > 0) {
-            renderOptimizedDonut(graphics, width / 2, height / 2,
-                    Math.max(0, RadialConfig.INSTANCE.ringRadius - RadialConfig.INSTANCE.innerPadding),
-                    (RadialConfig.INSTANCE.ringRadius + RadialConfig.INSTANCE.outerReach),
-                    currentSlotCount, ease);
+            float inner = Math.max(0, config.ringRadius - config.innerPadding);
+            float outer = config.ringRadius + config.outerReach;
+
+            // Draw standard donut with animation ease, dynamic hover slot, and 2.0 supersampling
+            donutRenderer.render(graphics, cx, cy, inner, outer, currentSlotCount, hoveredSlot, ease, 2.0f);
         }
 
-        // Draw Center "Back" button if in submenu
         if (activeSlots != rootSlots) {
             drawSlot(graphics, backX, backY, backHovered, ease, -1);
         }
 
-        // Draw Slots
         for (int i = 0; i < count; i++) {
             double slotAngle = (Math.PI * 2 / count) * i - Math.PI / 2;
             float radius = config.ringRadius * ease;
@@ -151,7 +140,6 @@ public class RadialScreen extends Screen {
             drawSlot(graphics, x, y, i == hoveredSlot, ease, i);
         }
 
-        // Draw Center Text
         if (hoveredSlot != -1) {
             String name = activeSlots.get(hoveredSlot).name;
             int alpha = (int) (ease * 255);
@@ -162,126 +150,6 @@ public class RadialScreen extends Screen {
         }
 
         super.extractRenderState(graphics, mouseX, mouseY, delta);
-    }
-
-    private void renderOptimizedDonut(GuiGraphicsExtractor graphics, int cx, int cy, float inner, float outer, int count, float ease) {
-        int size = (int) (outer) * 2 + 2;
-        if (size <= 0) return;
-
-        if (donutTexture == null || donutTexture.getPixels().getWidth() != size || count != lastRenderedSlotCount) {
-            if (donutTexture != null) donutTexture.close();
-
-            NativeImage image = new NativeImage(size, size, false);
-            donutTexture = new DynamicTexture(() -> "", image);
-
-            donutTextureId = Identifier.fromNamespaceAndPath("radial", "radial_donut");
-            Minecraft.getInstance().getTextureManager().register(donutTextureId, donutTexture);
-            lastRenderedHoverSlot = -2;
-            lastRenderedSlotCount = count;
-        }
-
-        if (hoveredSlot != lastRenderedHoverSlot) {
-            generateDonutPixels(donutTexture.getPixels(), inner, outer, count);
-            donutTexture.upload();
-            lastRenderedHoverSlot = hoveredSlot;
-        }
-
-        int alpha = (int) (ease * 255);
-        int tintColor = (alpha << 24) | 0xFFFFFF;
-
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(cx, cy);
-        graphics.pose().scale(ease, ease);
-
-        int offset = -size / 2;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, donutTextureId, offset, offset, 0, 0, size, size, size, size, tintColor);
-
-        graphics.pose().popMatrix();
-    }
-
-    private void generateDonutPixels(NativeImage image, float inner, float outer, int count) {
-        int size = image.getWidth();
-        float center = size / 2.0f;
-        double sectorSize = (Math.PI * 2) / count;
-
-        int base = RadialConfig.INSTANCE.backgroundColor.getRGB();
-        int hover = RadialConfig.INSTANCE.activationColor.getRGB();
-        boolean showHover = RadialConfig.INSTANCE.showActivationZone;
-
-        float gapWidth = RadialConfig.INSTANCE.sectorGap;
-
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                image.setPixel(x, y, 0x00000000);
-            }
-        }
-
-        for (int y = 0; y < size; y++) {
-            for (int x = 0; x < size; x++) {
-                float dx = x - center + 0.5f;
-                float dy = y - center + 0.5f;
-                float distSq = dx * dx + dy * dy;
-
-                if (distSq < (inner - 2) * (inner - 2) || distSq > (outer + 2) * (outer + 2)) {
-                    continue;
-                }
-
-                float dist = (float) Math.sqrt(distSq);
-                double angle = Math.atan2(dy, dx) + Math.PI / 2;
-                if (angle < 0) angle += Math.PI * 2;
-
-                float edgeDist = Math.min(dist - inner, outer - dist);
-                float alphaMod = Math.max(0.0f, Math.min(1.0f, edgeDist + 0.5f));
-
-                if (alphaMod <= 0.0f) continue;
-
-                if (gapWidth > 0.0f) {
-                    double relativeAngle = (angle + sectorSize / 2.0) % sectorSize;
-                    double angularDistToNearestEdge = Math.min(relativeAngle, sectorSize - relativeAngle);
-                    double pixelDistToSectorEdge = angularDistToNearestEdge * dist;
-                    float gapAlpha = Math.max(0.0f, Math.min(1.0f, (float) (pixelDistToSectorEdge - (gapWidth / 2.0f) + 0.5f)));
-                    alphaMod *= gapAlpha;
-                }
-
-                int color = base;
-                if (showHover && hoveredSlot != -1) {
-                    double targetAngle = hoveredSlot * sectorSize;
-                    double angleDiff = Math.abs(angle - targetAngle);
-                    if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
-
-                    double angularDistToHoverEdge = angleDiff - (sectorSize / 2.0);
-                    double pixelDistToHoverEdge = angularDistToHoverEdge * dist;
-
-                    float hoverRatio = Math.max(0.0f, Math.min(1.0f, (float) (0.5f - pixelDistToHoverEdge)));
-                    if (hoverRatio > 0.0f) {
-                        color = blendColors(base, hover, hoverRatio);
-                    }
-                }
-
-                color = applyAlpha(color, alphaMod);
-                image.setPixelABGR(x, y, toABGR(color));
-            }
-        }
-    }
-
-    private int toABGR(int argb) {
-        int a = (argb >> 24) & 0xFF;
-        int r = (argb >> 16) & 0xFF;
-        int g = (argb >> 8) & 0xFF;
-        int b = argb & 0xFF;
-        return (a << 24) | (b << 16) | (g << 8) | r;
-    }
-
-    private int blendColors(int c1, int c2, float ratio) {
-        float inv = 1.0f - ratio;
-        return (int) (((c1 >> 24) & 0xFF) * inv + ((c2 >> 24) & 0xFF) * ratio) << 24 |
-                (int) (((c1 >> 16) & 0xFF) * inv + ((c2 >> 16) & 0xFF) * ratio) << 16 |
-                (int) (((c1 >> 8) & 0xFF) * inv + ((c2 >> 8) & 0xFF) * ratio) << 8 |
-                (int) ((c1 & 0xFF) * inv + (c2 & 0xFF) * ratio);
-    }
-
-    private int applyAlpha(int color, float alpha) {
-        return ((int) (((color >> 24) & 0xFF) * alpha) << 24) | (color & 0x00FFFFFF);
     }
 
     private void drawSlot(GuiGraphicsExtractor graphics, float x, float y, boolean hovered, float ease, int index) {
@@ -371,10 +239,6 @@ public class RadialScreen extends Screen {
     @Override
     public void removed() {
         super.removed();
-        if (donutTextureId != null) {
-            Minecraft.getInstance().getTextureManager().release(donutTextureId);
-            donutTexture.close();
-            donutTexture = null;
-        }
+        donutRenderer.close();
     }
 }

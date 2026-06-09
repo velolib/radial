@@ -1,7 +1,7 @@
 package velo.radial.api;
 
 import net.minecraft.network.chat.Component;
-import velo.radial.ui.RadialSlotEditorScreen;
+import velo.radial.ui.screen.RadialSlotEditorScreen;
 
 import java.util.function.Consumer;
 
@@ -45,7 +45,8 @@ public interface SlotMode {
     /**
      * Called when a slot is assigned this mode or when the config is loaded.
      * Use this to initialize default data structures (like sub-slot lists).
-     * @param slot    The slot data.
+     *
+     * @param slot The slot data.
      */
     default void onInitialize(RadialSlot slot) {
         // Optional: override in modes that need child slots or specific data setup
@@ -65,9 +66,9 @@ public interface SlotMode {
      * @param startY      The Y-coordinate where the first widget should be rendered.
      * @param width       The maximum available horizontal space for the widgets.
      * @param widgetAdder A callback used to add rendered components to the screen's widget list.
-     * Example: {@code widgetAdder.accept(new Button(...));}
-     * * @return The total vertical height (in pixels) consumed by the added widgets. This value
-     * is used by the editor to automatically offset the positions of subsequent UI elements.
+     *                    Example: {@code widgetAdder.accept(new Button(...));}
+     *                    * @return The total vertical height (in pixels) consumed by the added widgets. This value
+     *                    is used by the editor to automatically offset the positions of subsequent UI elements.
      */
     int buildEditorWidgets(
             RadialSlotEditorScreen screen,

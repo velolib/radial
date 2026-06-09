@@ -1,4 +1,4 @@
-package velo.radial.config;
+package velo.radial.config.adapters;
 
 import com.google.gson.*;
 import net.minecraft.resources.Identifier;

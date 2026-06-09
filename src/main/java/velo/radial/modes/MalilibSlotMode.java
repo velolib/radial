@@ -9,9 +9,9 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.network.chat.Component;
 import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
-import velo.radial.integration.MalilibBridge;
-import velo.radial.ui.MalilibSelectionScreen;
-import velo.radial.ui.RadialSlotEditorScreen;
+import velo.radial.integration.MalilibIntegration;
+import velo.radial.ui.screen.MalilibSelectionScreen;
+import velo.radial.ui.screen.RadialSlotEditorScreen;
 
 import java.util.function.Consumer;
 
@@ -33,7 +33,7 @@ public class MalilibSlotMode extends IconEnabledSlotMode {
 
         // Ensure Malilib is actually loaded before trying to hit the bridge class
         if (FabricLoader.getInstance().isModLoaded("malilib")) {
-            MalilibBridge.executeHotkey(slot.value);
+            MalilibIntegration.executeHotkey(slot.value);
         }
     }
 

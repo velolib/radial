@@ -1,4 +1,4 @@
-package velo.radial.ui;
+package velo.radial.ui.screen;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -7,8 +7,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
-import velo.radial.integration.MalilibBridge;
-import velo.radial.integration.MalilibBridge.MalilibAction;
+import velo.radial.integration.MalilibIntegration;
+import velo.radial.integration.MalilibIntegration.MalilibAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class MalilibSelectionScreen extends Screen {
         this.parent = parent;
         this.onSelect = onSelect;
 
-        List<MalilibAction> actions = MalilibBridge.getAllActions();
+        List<MalilibAction> actions = MalilibIntegration.getAllActions();
 
         this.actionsByMod = actions.stream().collect(Collectors.groupingBy(
                 MalilibAction::modName,

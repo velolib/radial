@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class DropdownButtonWidget<T> extends AbstractWidget {
-    // Native resource pack sprites for EditBoxes
     private static final Identifier SPRITE = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field");
     private static final Identifier SPRITE_HIGHLIGHTED = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field_highlighted");
     private final List<T> options;
@@ -89,7 +88,6 @@ public class DropdownButtonWidget<T> extends AbstractWidget {
         boolean open = isMenuOpen();
         Identifier currentSprite = (this.isFocused() || open) ? SPRITE_HIGHLIGHTED : SPRITE;
 
-        // --- DRAW NATIVE BACKGROUND (No Scissors, No Overlap) ---
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, currentSprite, getX(), getY(), width, height);
 
         int textColor = this.active ? 0xFFFFFFFF : 0xFFA0A0A0;

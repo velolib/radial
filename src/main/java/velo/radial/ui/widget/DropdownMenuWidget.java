@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.function.Function;
 
 public class DropdownMenuWidget<T> extends AbstractWidget {
-    // SCROLLING VARIABLES
-    private static final int MAX_VISIBLE_ITEMS = 6; // Change this to show more/less items before scrolling
+    private static final int MAX_VISIBLE_ITEMS = 6;
     private static final Identifier SPRITE = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field");
     private static final Identifier SPRITE_HIGHLIGHTED = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field_highlighted");
     private final List<T> options;
@@ -30,7 +29,6 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
                               List<T> options, T currentSelection,
                               Function<T, Component> labelMapper,
                               DropdownButtonWidget<T> parentButton) {
-        // FIX: Height is now capped so it doesn't extend off the screen indefinitely
         super(x, y, width, Math.min(options.size(), MAX_VISIBLE_ITEMS) * itemHeight, Component.empty());
         this.options = options;
         this.currentSelection = currentSelection;
@@ -43,24 +41,18 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
         return Math.max(0, (this.options.size() * this.itemHeight) - this.height);
     }
 
-    // 1. ADD MOUSE SCROLL LISTENER
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        // 1. Explicitly verify the mouse is over us
         if (this.isMouseOver(mouseX, mouseY)) {
             int maxScroll = getMaxScroll();
             if (maxScroll > 0) {
-                // 2. Perform the scroll logic
                 this.scrollAmount -= scrollY * this.itemHeight;
                 this.scrollAmount = Mth.clamp(this.scrollAmount, 0, maxScroll);
 
-                // 3. IMPORTANT: Return true to tell Minecraft the event was consumed
-                // and should NOT be passed to widgets underneath.
                 return true;
             }
         }
 
-        // 4. Return super (usually false) if we didn't scroll
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
@@ -85,7 +77,6 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
     public void onClick(final MouseButtonEvent event, final boolean doubleClick) {
         double mouseY = event.y();
 
-        // FIX: Add the scrollAmount offset back into the calculation so it picks the correct item
         int index = (int) ((mouseY - getY() + this.scrollAmount) / itemHeight);
 
         if (index >= 0 && index < options.size()) {
@@ -100,13 +91,8 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
-        // --- DRAW NATIVE BACKGROUND (No Overlap) ---
-        // Optional: You can add `getY() + 2` here and in the constructor if you want a tiny
-        // floating gap between the button and the menu, which looks great with separated boxes!
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE, getX(), getY(), width, height);
 
-        // --- SCISSOR TESTING START (Only for keeping text inside the box) ---
-        // We shrink the scissor box by 1 pixel on all sides to protect the resource pack's border
         graphics.enableScissor(getX() + 1, getY() + 1, getX() + width - 1, getY() + height - 1);
 
         for (int i = 0; i < options.size(); i++) {
@@ -119,9 +105,7 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
                     mouseY >= itemY && mouseY < itemY + itemHeight &&
                     mouseY >= getY() && mouseY <= getY() + height;
 
-            // --- NATIVE HIGHLIGHT INSTEAD OF OVERLAY ---
             if (isItemHovered) {
-                // Draw the official Minecraft list highlight sprite
                 graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_HIGHLIGHTED, getX(), itemY, width, itemHeight);
             }
 

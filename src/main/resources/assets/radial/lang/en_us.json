@@ -8,14 +8,14 @@
 
   "radial.ui.back": "Back",
   "radial.mode.empty": "Empty",
-  "radial.mode.chat": "Chat / Command",
+  "radial.mode.chat": "Chat",
   "radial.mode.keybind": "Keybind",
   "radial.mode.malilib": "MaLiLib Hotkey",
   "radial.mode.submenu": "Submenu",
 
   "screen.radial.editor.title": "Edit Radial Slot",
   "screen.radial.editor.name": "Slot Name",
-  "screen.radial.editor.mode": "Action Mode: %s",
+  "screen.radial.editor.mode": "Action Mode",
   "screen.radial.editor.value": "Action Value",
   "screen.radial.editor.icon": "Icon Identifier",
   "screen.radial.editor.submenu": "Submenu Size",

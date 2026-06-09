@@ -1,4 +1,4 @@
-package velo.radial.config;
+package velo.radial.api;
 
 import com.mojang.brigadier.StringReader;
 import net.minecraft.client.Minecraft;

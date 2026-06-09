@@ -2,12 +2,10 @@ package velo.radial.ui;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
@@ -15,9 +13,9 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 import velo.radial.RadialClient;
+import velo.radial.api.RadialScreenContext;
+import velo.radial.api.RadialSlot;
 import velo.radial.config.RadialConfig;
-import velo.radial.config.RadialSlot;
-import velo.radial.config.SlotMode;
 
 import java.util.List;
 
@@ -26,10 +24,8 @@ import java.util.List;
  */
 public class RadialScreen extends Screen {
 
-    private static final Identifier SLOT_TEXTURE =
-            Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
-    private static final Identifier SELECTION_TEXTURE =
-            Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/selection");
+    private static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
+    private static final Identifier SELECTION_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/selection");
     private static final int SLOT_SIZE = 26;
 
     private final List<RadialSlot> rootSlots;
@@ -68,7 +64,9 @@ public class RadialScreen extends Screen {
             if (RadialConfig.INSTANCE.activationMode == RadialConfig.ActivationMode.RELEASE) {
                 if (hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
                     RadialSlot slot = activeSlots.get(hoveredSlot);
-                    if (slot.mode != SlotMode.SUBMENU && slot.mode != SlotMode.EMPTY) {
+
+                    // REFACTORED: Ask the mode if it supports release-activation
+                    if (slot.mode.activateOnRelease()) {
                         performAction(slot);
                         return;
                     }
@@ -157,22 +155,10 @@ public class RadialScreen extends Screen {
         if (hoveredSlot != -1) {
             String name = activeSlots.get(hoveredSlot).name;
             int alpha = (int) (ease * 255);
-            graphics.text(
-                    font,
-                    Component.nullToEmpty(name),
-                    cx - font.width(name) / 2,
-                    cy - 4,
-                    (alpha << 24) | 0xFFFFFF
-            );
+            graphics.text(font, Component.nullToEmpty(name), cx - font.width(name) / 2, cy - 4, (alpha << 24) | 0xFFFFFF);
         } else if (backHovered) {
             Component backText = Component.translatable("radial.ui.back");
-            graphics.text(
-                    font,
-                    backText,
-                    cx - font.width(backText) / 2,
-                    cy - 4,
-                    0xFFFFFFFF
-            );
+            graphics.text(font, backText, cx - font.width(backText) / 2, cy - 4, 0xFFFFFFFF);
         }
 
         super.extractRenderState(graphics, mouseX, mouseY, delta);
@@ -305,7 +291,6 @@ public class RadialScreen extends Screen {
         graphics.pose().pushMatrix();
         graphics.pose().translate(x, y);
 
-        // Draw background slot
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, 0, 0, SLOT_SIZE, SLOT_SIZE, color);
 
         if (hovered) {
@@ -314,7 +299,6 @@ public class RadialScreen extends Screen {
 
         if (index >= 0 && index < activeSlots.size()) {
             RadialSlot slot = activeSlots.get(index);
-            // Render the inner icon using our new helper class!
             SlotRenderHelper.renderSlotIcon(graphics, slot, 0, 0);
         } else if (index == -1) {
             String icon = "✖";
@@ -343,12 +327,7 @@ public class RadialScreen extends Screen {
         }
 
         if (click.button() == 1 && hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
-            minecraft.setScreen(
-                    new RadialSlotEditorScreen(
-                            activeSlots.get(hoveredSlot),
-                            activeSlots == rootSlots
-                    )
-            );
+            minecraft.setScreen(new RadialSlotEditorScreen(activeSlots.get(hoveredSlot), activeSlots == rootSlots));
             return true;
         }
 
@@ -356,41 +335,27 @@ public class RadialScreen extends Screen {
     }
 
     private void performAction(RadialSlot slot) {
-        if (slot.mode == SlotMode.EMPTY) return;
+        slot.mode.performAction(slot, new RadialScreenContext() {
+            @Override
+            public void closeScreen() {
+                RadialClient.lockKey();
+                RadialScreen.this.onClose();
+            }
 
-        if (slot.mode == SlotMode.SUBMENU && activeSlots == rootSlots) {
-            activeSlots = slot.children;
-            currentSlotCount = slot.childSlotCount;
-            animProgress = 0f;
-            return;
-        }
-
-        Minecraft client = Minecraft.getInstance();
-
-        RadialClient.lockKey();
-        onClose();
-
-        if (slot.mode == SlotMode.CHAT) {
-            ClientPacketListener connection = client.getConnection();
-            if (connection != null) {
-                if (slot.value.startsWith("/")) {
-                    connection.sendCommand(slot.value.substring(1));
-                } else {
-                    connection.sendChat(slot.value);
+            @Override
+            public void openSubmenu(List<RadialSlot> children, int slotCount) {
+                if (activeSlots == rootSlots) {
+                    activeSlots = children;
+                    currentSlotCount = slotCount;
+                    animProgress = 0f;
                 }
             }
-        } else if (slot.mode == SlotMode.KEYBIND) {
-            for (KeyMapping key : client.options.keyMappings) {
-                if (key.getName().equals(slot.value)) {
-                    RadialClient.scheduleKeyPress(key);
-                    break;
-                }
+
+            @Override
+            public boolean isRoot() {
+                return activeSlots == rootSlots;
             }
-        } else if (slot.mode == SlotMode.MALILIB) {
-            if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("malilib")) {
-                velo.radial.integration.MalilibBridge.executeHotkey(slot.value);
-            }
-        }
+        });
     }
 
     private void goBack() {

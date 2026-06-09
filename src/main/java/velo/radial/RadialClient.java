@@ -13,6 +13,7 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import velo.radial.config.RadialConfig;
 import velo.radial.mixin.KeyMappingAccessor;
 import velo.radial.ui.RadialScreen;
 
@@ -32,7 +33,7 @@ public class RadialClient implements ClientModInitializer {
                     "key." + MOD_ID + ".open",
                     InputConstants.Type.KEYSYM,
                     GLFW.GLFW_KEY_R,
-                    CATEGORY // Now passing the required Category object, not a String
+                    CATEGORY
             )
     );
 
@@ -45,10 +46,8 @@ public class RadialClient implements ClientModInitializer {
 
     public static void scheduleKeyPress(KeyMapping key) {
         if (key == null) return;
-
         KeyMappingAccessor accessor = (KeyMappingAccessor) key;
         accessor.setClickCount(accessor.getClickCount() + 1);
-
         keyPressQueue.put(key, 2);
     }
 
@@ -60,6 +59,12 @@ public class RadialClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        LOGGER.info("Initializing Radial Client...");
+
+        // REGISTER
+        RadialConfig.load();
+
+        // REGISTER HUD & EVENTS
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (graphics, tracker) -> {
             if (!(Minecraft.getInstance().screen instanceof RadialScreen)) {
                 original.extractRenderState(graphics, tracker);
@@ -67,7 +72,6 @@ public class RadialClient implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-
             if (OPEN_RADIAL.isDown()) {
                 if (!keyLocked && client.screen == null) {
                     client.setScreen(new RadialScreen());

@@ -9,7 +9,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import velo.radial.config.RadialSlot;
+import velo.radial.api.RadialSlot;
 
 import java.util.Objects;
 
@@ -54,10 +54,14 @@ public final class SlotRenderHelper {
                             if (parts.length >= 3) {
                                 String armorSlot = parts[2];
                                 switch (armorSlot) {
-                                    case "head": return minecraft.player.getItemBySlot(EquipmentSlot.HEAD);
-                                    case "chest": return minecraft.player.getItemBySlot(EquipmentSlot.CHEST);
-                                    case "legs": return minecraft.player.getItemBySlot(EquipmentSlot.LEGS);
-                                    case "feet": return minecraft.player.getItemBySlot(EquipmentSlot.FEET);
+                                    case "head":
+                                        return minecraft.player.getItemBySlot(EquipmentSlot.HEAD);
+                                    case "chest":
+                                        return minecraft.player.getItemBySlot(EquipmentSlot.CHEST);
+                                    case "legs":
+                                        return minecraft.player.getItemBySlot(EquipmentSlot.LEGS);
+                                    case "feet":
+                                        return minecraft.player.getItemBySlot(EquipmentSlot.FEET);
                                 }
                             }
                             break;
@@ -88,7 +92,7 @@ public final class SlotRenderHelper {
      * Note: The X and Y coordinates should be the top-left of the 26x26 slot.
      */
     public static void renderSlotIcon(GuiGraphicsExtractor graphics, RadialSlot slot, float x, float y) {
-        if (slot == null || slot.itemId == null) return;
+        if (slot == null || slot.itemId == null || !slot.mode.shouldRenderIcon()) return;
 
         if (slot.itemId.startsWith("radial:glyph.")) {
             String glyph = slot.itemId.substring(13);
@@ -113,12 +117,12 @@ public final class SlotRenderHelper {
                 String path = Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(effect)).getPath();
                 Identifier spriteId = Identifier.fromNamespaceAndPath("minecraft", "mob_effect/" + path);
 
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteId, (int)x + 4, (int)y + 4, 18, 18);
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, spriteId, (int) x + 4, (int) y + 4, 18, 18);
             });
         } else {
             ItemStack stack = getDisplayStack(slot);
             if (stack != null && !stack.isEmpty()) {
-                graphics.fakeItem(stack, (int)x + 5, (int)y + 5);
+                graphics.fakeItem(stack, (int) x + 5, (int) y + 5);
             }
         }
     }

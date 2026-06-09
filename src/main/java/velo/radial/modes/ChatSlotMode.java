@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.chat.Component;
 import velo.radial.api.RadialScreenContext;
@@ -20,28 +21,24 @@ public class ChatSlotMode extends IconEnabledSlotMode {
     }
 
     @Override
-    public int buildEditorWidgets(RadialSlotEditorScreen screen, RadialSlot slot, int left, int startY, int width, Consumer<AbstractWidget> widgetAdder) {
-        int ROW_HEIGHT = 20;
-        int VERT_GAP = 38;
-        int currentY = startY;
+    public void buildEditorWidgets(RadialSlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container) {
+        // Group the Label and EditBox together closely
+        LinearLayout valueGroup = LinearLayout.vertical().spacing(2);
 
-        // 1. Label
-        StringWidget label = new StringWidget(left, currentY - 12, width, 10, Component.translatable("screen.radial.editor.value"), Minecraft.getInstance().font);
-        widgetAdder.accept(label);
+        StringWidget label = new StringWidget(Component.translatable("screen.radial.editor.value"), Minecraft.getInstance().font);
+        valueGroup.addChild(label);
 
-        // 2. Value Input (Full width, no browse button)
-        EditBox valueField = new EditBox(Minecraft.getInstance().font, left, currentY, width, ROW_HEIGHT, Component.translatable("screen.radial.editor.value"));
+        EditBox valueField = new EditBox(Minecraft.getInstance().font, 0, 0, width, 20, Component.translatable("screen.radial.editor.value"));
         valueField.setMaxLength(Integer.MAX_VALUE);
         valueField.setValue(slot.value != null ? slot.value : "");
         valueField.setResponder(v -> slot.value = v);
-        widgetAdder.accept(valueField);
+        valueGroup.addChild(valueField);
 
-        currentY += VERT_GAP;
+        // Add the group to the main container
+        container.addChild(valueGroup);
 
         // 3. Icon Row
-        buildIconRow(screen, slot, left, currentY, width, widgetAdder);
-
-        return (currentY - startY) + ROW_HEIGHT;
+        buildIconRow(screen, slot, width, container);
     }
 
     @Override

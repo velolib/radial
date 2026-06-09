@@ -1,9 +1,11 @@
 package velo.radial.ui.screen;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -18,7 +20,6 @@ import velo.radial.render.SlotRenderHelper;
 import velo.radial.ui.widget.DropdownButtonWidget;
 import velo.radial.ui.widget.DropdownMenuWidget;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class RadialSlotEditorScreen extends Screen {
@@ -28,7 +29,6 @@ public class RadialSlotEditorScreen extends Screen {
 
     // LAYOUT CONSTANTS
     private static final int ROW_HEIGHT = 20;
-    private static final int VERT_GAP = 38;
     private static final int HORIZ_GAP = 5;
 
     private final RadialSlot slot;
@@ -38,14 +38,12 @@ public class RadialSlotEditorScreen extends Screen {
     private final String oldName, oldValue, oldId;
     private final SlotMode oldMode;
     private final int oldChildCount;
-    // Tracking dynamically injected widgets so we can clear them when the mode changes
-    private final List<AbstractWidget> dynamicWidgets = new ArrayList<>();
+
     private boolean isSaved = false;
+
     // Universal Widgets
     private EditBox nameField;
     private DropdownButtonWidget<SlotMode> modeDropdown;
-    private Button saveButton;
-    private Button cancelButton;
 
     public RadialSlotEditorScreen(RadialSlot slot, boolean isRoot) {
         super(Component.translatable("screen.radial.editor.title"));
@@ -61,35 +59,42 @@ public class RadialSlotEditorScreen extends Screen {
 
     @Override
     protected void init() {
-        int centerX = width / 2;
         int contentWidth = Math.min(300, (int) (width * 0.9));
-        int left = centerX - (contentWidth / 2);
 
-        int row1Y = height / 2 - 60;
-        int row2Y = row1Y + VERT_GAP;
+        LinearLayout mainLayout = LinearLayout.vertical().spacing(8);
 
-        // ROW 1: Name Field (Universal)
+        // --- ROW 1: Name ---
+        LinearLayout nameGroup = LinearLayout.vertical().spacing(2);
+        StringWidget nameLabel = new StringWidget(Component.translatable("screen.radial.editor.name"), font);
+        nameGroup.addChild(nameLabel);
+
         nameField = new EditBox(
-                font, left, row1Y, contentWidth, ROW_HEIGHT,
+                font, 0, 0, contentWidth, ROW_HEIGHT,
                 Component.translatable("screen.radial.editor.name")
         );
         nameField.setMaxLength(Integer.MAX_VALUE);
         nameField.setValue(slot.name);
         nameField.setResponder(v -> slot.name = v);
-        addRenderableWidget(nameField);
+        nameGroup.addChild(nameField);
 
-        // ROW 2: Mode Dropdown (Driven by the Registry)
+        mainLayout.addChild(nameGroup);
+
+        // --- ROW 2: Mode ---
+        LinearLayout modeGroup = LinearLayout.vertical().spacing(2);
+        StringWidget modeLabel = new StringWidget(Component.translatable("screen.radial.editor.mode"), font);
+        modeGroup.addChild(modeLabel);
+
         List<SlotMode> availableModes = RadialSlotModes.getRegisteredModes().values().stream()
                 .filter(mode -> mode.isAvailable() && (isRoot || !mode.getTranslatedName().getString().toLowerCase().contains("submenu")))
                 .toList();
 
         modeDropdown = new DropdownButtonWidget<>(
-                left, row2Y, contentWidth, ROW_HEIGHT,
+                0, 0, contentWidth, ROW_HEIGHT,
                 availableModes, slot.mode, SlotMode::getTranslatedName,
                 selectedMode -> {
                     slot.mode = selectedMode;
                     selectedMode.onInitialize(slot);
-                    buildDynamicLayout(); // Re-trigger the layout generation
+                    this.rebuildWidgets();
                 },
                 menuWidget -> this.addRenderableWidget(menuWidget)
         ) {
@@ -101,58 +106,45 @@ public class RadialSlotEditorScreen extends Screen {
                 super.closeMenu();
             }
         };
-        addRenderableWidget(modeDropdown);
+        modeGroup.addChild(modeDropdown);
+        mainLayout.addChild(modeGroup);
 
-        // Build the rest of the layout natively through the slot mode
-        buildDynamicLayout();
-    }
+        // --- ROW 3: Dynamic Container ---
+        // Also reduced to 8 to match main vertical gaps
+        LinearLayout dynamicLayoutContainer = LinearLayout.vertical().spacing(8);
+        slot.mode.buildEditorWidgets(this, slot, contentWidth, dynamicLayoutContainer);
+        mainLayout.addChild(dynamicLayoutContainer);
 
-    /**
-     * Clears old dynamic widgets and asks the current SlotMode to build its own layout.
-     * Repositions the Save/Cancel buttons safely underneath them.
-     */
-    private void buildDynamicLayout() {
-        int centerX = width / 2;
-        int contentWidth = Math.min(300, (int) (width * 0.9));
-        int left = centerX - (contentWidth / 2);
-
-        // Clear existing dynamic widgets
-        for (AbstractWidget widget : dynamicWidgets) {
-            this.removeWidget(widget);
-        }
-        dynamicWidgets.clear();
-
-        // Calculate starting point (Below the dropdown)
-        int dynamicStartY = (height / 2 - 60) + (VERT_GAP * 2);
-
-        // Invert control: Have the mode inject its widgets and tell us how much space it used
-        int consumedHeight = slot.mode.buildEditorWidgets(this, slot, left, dynamicStartY, contentWidth, widget -> {
-            this.dynamicWidgets.add(widget);
-            this.addRenderableWidget(widget);
-        });
-
-        // Push action buttons cleanly underneath
-        int actionY = dynamicStartY + consumedHeight + 10;
+        // --- ROW 4: Action Buttons ---
+        LinearLayout actionGroup = LinearLayout.horizontal().spacing(HORIZ_GAP);
         int actionBtnWidth = (contentWidth - HORIZ_GAP) / 2;
 
-        if (saveButton != null) this.removeWidget(saveButton);
-        if (cancelButton != null) this.removeWidget(cancelButton);
-
-        saveButton = Button.builder(
+        Button saveButton = Button.builder(
                 Component.translatable("screen.radial.editor.save"),
                 _ -> {
                     this.isSaved = true;
                     RadialConfig.save();
                     onClose();
                 }
-        ).bounds(left, actionY, actionBtnWidth, ROW_HEIGHT).build();
-        addRenderableWidget(saveButton);
+        ).bounds(0, 0, actionBtnWidth, ROW_HEIGHT).build();
+        actionGroup.addChild(saveButton);
 
-        cancelButton = Button.builder(
+        Button cancelButton = Button.builder(
                 Component.translatable("screen.radial.editor.cancel"),
                 _ -> onClose()
-        ).bounds(left + actionBtnWidth + HORIZ_GAP, actionY, actionBtnWidth, ROW_HEIGHT).build();
-        addRenderableWidget(cancelButton);
+        ).bounds(0, 0, actionBtnWidth, ROW_HEIGHT).build();
+        actionGroup.addChild(cancelButton);
+
+        mainLayout.addChild(actionGroup);
+
+        // --- FINAL ASSEMBLY ---
+        FrameLayout rootLayout = new FrameLayout();
+        rootLayout.addChild(mainLayout);
+        rootLayout.arrangeElements();
+
+        // Offset the Y position down by 20 to ensure room at the top of the screen for the icon
+        FrameLayout.centerInRectangle(rootLayout, 0, 20, width, height);
+        rootLayout.visitWidgets(this::addRenderableWidget);
     }
 
     @Override
@@ -160,28 +152,23 @@ public class RadialSlotEditorScreen extends Screen {
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
         int centerX = width / 2;
-        int contentWidth = Math.min(300, (int) (width * 0.9));
-        int left = centerX - (contentWidth / 2);
 
-        int row1Y = height / 2 - 60;
-        int row2Y = row1Y + VERT_GAP;
+        // DYNAMIC ICON POSITIONING:
+        // By calculating the icon's Y coordinate based on the `nameField` widget's actual Y coordinate,
+        // the icon will perfectly hover 20 pixels above the form regardless of screen size!
+        int iconY = (nameField != null) ? nameField.getY() - SLOT_SIZE - 20 : height / 2 - 110;
 
         // Draw background slot
         graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
                 SLOT_TEXTURE,
                 centerX - 13,
-                height / 2 - 110,
+                iconY,
                 SLOT_SIZE,
                 SLOT_SIZE
         );
 
-        SlotRenderHelper.renderSlotIcon(graphics, slot, centerX - 13, height / 2 - 110);
-
-        // --- LABELS ---
-        // We only render the universal labels here. The SlotModes render their own StringWidgets.
-        graphics.text(font, Component.translatable("screen.radial.editor.name"), left, row1Y - 12, 0xFFAAAAAA);
-        graphics.text(font, Component.translatable("screen.radial.editor.mode"), left, row2Y - 12, 0xFFAAAAAA);
+        SlotRenderHelper.renderSlotIcon(graphics, slot, centerX - 13, iconY);
 
         // --- THE MOUSE SPOOFING TRICK ---
         boolean hoveringMenu = this.modeDropdown != null
@@ -207,7 +194,6 @@ public class RadialSlotEditorScreen extends Screen {
             slot.mode = oldMode;
             slot.childSlotCount = oldChildCount;
             slot.clearCache();
-            // Optional: Revert custom dynamic properties map here if implemented
         }
 
         minecraft.setScreen(null);

@@ -1,9 +1,8 @@
 package velo.radial.api;
 
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
 import velo.radial.ui.screen.RadialSlotEditorScreen;
-
-import java.util.function.Consumer;
 
 public interface SlotMode {
     Component getTranslatedName();
@@ -53,29 +52,18 @@ public interface SlotMode {
     }
 
     /**
-     * Constructs the custom UI configuration widgets for this slot mode within the editor screen.
-     * * <p>Implementations should use the provided {@code widgetAdder} to inject their specific
-     * controls (e.g., {@link net.minecraft.client.gui.components.EditBox},
-     * {@link net.minecraft.client.gui.components.Button}) into the screen's layout.
-     * * <p>The provided coordinates are relative to the editor panel's content area. The implementation
-     * is responsible for positioning its widgets vertically starting from {@code startY}.
+     * Called by the editor screen to construct the dynamic UI elements specific to this slot mode.
+     * Implementers should instantiate their custom widgets (text fields, buttons, sliders) and append
+     * them directly to the provided {@code container}.
+     * <p>
+     * <b>Note:</b> Manual X and Y positioning is ignored by the layout system. You only need to
+     * define the width/height of your widgets and use {@code container.addChild(...)}. For complex rows,
+     * nest a horizontal {@link LinearLayout} inside the container.
      *
-     * @param screen      The active editor screen instance.
-     * @param slot        The {@link RadialSlot} currently being modified.
-     * @param left        The absolute X-coordinate where the widget row begins.
-     * @param startY      The Y-coordinate where the first widget should be rendered.
-     * @param width       The maximum available horizontal space for the widgets.
-     * @param widgetAdder A callback used to add rendered components to the screen's widget list.
-     *                    Example: {@code widgetAdder.accept(new Button(...));}
-     *                    * @return The total vertical height (in pixels) consumed by the added widgets. This value
-     *                    is used by the editor to automatically offset the positions of subsequent UI elements.
+     * @param screen    The parent editor screen (useful for opening sub-menus or pickers).
+     * @param slot      The active radial slot being edited, used to read existing data and save new input.
+     * @param width     The maximum available width for the layout block.
+     * @param container The vertical layout container where the generated widgets should be added.
      */
-    int buildEditorWidgets(
-            RadialSlotEditorScreen screen,
-            RadialSlot slot,
-            int left,
-            int startY,
-            int width,
-            Consumer<net.minecraft.client.gui.components.AbstractWidget> widgetAdder
-    );
+    void buildEditorWidgets(RadialSlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container);
 }

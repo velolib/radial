@@ -16,7 +16,6 @@ import java.util.function.Function;
 
 public class DropdownMenuWidget<T> extends AbstractWidget {
     private static final int MAX_VISIBLE_ITEMS = 6;
-    private static final Identifier SPRITE = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field");
     private static final Identifier SPRITE_HIGHLIGHTED = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field_highlighted");
     private final List<T> options;
     private final T currentSelection;
@@ -91,7 +90,7 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE, getX(), getY(), width, height);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_HIGHLIGHTED, getX(), getY(), width, height);
 
         graphics.enableScissor(getX() + 1, getY() + 1, getX() + width - 1, getY() + height - 1);
 

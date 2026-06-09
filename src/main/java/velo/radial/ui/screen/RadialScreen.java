@@ -157,7 +157,12 @@ public class RadialScreen extends Screen {
         int color = (alpha << 24) | 0xFFFFFF;
 
         graphics.pose().pushMatrix();
-        graphics.pose().translate(x, y);
+
+        graphics.pose().translate(x + SLOT_SIZE / 2.0f, y + SLOT_SIZE / 2.0f);
+
+        graphics.pose().scale(ease, ease);
+
+        graphics.pose().translate(-SLOT_SIZE / 2.0f, -SLOT_SIZE / 2.0f);
 
         graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, 0, 0, SLOT_SIZE, SLOT_SIZE, color);
 
@@ -168,6 +173,7 @@ public class RadialScreen extends Screen {
         if (index >= 0 && index < activeSlots.size()) {
             RadialSlot slot = activeSlots.get(index);
             SlotRenderHelper.renderSlotIcon(graphics, slot, 0, 0);
+
         } else if (index == -1) {
             String icon = "✖";
             int xOff = (SLOT_SIZE - font.width(icon)) / 2;

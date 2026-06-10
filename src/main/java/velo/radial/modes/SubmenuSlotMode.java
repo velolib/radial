@@ -7,7 +7,7 @@ import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
 import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
-import velo.radial.api.RadialSlotModes;
+import velo.radial.api.RadialSlotModeRegistry;
 import velo.radial.modes.base.IconEnabledSlotMode;
 import velo.radial.ui.screen.RadialSlotEditorScreen;
 
@@ -36,7 +36,7 @@ public class SubmenuSlotMode extends IconEnabledSlotMode {
         if (slot.children == null) slot.children = new ArrayList<>();
 
         while (slot.children.size() < slot.childSlotCount) {
-            slot.children.add(new RadialSlot("Sub Slot " + (slot.children.size() + 1), RadialSlotModes.getRegisteredModes().get(net.minecraft.resources.Identifier.fromNamespaceAndPath("radial", "empty")), "", "minecraft:stone"));
+            slot.children.add(new RadialSlot("Sub Slot " + (slot.children.size() + 1), RadialSlotModeRegistry.getRegisteredModes().get(net.minecraft.resources.Identifier.fromNamespaceAndPath("radial", "empty")), "", "minecraft:stone"));
         }
     }
 

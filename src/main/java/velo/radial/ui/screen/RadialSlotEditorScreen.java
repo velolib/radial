@@ -13,7 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 import velo.radial.api.RadialSlot;
-import velo.radial.api.RadialSlotModes;
+import velo.radial.api.RadialSlotModeRegistry;
 import velo.radial.api.SlotMode;
 import velo.radial.config.RadialConfig;
 import velo.radial.render.SlotRenderHelper;
@@ -84,7 +84,7 @@ public class RadialSlotEditorScreen extends Screen {
         StringWidget modeLabel = new StringWidget(Component.translatable("screen.radial.editor.mode"), font);
         modeGroup.addChild(modeLabel);
 
-        List<SlotMode> availableModes = RadialSlotModes.getRegisteredModes().values().stream()
+        List<SlotMode> availableModes = RadialSlotModeRegistry.getRegisteredModes().values().stream()
                 .filter(mode -> mode.isAvailable() && (isRoot || !mode.getTranslatedName().getString().toLowerCase().contains("submenu")))
                 .toList();
 

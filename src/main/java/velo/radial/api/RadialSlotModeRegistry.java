@@ -7,7 +7,7 @@ import velo.radial.modes.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class RadialSlotModes {
+public class RadialSlotModeRegistry {
     private static final Map<Identifier, SlotMode> REGISTRY = new LinkedHashMap<>();
     private static final Identifier EMPTY_ID = Identifier.fromNamespaceAndPath("radial", "empty");
     private static boolean initialized = false;
@@ -20,7 +20,7 @@ public class RadialSlotModes {
     }
 
     public static Map<Identifier, SlotMode> getRegisteredModes() {
-        return REGISTRY;
+        return java.util.Collections.unmodifiableMap(REGISTRY);
     }
 
     /**

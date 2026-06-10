@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import velo.radial.RadialClient;
 import velo.radial.api.RadialSlot;
-import velo.radial.api.RadialSlotModes;
+import velo.radial.api.RadialSlotModeRegistry;
 import velo.radial.api.SlotMode;
 import velo.radial.config.adapters.ColorTypeAdapter;
 import velo.radial.config.adapters.SlotModeTypeAdapter;
@@ -138,7 +138,7 @@ public class RadialConfig {
         for (RadialSlot slot : this.slots) {
             if (slot == null) continue;
             if (slot.name == null) slot.name = "";
-            if (slot.mode == null) slot.mode = RadialSlotModes.getDefaultMode();
+            if (slot.mode == null) slot.mode = RadialSlotModeRegistry.getDefaultMode();
             if (slot.value == null) slot.value = "";
             if (slot.itemId == null) slot.itemId = "minecraft:air";
         }
@@ -148,7 +148,7 @@ public class RadialConfig {
 
     private void ensureSlotCapacity() {
         // Fetch it once outside the loop for performance
-        SlotMode defaultMode = RadialSlotModes.getDefaultMode();
+        SlotMode defaultMode = RadialSlotModeRegistry.getDefaultMode();
 
         while (slots.size() < 12) {
             slots.add(new RadialSlot(

@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
 import velo.radial.api.RadialSlotModes;
+import velo.radial.modes.base.IconEnabledSlotMode;
 import velo.radial.ui.screen.RadialSlotEditorScreen;
 
 import java.util.ArrayList;

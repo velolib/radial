@@ -1,4 +1,4 @@
-package velo.radial.modes;
+package velo.radial.modes.base;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;

@@ -2,8 +2,8 @@ package velo.radial.config.adapters;
 
 import com.google.gson.*;
 import net.minecraft.resources.Identifier;
-import velo.radial.api.RadialSlotModeRegistry;
 import velo.radial.api.SlotMode;
+import velo.radial.api.SlotModeRegistry;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -24,20 +24,20 @@ public class SlotModeTypeAdapter implements JsonSerializer<SlotMode>, JsonDeseri
         // Parse the identifier safely
         Identifier id = Identifier.tryParse(idString);
         if (id != null) {
-            SlotMode mode = RadialSlotModeRegistry.getRegisteredModes().get(id);
+            SlotMode mode = SlotModeRegistry.getRegisteredModes().get(id);
             if (mode != null) {
                 return mode;
             }
         }
 
         // If the mode doesn't exist (e.g., they uninstalled an addon mod), fallback safely
-        return RadialSlotModeRegistry.getDefaultMode();
+        return SlotModeRegistry.getDefaultMode();
     }
 
     @Override
     public JsonElement serialize(SlotMode src, Type typeOfSrc, JsonSerializationContext context) {
         // Reverse lookup: Find the Identifier for the given SlotMode instance
-        for (Map.Entry<Identifier, SlotMode> entry : RadialSlotModeRegistry.getRegisteredModes().entrySet()) {
+        for (Map.Entry<Identifier, SlotMode> entry : SlotModeRegistry.getRegisteredModes().entrySet()) {
             // We check by class type to ensure we match the right mode safely
             if (entry.getValue().getClass() == src.getClass()) {
                 return new JsonPrimitive(entry.getKey().toString());

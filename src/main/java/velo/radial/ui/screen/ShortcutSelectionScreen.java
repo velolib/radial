@@ -8,8 +8,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-import velo.radial.api.RadialMenuEntry;
-import velo.radial.api.RadialMenuEntryRegistry;
+import velo.radial.api.ShortcutEntry;
+import velo.radial.api.ShortcutRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class MenuSelectionScreen extends Screen {
+public class ShortcutSelectionScreen extends Screen {
 
     private static final int ENTRY_HEIGHT = 20;
 
@@ -25,12 +25,12 @@ public class MenuSelectionScreen extends Screen {
     private final Consumer<Identifier> onSelect;
 
     private EditBox searchField;
-    // Now stores the Map.Entry so we have both the Identifier and the RadialMenuEntry object
-    private List<Map.Entry<Identifier, RadialMenuEntry>> filteredScreens = new ArrayList<>();
+    // Now stores the Map.Entry so we have both the Identifier and the ShortcutEntry object
+    private List<Map.Entry<Identifier, ShortcutEntry>> filteredScreens = new ArrayList<>();
     private int scrollOffset = 0;
 
-    public MenuSelectionScreen(Screen parent, Consumer<Identifier> onSelect) {
-        super(Component.literal("Select Menu"));
+    public ShortcutSelectionScreen(Screen parent, Consumer<Identifier> onSelect) {
+        super(Component.literal("Select Shortcut"));
         this.parent = parent;
         this.onSelect = onSelect;
     }
@@ -38,7 +38,7 @@ public class MenuSelectionScreen extends Screen {
     private void updateSearch(String query) {
         String q = query.toLowerCase();
 
-        filteredScreens = RadialMenuEntryRegistry.getRegisteredMenus().entrySet().stream()
+        filteredScreens = ShortcutRegistry.getRegisteredShortcuts().entrySet().stream()
                 .filter(mapEntry -> {
                     String name = mapEntry.getValue().name().getString().toLowerCase();
                     String id = mapEntry.getKey().toString().toLowerCase();
@@ -70,7 +70,7 @@ public class MenuSelectionScreen extends Screen {
     @Override
     protected void init() {
         // Initialize the full list from the registry
-        filteredScreens = new ArrayList<>(RadialMenuEntryRegistry.getRegisteredMenus().entrySet());
+        filteredScreens = new ArrayList<>(ShortcutRegistry.getRegisteredShortcuts().entrySet());
 
         int searchWidth = getListWidth();
         int left = getListLeft();
@@ -108,9 +108,9 @@ public class MenuSelectionScreen extends Screen {
             int index = i + scrollOffset;
             if (index >= filteredScreens.size()) break;
 
-            Map.Entry<Identifier, RadialMenuEntry> mapEntry = filteredScreens.get(index);
+            Map.Entry<Identifier, ShortcutEntry> mapEntry = filteredScreens.get(index);
             Identifier id = mapEntry.getKey();
-            RadialMenuEntry entry = mapEntry.getValue();
+            ShortcutEntry entry = mapEntry.getValue();
 
             int y = startY + i * ENTRY_HEIGHT;
             boolean hovered = mouseX >= left && mouseX <= left + listWidth && mouseY >= y && mouseY < y + ENTRY_HEIGHT;

@@ -11,10 +11,10 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 import velo.radial.RadialClient;
-import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
+import velo.radial.api.SlotActionContext;
 import velo.radial.config.RadialConfig;
-import velo.radial.render.RadialDonutRenderer;
+import velo.radial.render.DonutRenderer;
 import velo.radial.render.SlotRenderHelper;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class RadialScreen extends Screen {
     private static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
     private static final Identifier SELECTION_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/selection");
     private static final int SLOT_SIZE = 26;
-    private final RadialDonutRenderer donutRenderer = new RadialDonutRenderer("main");
+    private final DonutRenderer donutRenderer = new DonutRenderer("main");
     private final List<RadialSlot> rootSlots;
     private List<RadialSlot> activeSlots;
 
@@ -201,7 +201,7 @@ public class RadialScreen extends Screen {
         }
 
         if (click.button() == 1 && hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
-            minecraft.setScreen(new RadialSlotEditorScreen(activeSlots.get(hoveredSlot), activeSlots == rootSlots));
+            minecraft.setScreen(new SlotEditorScreen(activeSlots.get(hoveredSlot), activeSlots == rootSlots));
             return true;
         }
 
@@ -209,7 +209,7 @@ public class RadialScreen extends Screen {
     }
 
     private void performAction(RadialSlot slot) {
-        slot.mode.performAction(slot, new RadialScreenContext() {
+        slot.mode.performAction(slot, new SlotActionContext() {
             @Override
             public void closeScreen() {
                 RadialClient.lockKey();

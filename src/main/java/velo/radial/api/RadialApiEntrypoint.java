@@ -5,7 +5,7 @@ public interface RadialApiEntrypoint {
 
     }
 
-    default void registerMenus() {
+    default void registerShortcuts() {
 
     }
 }

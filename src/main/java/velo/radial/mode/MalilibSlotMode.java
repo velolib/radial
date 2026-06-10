@@ -1,4 +1,4 @@
-package velo.radial.modes;
+package velo.radial.mode;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -7,12 +7,12 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
-import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
+import velo.radial.api.SlotActionContext;
 import velo.radial.integration.MalilibIntegration;
-import velo.radial.modes.base.IconEnabledSlotMode;
+import velo.radial.mode.base.IconEnabledSlotMode;
 import velo.radial.ui.screen.MalilibSelectionScreen;
-import velo.radial.ui.screen.RadialSlotEditorScreen;
+import velo.radial.ui.screen.SlotEditorScreen;
 
 public class MalilibSlotMode extends IconEnabledSlotMode {
     @Override
@@ -26,7 +26,7 @@ public class MalilibSlotMode extends IconEnabledSlotMode {
     }
 
     @Override
-    public void performAction(RadialSlot slot, RadialScreenContext context) {
+    public void performAction(RadialSlot slot, SlotActionContext context) {
         context.closeScreen();
 
         if (FabricLoader.getInstance().isModLoaded("malilib")) {
@@ -35,7 +35,7 @@ public class MalilibSlotMode extends IconEnabledSlotMode {
     }
 
     @Override
-    public void buildEditorWidgets(RadialSlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container) {
+    public void buildEditorWidgets(SlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container) {
         int HORIZ_GAP = 5;
         int BROWSE_BTN_WIDTH = 55;
         int ROW_HEIGHT = 20;

@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
 import velo.radial.config.RadialConfig;
 
-public class RadialDonutRenderer implements AutoCloseable {
+public class DonutRenderer implements AutoCloseable {
 
     private final String idSuffix;
     private DynamicTexture texture;
@@ -23,7 +23,7 @@ public class RadialDonutRenderer implements AutoCloseable {
     private boolean lastShowHover = true;
     private int lastHoverSlot = -2;
 
-    public RadialDonutRenderer(String idSuffix) {
+    public DonutRenderer(String idSuffix) {
         this.idSuffix = idSuffix;
     }
 

@@ -1,15 +1,15 @@
-package velo.radial.modes;
+package velo.radial.mode;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
-import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
-import velo.radial.api.RadialSlotModeRegistry;
-import velo.radial.modes.base.IconEnabledSlotMode;
-import velo.radial.ui.screen.RadialSlotEditorScreen;
+import velo.radial.api.SlotActionContext;
+import velo.radial.api.SlotModeRegistry;
+import velo.radial.mode.base.IconEnabledSlotMode;
+import velo.radial.ui.screen.SlotEditorScreen;
 
 import java.util.ArrayList;
 
@@ -25,7 +25,7 @@ public class SubmenuSlotMode extends IconEnabledSlotMode {
     }
 
     @Override
-    public void performAction(RadialSlot slot, RadialScreenContext context) {
+    public void performAction(RadialSlot slot, SlotActionContext context) {
         if (context.isRoot()) {
             context.openSubmenu(slot.children, slot.childSlotCount);
         }
@@ -36,12 +36,12 @@ public class SubmenuSlotMode extends IconEnabledSlotMode {
         if (slot.children == null) slot.children = new ArrayList<>();
 
         while (slot.children.size() < slot.childSlotCount) {
-            slot.children.add(new RadialSlot("Sub Slot " + (slot.children.size() + 1), RadialSlotModeRegistry.getRegisteredModes().get(net.minecraft.resources.Identifier.fromNamespaceAndPath("radial", "empty")), "", "minecraft:stone"));
+            slot.children.add(new RadialSlot("Sub Slot " + (slot.children.size() + 1), SlotModeRegistry.getRegisteredModes().get(net.minecraft.resources.Identifier.fromNamespaceAndPath("radial", "empty")), "", "minecraft:stone"));
         }
     }
 
     @Override
-    public void buildEditorWidgets(RadialSlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container) {
+    public void buildEditorWidgets(SlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container) {
         int ROW_HEIGHT = 20;
 
         LinearLayout subGroup = LinearLayout.vertical().spacing(2);

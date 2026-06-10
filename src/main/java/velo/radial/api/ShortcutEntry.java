@@ -5,5 +5,5 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
-public record RadialMenuEntry(Component name, Consumer<Screen> openAction) {
+public record ShortcutEntry(Component name, Consumer<Screen> openAction) {
 }

@@ -6,7 +6,7 @@ import java.util.List;
  * A callback interface passed to SlotModes when they are clicked.
  * It allows external modes to safely interact with the radial screen's state.
  */
-public interface RadialScreenContext {
+public interface SlotActionContext {
     /**
      * Closes the radial menu and locks the key to prevent immediate re-opening.
      */

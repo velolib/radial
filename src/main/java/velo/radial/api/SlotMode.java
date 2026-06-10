@@ -2,7 +2,7 @@ package velo.radial.api;
 
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
-import velo.radial.ui.screen.RadialSlotEditorScreen;
+import velo.radial.ui.screen.SlotEditorScreen;
 
 public interface SlotMode {
     Component getTranslatedName();
@@ -36,7 +36,7 @@ public interface SlotMode {
      * @param slot    The slot data.
      * @param context Helper to close the screen or open submenus.
      */
-    default void performAction(RadialSlot slot, RadialScreenContext context) {
+    default void performAction(RadialSlot slot, SlotActionContext context) {
         // Most standard actions just want to close the screen and do their thing
         context.closeScreen();
     }
@@ -65,5 +65,5 @@ public interface SlotMode {
      * @param width     The maximum available width for the layout block.
      * @param container The vertical layout container where the generated widgets should be added.
      */
-    void buildEditorWidgets(RadialSlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container);
+    void buildEditorWidgets(SlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container);
 }

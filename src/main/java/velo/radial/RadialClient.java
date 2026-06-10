@@ -13,8 +13,8 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import velo.radial.api.RadialMenuEntryRegistry;
-import velo.radial.api.RadialSlotModeRegistry;
+import velo.radial.api.ShortcutRegistry;
+import velo.radial.api.SlotModeRegistry;
 import velo.radial.config.RadialConfig;
 import velo.radial.integration.MalilibIntegration;
 import velo.radial.mixin.KeyMappingAccessor;
@@ -65,8 +65,8 @@ public class RadialClient implements ClientModInitializer {
         LOGGER.info("Initializing Radial Client...");
 
         // REGISTER CONFIG
-        RadialSlotModeRegistry.init();
-        RadialMenuEntryRegistry.init();
+        SlotModeRegistry.init();
+        ShortcutRegistry.init();
         RadialConfig.load();
 
         if (FabricLoader.getInstance().isModLoaded("malilib")) {

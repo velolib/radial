@@ -7,11 +7,12 @@
   "key.radial.open": "Open Radial",
 
   "radial.ui.back": "Back",
-  "radial.mode.empty": "Empty",
-  "radial.mode.chat": "Chat",
-  "radial.mode.keybind": "Keybind",
-  "radial.mode.malilib": "MaLiLib Hotkey",
-  "radial.mode.submenu": "Submenu",
+  "radial.mode.empty": "Do Nothing",
+  "radial.mode.chat": "Send Chat / Command",
+  "radial.mode.keybind": "Trigger Game Keybind",
+  "radial.mode.shortcut": "Open Screen Shortcut",
+  "radial.mode.malilib": "Trigger MaLiLib Hotkey",
+  "radial.mode.submenu": "Open Submenu",
 
   "screen.radial.editor.title": "Edit Radial Slot",
   "screen.radial.editor.name": "Slot Name",

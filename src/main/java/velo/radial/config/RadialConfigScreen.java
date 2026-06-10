@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-import velo.radial.render.RadialDonutRenderer;
+import velo.radial.render.DonutRenderer;
 
 import java.awt.*;
 
@@ -20,7 +20,7 @@ public class RadialConfigScreen {
 
     private static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
     private static final Identifier SELECTION_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/selection");
-    private static final RadialDonutRenderer PREVIEW_RENDERER = new RadialDonutRenderer("preview");
+    private static final DonutRenderer PREVIEW_RENDERER = new DonutRenderer("preview");
     private static final int SLOT_SIZE = 26;
     private static boolean showPreview = true;
 

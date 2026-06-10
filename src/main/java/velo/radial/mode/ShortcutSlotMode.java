@@ -1,4 +1,4 @@
-package velo.radial.modes;
+package velo.radial.mode;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -7,46 +7,41 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import velo.radial.api.RadialMenuEntry;
-import velo.radial.api.RadialScreenContext;
 import velo.radial.api.RadialSlot;
-import velo.radial.modes.base.IconEnabledSlotMode;
-import velo.radial.ui.screen.MenuSelectionScreen;
-import velo.radial.ui.screen.RadialSlotEditorScreen;
+import velo.radial.api.ShortcutEntry;
+import velo.radial.api.ShortcutRegistry;
+import velo.radial.api.SlotActionContext;
+import velo.radial.mode.base.IconEnabledSlotMode;
+import velo.radial.ui.screen.ShortcutSelectionScreen;
+import velo.radial.ui.screen.SlotEditorScreen;
 
-public class MenuSlotMode extends IconEnabledSlotMode {
+public class ShortcutSlotMode extends IconEnabledSlotMode {
 
     @Override
     public Component getTranslatedName() {
-        return Component.translatable("mode.radial.menu");
+        return Component.translatable("radial.mode.shortcut");
     }
 
     @Override
-    public void performAction(RadialSlot slot, RadialScreenContext context) {
-        // 1. Ensure the slot actually has a value configured
+    public void performAction(RadialSlot slot, SlotActionContext context) {
         if (slot.value == null || slot.value.isBlank()) {
             return;
         }
 
-        // 2. Parse the string back into an Identifier safely
         Identifier menuId = Identifier.tryParse(slot.value);
         if (menuId == null) {
             return;
         }
 
-        // 3. Look up the corresponding RadialMenuEntry in our registry
-        RadialMenuEntry entry = velo.radial.api.RadialMenuEntryRegistry.getRegisteredMenus().get(menuId);
+        ShortcutEntry entry = ShortcutRegistry.getRegisteredShortcuts().get(menuId);
 
-        // 4. If the menu exists and has an action, execute it
         if (entry != null && entry.openAction() != null) {
-            // Since the openAction() usually contains Minecraft.getInstance().setScreen(...),
-            // calling this will automatically close the radial menu and open the target screen.
             entry.openAction().accept(null);
         }
     }
 
     @Override
-    public void buildEditorWidgets(RadialSlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container) {
+    public void buildEditorWidgets(SlotEditorScreen screen, RadialSlot slot, int width, LinearLayout container) {
         int HORIZ_GAP = 5;
         int BROWSE_BTN_WIDTH = 55;
         int ROW_HEIGHT = 20;
@@ -65,9 +60,8 @@ public class MenuSlotMode extends IconEnabledSlotMode {
         valueField.setResponder(v -> slot.value = v);
         inputRow.addChild(valueField);
 
-        // UPDATE: The callback now directly receives the Identifier
         Button valueBrowseButton = Button.builder(Component.translatable("screen.radial.editor.select"), _ ->
-                Minecraft.getInstance().setScreen(new MenuSelectionScreen(screen, (Identifier selectedId) -> {
+                Minecraft.getInstance().setScreen(new ShortcutSelectionScreen(screen, (Identifier selectedId) -> {
                     String idString = selectedId.toString();
                     valueField.setValue(idString);
                     slot.value = idString;

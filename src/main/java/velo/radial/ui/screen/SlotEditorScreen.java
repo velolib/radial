@@ -13,8 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 import velo.radial.api.RadialSlot;
-import velo.radial.api.RadialSlotModeRegistry;
 import velo.radial.api.SlotMode;
+import velo.radial.api.SlotModeRegistry;
 import velo.radial.config.RadialConfig;
 import velo.radial.render.SlotRenderHelper;
 import velo.radial.ui.widget.DropdownButtonWidget;
@@ -22,7 +22,7 @@ import velo.radial.ui.widget.DropdownMenuWidget;
 
 import java.util.List;
 
-public class RadialSlotEditorScreen extends Screen {
+public class SlotEditorScreen extends Screen {
 
     private static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
     private static final int SLOT_SIZE = 26;
@@ -45,7 +45,7 @@ public class RadialSlotEditorScreen extends Screen {
     private EditBox nameField;
     private DropdownButtonWidget<SlotMode> modeDropdown;
 
-    public RadialSlotEditorScreen(RadialSlot slot, boolean isRoot) {
+    public SlotEditorScreen(RadialSlot slot, boolean isRoot) {
         super(Component.translatable("screen.radial.editor.title"));
         this.slot = slot;
         this.isRoot = isRoot;
@@ -84,7 +84,7 @@ public class RadialSlotEditorScreen extends Screen {
         StringWidget modeLabel = new StringWidget(Component.translatable("screen.radial.editor.mode"), font);
         modeGroup.addChild(modeLabel);
 
-        List<SlotMode> availableModes = RadialSlotModeRegistry.getRegisteredModes().values().stream()
+        List<SlotMode> availableModes = SlotModeRegistry.getRegisteredModes().values().stream()
                 .filter(mode -> mode.isAvailable() && (isRoot || !mode.getTranslatedName().getString().toLowerCase().contains("submenu")))
                 .toList();
 
@@ -101,7 +101,7 @@ public class RadialSlotEditorScreen extends Screen {
             @Override
             public void closeMenu() {
                 if (this.isMenuOpen()) {
-                    RadialSlotEditorScreen.this.removeWidget(this.getActiveMenu());
+                    SlotEditorScreen.this.removeWidget(this.getActiveMenu());
                 }
                 super.closeMenu();
             }
@@ -209,10 +209,10 @@ public class RadialSlotEditorScreen extends Screen {
                 return true;
             } else //noinspection StatementWithEmptyBody
                 if (this.modeDropdown.isMouseOver(click.x(), click.y())) {
-                // Let the click fall through so the button can close itself
-            } else {
-                this.modeDropdown.closeMenu();
-            }
+                    // Let the click fall through so the button can close itself
+                } else {
+                    this.modeDropdown.closeMenu();
+                }
         }
 
         return super.mouseClicked(click, doubled);

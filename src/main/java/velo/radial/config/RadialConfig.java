@@ -5,8 +5,8 @@ import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import velo.radial.RadialClient;
 import velo.radial.api.RadialSlot;
-import velo.radial.api.RadialSlotModeRegistry;
 import velo.radial.api.SlotMode;
+import velo.radial.api.SlotModeRegistry;
 import velo.radial.config.adapters.ColorTypeAdapter;
 import velo.radial.config.adapters.SlotModeTypeAdapter;
 
@@ -20,19 +20,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RadialConfig {
+    public static final int CONFIG_VERSION = 2;
     private static final File CONFIG_FILE =
             FabricLoader.getInstance().getConfigDir().resolve("radial.json").toFile();
     private static final File TEMP_FILE =
             FabricLoader.getInstance().getConfigDir().resolve("radial.json.tmp").toFile();
-
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(Color.class, new ColorTypeAdapter())
             .registerTypeAdapter(SlotMode.class, new SlotModeTypeAdapter())
             .create();
     public static RadialConfig INSTANCE;
-    public static final int CONFIG_VERSION = 2;
-
     public int version = 2;
     public int slotCount = 8;
     public int ringRadius = 75;
@@ -138,7 +136,7 @@ public class RadialConfig {
         for (RadialSlot slot : this.slots) {
             if (slot == null) continue;
             if (slot.name == null) slot.name = "";
-            if (slot.mode == null) slot.mode = RadialSlotModeRegistry.getDefaultMode();
+            if (slot.mode == null) slot.mode = SlotModeRegistry.getDefaultMode();
             if (slot.value == null) slot.value = "";
             if (slot.itemId == null) slot.itemId = "minecraft:air";
         }
@@ -148,7 +146,7 @@ public class RadialConfig {
 
     private void ensureSlotCapacity() {
         // Fetch it once outside the loop for performance
-        SlotMode defaultMode = RadialSlotModeRegistry.getDefaultMode();
+        SlotMode defaultMode = SlotModeRegistry.getDefaultMode();
 
         while (slots.size() < 12) {
             slots.add(new RadialSlot(

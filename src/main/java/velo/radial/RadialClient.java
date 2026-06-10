@@ -13,7 +13,9 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import velo.radial.api.RadialSlotModes;
 import velo.radial.config.RadialConfig;
+import velo.radial.integration.MalilibIntegration;
 import velo.radial.mixin.KeyMappingAccessor;
 import velo.radial.ui.screen.RadialScreen;
 
@@ -61,8 +63,13 @@ public class RadialClient implements ClientModInitializer {
     public void onInitializeClient() {
         LOGGER.info("Initializing Radial Client...");
 
-        // REGISTER
+        // REGISTER CONFIG
+        RadialSlotModes.init();
         RadialConfig.load();
+
+        if (FabricLoader.getInstance().isModLoaded("malilib")) {
+            MalilibIntegration.init();
+        }
 
         // REGISTER HUD & EVENTS
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (graphics, tracker) -> {

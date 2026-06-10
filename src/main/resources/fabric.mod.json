@@ -17,9 +17,6 @@
 		"client": [
 			"velo.radial.RadialClient"
 		],
-		"main": [
-			"velo.radial.RadialMain"
-		],
 		"modmenu": [
 			"velo.radial.integration.ModMenuIntegration"
 		]

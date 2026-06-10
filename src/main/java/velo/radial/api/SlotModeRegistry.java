@@ -30,7 +30,7 @@ public class SlotModeRegistry {
         register(EMPTY_ID, new EmptySlotMode());
         register(Identifier.fromNamespaceAndPath("radial", "chat"), new ChatSlotMode());
         register(Identifier.fromNamespaceAndPath("radial", "keybind"), new KeybindSlotMode());
-        register(Identifier.fromNamespaceAndPath("radial", "menu"), new ShortcutSlotMode());
+        register(Identifier.fromNamespaceAndPath("radial", "shortcut"), new ShortcutSlotMode());
         register(Identifier.fromNamespaceAndPath("radial", "malilib"), new MalilibSlotMode());
         register(Identifier.fromNamespaceAndPath("radial", "submenu"), new SubmenuSlotMode());
 

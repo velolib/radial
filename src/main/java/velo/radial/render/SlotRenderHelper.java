@@ -78,7 +78,7 @@ public final class SlotRenderHelper {
     }
 
     /**
-     * Determines the correct stack to display (Dynamic vs sTATIC)
+     * Determines the correct stack to display (Dynamic vs Static)
      */
     public static ItemStack getDisplayStack(RadialSlot slot) {
         ItemStack dynamic = resolveDynamicItem(slot.itemId);

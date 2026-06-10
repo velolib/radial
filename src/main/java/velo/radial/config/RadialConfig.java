@@ -31,7 +31,7 @@ public class RadialConfig {
             .registerTypeAdapter(SlotMode.class, new SlotModeTypeAdapter())
             .create();
     public static RadialConfig INSTANCE;
-    public static int CONFIG_VERSION = 2;
+    public static final int CONFIG_VERSION = 2;
 
     public int version = 2;
     public int slotCount = 8;

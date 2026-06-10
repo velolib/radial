@@ -80,6 +80,7 @@ public class RadialClient implements ClientModInitializer {
                 keyLocked = false;
             }
 
+            //noinspection StatementWithEmptyBody
             while (OPEN_RADIAL.consumeClick()) {
             }
 

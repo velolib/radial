@@ -46,13 +46,11 @@ public abstract class IconEnabledSlotMode implements SlotMode {
         inputRow.addChild(iconField);
 
         // Browse Button
-        Button browseIconButton = Button.builder(Component.translatable("screen.radial.editor.browse"), _ -> {
-            Minecraft.getInstance().setScreen(new IconPickerScreen(screen, id -> {
-                iconField.setValue(id);
-                slot.itemId = id;
-                slot.clearCache();
-            }));
-        }).bounds(0, 0, ICON_BTN_WIDTH, ROW_HEIGHT).build();
+        Button browseIconButton = Button.builder(Component.translatable("screen.radial.editor.browse"), _ -> Minecraft.getInstance().setScreen(new IconPickerScreen(screen, id -> {
+            iconField.setValue(id);
+            slot.itemId = id;
+            slot.clearCache();
+        }))).bounds(0, 0, ICON_BTN_WIDTH, ROW_HEIGHT).build();
         inputRow.addChild(browseIconButton);
 
         // Hand Button

@@ -96,7 +96,7 @@ public class RadialSlotEditorScreen extends Screen {
                     selectedMode.onInitialize(slot);
                     this.rebuildWidgets();
                 },
-                menuWidget -> this.addRenderableWidget(menuWidget)
+                this::addRenderableWidget
         ) {
             @Override
             public void closeMenu() {
@@ -200,14 +200,15 @@ public class RadialSlotEditorScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+    public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubled) {
         if (this.modeDropdown != null && this.modeDropdown.isMenuOpen()) {
             DropdownMenuWidget<SlotMode> floatingMenu = this.modeDropdown.getActiveMenu();
 
             if (floatingMenu.isMouseOver(click.x(), click.y())) {
                 floatingMenu.mouseClicked(click, doubled);
                 return true;
-            } else if (this.modeDropdown.isMouseOver(click.x(), click.y())) {
+            } else //noinspection StatementWithEmptyBody
+                if (this.modeDropdown.isMouseOver(click.x(), click.y())) {
                 // Let the click fall through so the button can close itself
             } else {
                 this.modeDropdown.closeMenu();

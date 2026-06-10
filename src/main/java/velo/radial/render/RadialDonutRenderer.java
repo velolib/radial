@@ -14,7 +14,6 @@ public class RadialDonutRenderer implements AutoCloseable {
     private DynamicTexture texture;
     private Identifier textureId;
     // Cache trackers
-    private int lastTexSize = -1;
     private int lastCount = -1;
     private float lastGap = -1;
     private float lastInner = -1;
@@ -58,7 +57,6 @@ public class RadialDonutRenderer implements AutoCloseable {
             generatePixels(texture.getPixels(), inner, outer, count, hoveredSlot, resScale, config);
             texture.upload();
 
-            lastTexSize = texSize;
             lastCount = count;
             lastGap = config.sectorGap;
             lastInner = inner;

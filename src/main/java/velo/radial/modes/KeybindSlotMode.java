@@ -39,12 +39,10 @@ public class KeybindSlotMode extends IconEnabledSlotMode {
         valueField.setResponder(v -> slot.value = v);
         inputRow.addChild(valueField);
 
-        Button valueBrowseButton = Button.builder(Component.translatable("screen.radial.editor.select"), _ -> {
-            Minecraft.getInstance().setScreen(new KeybindPickerScreen(screen, id -> {
-                valueField.setValue(id);
-                slot.value = id;
-            }));
-        }).bounds(0, 0, BROWSE_BTN_WIDTH, ROW_HEIGHT).build();
+        Button valueBrowseButton = Button.builder(Component.translatable("screen.radial.editor.select"), _ -> Minecraft.getInstance().setScreen(new KeybindPickerScreen(screen, id -> {
+            valueField.setValue(id);
+            slot.value = id;
+        }))).bounds(0, 0, BROWSE_BTN_WIDTH, ROW_HEIGHT).build();
         inputRow.addChild(valueBrowseButton);
 
         valueGroup.addChild(inputRow);

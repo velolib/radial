@@ -53,12 +53,10 @@ public class MalilibSlotMode extends IconEnabledSlotMode {
         valueField.setResponder(v -> slot.value = v);
         inputRow.addChild(valueField);
 
-        Button valueBrowseButton = Button.builder(Component.translatable("screen.radial.editor.select"), _ -> {
-            Minecraft.getInstance().setScreen(new MalilibSelectionScreen(screen, action -> {
-                valueField.setValue(action.id());
-                slot.value = action.id();
-            }));
-        }).bounds(0, 0, BROWSE_BTN_WIDTH, ROW_HEIGHT).build();
+        Button valueBrowseButton = Button.builder(Component.translatable("screen.radial.editor.select"), _ -> Minecraft.getInstance().setScreen(new MalilibSelectionScreen(screen, action -> {
+            valueField.setValue(action.id());
+            slot.value = action.id();
+        }))).bounds(0, 0, BROWSE_BTN_WIDTH, ROW_HEIGHT).build();
         inputRow.addChild(valueBrowseButton);
 
         valueGroup.addChild(inputRow);

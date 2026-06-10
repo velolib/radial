@@ -9,6 +9,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -56,7 +57,7 @@ public class DropdownButtonWidget<T> extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseClicked(final MouseButtonEvent event, final boolean doubleClick) {
+    public boolean mouseClicked(final @NonNull MouseButtonEvent event, final boolean doubleClick) {
         if (this.isActive() && this.isMouseOver(event.x(), event.y())) {
             this.onClick(event, doubleClick);
             return true;
@@ -65,7 +66,7 @@ public class DropdownButtonWidget<T> extends AbstractWidget {
     }
 
     @Override
-    public void onClick(final MouseButtonEvent event, final boolean doubleClick) {
+    public void onClick(final @NonNull MouseButtonEvent event, final boolean doubleClick) {
         // PLAY SOUND: Triggers the standard click noise when toggling the menu
         this.playDownSound(Minecraft.getInstance().getSoundManager());
 
@@ -98,7 +99,7 @@ public class DropdownButtonWidget<T> extends AbstractWidget {
     }
 
     @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+    protected void updateWidgetNarration(@NonNull NarrationElementOutput narrationElementOutput) {
         this.defaultButtonNarrationText(narrationElementOutput);
     }
 }

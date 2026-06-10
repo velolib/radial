@@ -94,18 +94,18 @@ public class MalilibSelectionScreen extends Screen {
         if (actionsByMod.isEmpty()) {
             addRenderableWidget(Button.builder(
                     Component.translatable("gui.cancel"),
-                    button -> onClose()
+                    _ -> onClose()
             ).bounds(width / 2 - 100, height - 28, 200, 20).build());
             return;
         }
 
-        int tabWidth = Math.min(80, width / Math.max(1, actionsByMod.size()));
+        int tabWidth = Math.min(80, width / actionsByMod.size());
         int xOffset = (width - (tabWidth * actionsByMod.size())) / 2;
 
         for (String modName : actionsByMod.keySet()) {
             Button btn = Button.builder(
                     Component.literal(modName),
-                    button -> {
+                    _ -> {
                         setTab(modName);
                         updateTabButtonStates();
                     }
@@ -132,7 +132,7 @@ public class MalilibSelectionScreen extends Screen {
 
         addRenderableWidget(Button.builder(
                 Component.translatable("gui.cancel"),
-                button -> onClose()
+                _ -> onClose()
         ).bounds(width / 2 - 100, height - 28, 200, 20).build());
 
         setInitialFocus(this.searchField);
@@ -217,8 +217,6 @@ public class MalilibSelectionScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (minecraft != null) {
-            minecraft.setScreen(parent);
-        }
+        minecraft.setScreen(parent);
     }
 }

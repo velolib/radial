@@ -89,7 +89,7 @@ public class RadialConfig {
      */
     private static void handleMigration(RadialConfig loaded) {
         RadialClient.LOGGER.info("Migrating Radial Config from v{} to v{}", loaded.version, CONFIG_VERSION);
-        loaded.version = INSTANCE.version;
+        loaded.version = CONFIG_VERSION;
         save();
     }
 

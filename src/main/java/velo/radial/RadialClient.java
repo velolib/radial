@@ -13,6 +13,7 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import velo.radial.api.RadialMenuEntryRegistry;
 import velo.radial.api.RadialSlotModeRegistry;
 import velo.radial.config.RadialConfig;
 import velo.radial.integration.MalilibIntegration;
@@ -65,6 +66,7 @@ public class RadialClient implements ClientModInitializer {
 
         // REGISTER CONFIG
         RadialSlotModeRegistry.init();
+        RadialMenuEntryRegistry.init();
         RadialConfig.load();
 
         if (FabricLoader.getInstance().isModLoaded("malilib")) {

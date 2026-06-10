@@ -23,23 +23,19 @@ public class RadialSlotModeRegistry {
         return java.util.Collections.unmodifiableMap(REGISTRY);
     }
 
-    /**
-     * Called internally by your mod's initializer.
-     */
     public static void init() {
         if (initialized) return;
         initialized = true;
 
-        // 1. Register your own core modes first
         register(EMPTY_ID, new EmptySlotMode());
         register(Identifier.fromNamespaceAndPath("radial", "chat"), new ChatSlotMode());
         register(Identifier.fromNamespaceAndPath("radial", "keybind"), new KeybindSlotMode());
+        register(Identifier.fromNamespaceAndPath("radial", "menu"), new MenuSlotMode());
         register(Identifier.fromNamespaceAndPath("radial", "malilib"), new MalilibSlotMode());
         register(Identifier.fromNamespaceAndPath("radial", "submenu"), new SubmenuSlotMode());
 
-        // 2. Dynamically load and execute external mod registrations via Fabric Entrypoints
         FabricLoader.getInstance()
-                .getEntrypointContainers("radial_api", RadialApiEntrypoint.class)
+                .getEntrypointContainers("radial", RadialApiEntrypoint.class)
                 .forEach(container -> container.getEntrypoint().registerSlotModes());
     }
 

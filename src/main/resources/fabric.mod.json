@@ -3,7 +3,7 @@
 	"id": "radial",
 	"version": "${version}",
 	"name": "radial",
-	"description": "A simple and opinionated Minecraft radial menu.",
+	"description": "A simple and opinionated Minecraft radial menu mod that works flawlessly out of the box.",
 	"authors": [
 		"velolib"
 	],

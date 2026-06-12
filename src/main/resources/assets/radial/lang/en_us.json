@@ -1,6 +1,6 @@
 {
   "modmenu.nameTranslation.radial": "Radial",
-  "modmenu.descriptionTranslate.modmenu": "A simple and opinionated Minecraft radial menu.",
+  "modmenu.descriptionTranslate.modmenu": "A simple and opinionated Minecraft radial menu mod that works flawlessly out of the box.",
 
   "category.radial.main": "Radial",
   "key.category.radial.main": "Radial",
@@ -35,7 +35,7 @@
 
   "screen.radial.config.title": "Radial Configuration",
   "screen.radial.config.category.settings": "Settings",
-  "screen.radial.config.description.main": "Radial by velolib - A simple and opinionated Minecraft radial menu.",
+  "screen.radial.config.description.main": "Radial by velolib",
   "screen.radial.config.preview": "Live Preview",
   "screen.radial.config.show_preview": "Show Live Preview",
   "screen.radial.config.show_preview.tooltip": "Renders a live, interactive preview of your radial menu.",

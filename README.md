@@ -13,7 +13,6 @@
 </div>
 
 ## Overview
-
 **Radial** is an opinionated utility mod that brings all your commands and keybinds into one beautifully simple interface. Built for seamless gameplay, it eliminates the need to memorize complex hotkeys by putting your most-used actions in a dynamic radial menu that just works.
 
 

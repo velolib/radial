@@ -1,21 +1,22 @@
 {
   "modmenu.nameTranslation.radial": "Radial",
-  "modmenu.descriptionTranslate.modmenu": "A simple and opinionated Minecraft radial menu.",
+  "modmenu.descriptionTranslate.modmenu": "A simple and opinionated Minecraft radial menu mod that works flawlessly out of the box.",
 
   "category.radial.main": "Radial",
   "key.category.radial.main": "Radial",
   "key.radial.open": "Open Radial",
 
   "radial.ui.back": "Back",
-  "radial.mode.empty": "Empty",
-  "radial.mode.chat": "Chat / Command",
-  "radial.mode.keybind": "Keybind",
-  "radial.mode.malilib": "MaLiLib Hotkey",
-  "radial.mode.submenu": "Submenu",
+  "radial.mode.empty": "Do Nothing",
+  "radial.mode.chat": "Send Chat / Command",
+  "radial.mode.keybind": "Trigger Game Keybind",
+  "radial.mode.shortcut": "Open Screen Shortcut",
+  "radial.mode.malilib": "Trigger MaLiLib Hotkey",
+  "radial.mode.submenu": "Open Submenu",
 
   "screen.radial.editor.title": "Edit Radial Slot",
   "screen.radial.editor.name": "Slot Name",
-  "screen.radial.editor.mode": "Action Mode: %s",
+  "screen.radial.editor.mode": "Action Mode",
   "screen.radial.editor.value": "Action Value",
   "screen.radial.editor.icon": "Icon Identifier",
   "screen.radial.editor.submenu": "Submenu Size",
@@ -34,7 +35,7 @@
 
   "screen.radial.config.title": "Radial Configuration",
   "screen.radial.config.category.settings": "Settings",
-  "screen.radial.config.description.main": "Radial by velolib - A simple and opinionated Minecraft radial menu.",
+  "screen.radial.config.description.main": "Radial by velolib",
   "screen.radial.config.preview": "Live Preview",
   "screen.radial.config.show_preview": "Show Live Preview",
   "screen.radial.config.show_preview.tooltip": "Renders a live, interactive preview of your radial menu.",

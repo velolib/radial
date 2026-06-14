@@ -1,4 +1,4 @@
-package velo.radial.ui;
+package velo.radial.ui.screen;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -87,7 +87,7 @@ public class KeybindPickerScreen extends Screen {
 
         addRenderableWidget(Button.builder(
                 Component.translatable("gui.cancel"),
-                button -> onClose()
+                _ -> onClose()
         ).bounds(width / 2 - 100, height - 28, 200, 20).build());
     }
 
@@ -173,8 +173,6 @@ public class KeybindPickerScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (minecraft != null) {
-            minecraft.setScreen(parent);
-        }
+        minecraft.setScreen(parent);
     }
 }

@@ -20,7 +20,8 @@ public final class GlyphCache {
 
     private static List<String> cachedGlyphs = null;
 
-    private GlyphCache() {}
+    private GlyphCache() {
+    }
 
     public static List<String> getGlyphs() {
         if (cachedGlyphs != null) {

@@ -1,4 +1,4 @@
-package velo.radial.ui;
+package velo.radial.ui.screen;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -23,40 +23,24 @@ import java.util.function.Consumer;
 
 public class IconPickerScreen extends Screen {
 
-    private enum TabType {
-        ITEMS("screen.radial.editor.icon_picker.items"),
-        INVENTORY("screen.radial.editor.icon_picker.inventory"),
-        EFFECTS("screen.radial.editor.icon_picker.effects"),
-        GLYPHS("screen.radial.editor.icon_picker.glyphs");
-
-        final String translationKey;
-        TabType(String key) { this.translationKey = key; }
-    }
-
     // Sizing Constants
     private static final int ITEM_SLOT_SIZE = 16;
     private static final int EFFECT_SLOT_SIZE = 18;
     private static final int INV_SLOT_SIZE = 18; // Vanilla inventory slot bounding box
-
     private static final List<TabType> TABS = List.of(TabType.ITEMS, TabType.INVENTORY, TabType.EFFECTS, TabType.GLYPHS);
-
     // Inventory UI Constants
     private static final Identifier INVENTORY_TEXTURE =
             Identifier.fromNamespaceAndPath("minecraft", "textures/gui/container/inventory.png");
     private static final int INV_WIDTH = 176;
     private static final int INV_HEIGHT = 166;
-
     private final Screen parent;
     private final Consumer<String> onSelect;
-
     private final List<Button> tabButtons = new ArrayList<>();
     private TabType currentTab;
-
     private EditBox searchField;
     private List<Item> filteredItems = new ArrayList<>();
     private List<MobEffect> filteredEffects = new ArrayList<>();
     private List<String> filteredGlyphs = new ArrayList<>();
-
     private int scrollOffset = 0;
     private int columns = 12;
     private int maxRows = 7;
@@ -256,7 +240,7 @@ public class IconPickerScreen extends Screen {
         }
 
         // Armor
-        EquipmentSlot[] armorSlots = { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET };
+        EquipmentSlot[] armorSlots = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
         for (int i = 0; i < 4; i++) {
             drawInvSlot(graphics, mouseX, mouseY, bgX + 7, bgY + 7 + i * 18, minecraft.player.getItemBySlot(armorSlots[i]));
         }
@@ -416,5 +400,18 @@ public class IconPickerScreen extends Screen {
     @Override
     public void onClose() {
         minecraft.setScreen(parent);
+    }
+
+    private enum TabType {
+        ITEMS("screen.radial.editor.icon_picker.items"),
+        INVENTORY("screen.radial.editor.icon_picker.inventory"),
+        EFFECTS("screen.radial.editor.icon_picker.effects"),
+        GLYPHS("screen.radial.editor.icon_picker.glyphs");
+
+        final String translationKey;
+
+        TabType(String key) {
+            this.translationKey = key;
+        }
     }
 }

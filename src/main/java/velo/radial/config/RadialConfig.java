@@ -4,6 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import velo.radial.RadialClient;
+import velo.radial.api.RadialSlot;
+import velo.radial.api.SlotMode;
+import velo.radial.api.SlotModeRegistry;
+import velo.radial.config.adapters.ColorTypeAdapter;
+import velo.radial.config.adapters.SlotModeTypeAdapter;
 
 import java.awt.*;
 import java.io.File;
@@ -15,17 +20,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RadialConfig {
+    public static final int CONFIG_VERSION = 2;
     private static final File CONFIG_FILE =
             FabricLoader.getInstance().getConfigDir().resolve("radial.json").toFile();
     private static final File TEMP_FILE =
             FabricLoader.getInstance().getConfigDir().resolve("radial.json.tmp").toFile();
-
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(Color.class, new ColorTypeAdapter())
+            .registerTypeAdapter(SlotMode.class, new SlotModeTypeAdapter())
             .create();
-    public static RadialConfig INSTANCE = new RadialConfig();
-    public int version = 1;
+    public static RadialConfig INSTANCE;
+    public int version = 2;
     public int slotCount = 8;
     public int ringRadius = 75;
     public int innerPadding = 40;
@@ -33,9 +39,11 @@ public class RadialConfig {
     public int animationSpeedMs = 200;
     public ActivationMode activationMode = ActivationMode.CLICK;
     public boolean showActivationZone = true;
-    public float sectorGap = 2;
-    public Color activationColor = new Color(255, 255, 0, 50);
-    public Color backgroundColor = new Color(0, 0, 0, 50);
+    public float sectorGap = 2f;
+
+    public Color activationColor = new Color(0x44FFFFFF, true);
+    public Color backgroundColor = new Color(0x66000000, true);
+
     public List<RadialSlot> slots = new ArrayList<>();
 
     public RadialConfig() {
@@ -46,6 +54,11 @@ public class RadialConfig {
      * Loads the config, handles version migrations, and validates data.
      */
     public static void load() {
+        // Create a blank instance if one doesn't exist yet
+        if (INSTANCE == null) {
+            INSTANCE = new RadialConfig();
+        }
+
         if (!CONFIG_FILE.exists()) {
             save();
             return;
@@ -54,19 +67,18 @@ public class RadialConfig {
         try (FileReader reader = new FileReader(CONFIG_FILE)) {
             RadialConfig loaded = GSON.fromJson(reader, RadialConfig.class);
             if (loaded != null) {
-                // Handle version upgrades
-                if (loaded.version < INSTANCE.version) {
-                    handleMigration(loaded);
-                }
-
                 INSTANCE = loaded;
                 INSTANCE.validate();
             }
         } catch (Exception e) {
-            RadialClient.LOGGER.error("Failed to load config! Creating backup.");
+            RadialClient.LOGGER.error("Failed to load config! Creating backup.", e);
             backupCorruptedConfig();
             INSTANCE = new RadialConfig();
             save();
+        }
+
+        if (INSTANCE != null && INSTANCE.version < CONFIG_VERSION) {
+            handleMigration(INSTANCE);
         }
     }
 
@@ -74,9 +86,8 @@ public class RadialConfig {
      * Placeholder for future data transformations.
      */
     private static void handleMigration(RadialConfig loaded) {
-        // Logic for converting version 1 to 2, etc., goes here.
-        // This currently does nothing but update the version number.
-        loaded.version = INSTANCE.version;
+        RadialClient.LOGGER.info("Migrating Radial Config from v{} to v{}", loaded.version, CONFIG_VERSION);
+        loaded.version = CONFIG_VERSION;
         save();
     }
 
@@ -125,7 +136,7 @@ public class RadialConfig {
         for (RadialSlot slot : this.slots) {
             if (slot == null) continue;
             if (slot.name == null) slot.name = "";
-            if (slot.mode == null) slot.mode = SlotMode.EMPTY;
+            if (slot.mode == null) slot.mode = SlotModeRegistry.getDefaultMode();
             if (slot.value == null) slot.value = "";
             if (slot.itemId == null) slot.itemId = "minecraft:air";
         }
@@ -134,10 +145,13 @@ public class RadialConfig {
     }
 
     private void ensureSlotCapacity() {
+        // Fetch it once outside the loop for performance
+        SlotMode defaultMode = SlotModeRegistry.getDefaultMode();
+
         while (slots.size() < 12) {
             slots.add(new RadialSlot(
                     "Empty Slot " + (slots.size() + 1),
-                    SlotMode.EMPTY,
+                    defaultMode,
                     "",
                     "minecraft:air"
             ));

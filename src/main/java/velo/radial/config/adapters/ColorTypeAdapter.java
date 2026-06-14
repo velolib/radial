@@ -1,4 +1,4 @@
-package velo.radial.config;
+package velo.radial.config.adapters;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

@@ -13,8 +13,12 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import velo.radial.api.ShortcutRegistry;
+import velo.radial.api.SlotModeRegistry;
+import velo.radial.config.RadialConfig;
+import velo.radial.integration.MalilibIntegration;
 import velo.radial.mixin.KeyMappingAccessor;
-import velo.radial.ui.RadialScreen;
+import velo.radial.ui.screen.RadialScreen;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +36,7 @@ public class RadialClient implements ClientModInitializer {
                     "key." + MOD_ID + ".open",
                     InputConstants.Type.KEYSYM,
                     GLFW.GLFW_KEY_R,
-                    CATEGORY // Now passing the required Category object, not a String
+                    CATEGORY
             )
     );
 
@@ -45,10 +49,8 @@ public class RadialClient implements ClientModInitializer {
 
     public static void scheduleKeyPress(KeyMapping key) {
         if (key == null) return;
-
         KeyMappingAccessor accessor = (KeyMappingAccessor) key;
         accessor.setClickCount(accessor.getClickCount() + 1);
-
         keyPressQueue.put(key, 2);
     }
 
@@ -60,6 +62,18 @@ public class RadialClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        LOGGER.info("Initializing Radial Client...");
+
+        // REGISTER CONFIG
+        SlotModeRegistry.init();
+        ShortcutRegistry.init();
+        RadialConfig.load();
+
+        if (FabricLoader.getInstance().isModLoaded("malilib")) {
+            MalilibIntegration.init();
+        }
+
+        // REGISTER HUD & EVENTS
         HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, original -> (graphics, tracker) -> {
             if (!(Minecraft.getInstance().screen instanceof RadialScreen)) {
                 original.extractRenderState(graphics, tracker);
@@ -67,7 +81,6 @@ public class RadialClient implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-
             if (OPEN_RADIAL.isDown()) {
                 if (!keyLocked && client.screen == null) {
                     client.setScreen(new RadialScreen());
@@ -76,6 +89,7 @@ public class RadialClient implements ClientModInitializer {
                 keyLocked = false;
             }
 
+            //noinspection StatementWithEmptyBody
             while (OPEN_RADIAL.consumeClick()) {
             }
 

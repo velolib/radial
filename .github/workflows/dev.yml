@@ -1,7 +1,7 @@
 name: Release Build
 on:
   push:
-    tags: ["v*"] # Triggers only when you push a tag like v1.0.0+26.1.2
+    branches: [ "dev" ]
 
 jobs:
   build:
@@ -44,6 +44,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: radial-${{ github.ref_name }}
+          # Appends the short commit SHA to distinguish between dev builds
+          name: radial-dev-${{ github.sha }}
           path: build/libs/*.jar
           if-no-files-found: error

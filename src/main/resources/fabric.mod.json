@@ -3,7 +3,7 @@
 	"id": "radial",
 	"version": "${version}",
 	"name": "radial",
-	"description": "A simple and opinionated Minecraft radial menu.",
+	"description": "A simple and opinionated Minecraft radial menu mod that works flawlessly out of the box.",
 	"authors": [
 		"velolib"
 	],
@@ -16,9 +16,6 @@
 	"entrypoints": {
 		"client": [
 			"velo.radial.RadialClient"
-		],
-		"main": [
-			"velo.radial.RadialMain"
 		],
 		"modmenu": [
 			"velo.radial.integration.ModMenuIntegration"

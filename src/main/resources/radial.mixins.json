@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "velo.radial.mixin",
+	"package": "dev.velolib.radial.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"injectors": {
 		"defaultRequire": 1
@@ -9,7 +9,7 @@
 		"requireAnnotations": true
 	},
 	"client": [
-		"KeyMappingAccessor",
-		"KeyMappingMixin"
+		"KeyMappingMixin",
+		"KeyMappingAccessor"
 	]
 }

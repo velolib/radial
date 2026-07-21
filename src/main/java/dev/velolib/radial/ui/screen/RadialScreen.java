@@ -1,5 +1,6 @@
 package dev.velolib.radial.ui.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -51,10 +52,21 @@ public class RadialScreen extends Screen {
 
     @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-        int keyCode = KeyMappingHelper.getBoundKeyOf(RadialClient.OPEN_RADIAL).getValue();
+
+        InputConstants.Key boundKey = KeyMappingHelper.getBoundKeyOf(RadialClient.OPEN_RADIAL);
+        int keyCode = boundKey.getValue();
         long handle = Minecraft.getInstance().getWindow().handle();
 
-        if (GLFW.glfwGetKey(handle, keyCode) == GLFW.GLFW_RELEASE) {
+        boolean isReleased = true;
+
+        if (boundKey.getType() == InputConstants.Type.MOUSE) {
+            isReleased = GLFW.glfwGetMouseButton(handle, keyCode) == GLFW.GLFW_RELEASE;
+        } else if (boundKey.getType() == InputConstants.Type.KEYSYM && keyCode != InputConstants.UNKNOWN.getValue()) {
+            // Poll keyboard keys (ensure it isn't unbound, which has a value of -1)
+            isReleased = GLFW.glfwGetKey(handle, keyCode) == GLFW.GLFW_RELEASE;
+        }
+
+        if (isReleased) {
             if (RadialConfig.INSTANCE.activationMode == RadialConfig.ActivationMode.RELEASE) {
                 if (hoveredSlot != -1 && hoveredSlot < activeSlots.size()) {
                     RadialSlot slot = activeSlots.get(hoveredSlot);
@@ -212,7 +224,6 @@ public class RadialScreen extends Screen {
         slot.mode.performAction(slot, new SlotActionContext() {
             @Override
             public void closeScreen() {
-                RadialClient.lockKey();
                 RadialScreen.this.onClose();
             }
 

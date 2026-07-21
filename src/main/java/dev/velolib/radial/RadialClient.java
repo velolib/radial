@@ -41,11 +41,6 @@ public class RadialClient implements ClientModInitializer {
     );
 
     private static final Map<KeyMapping, Integer> keyPressQueue = new ConcurrentHashMap<>();
-    private static boolean keyLocked = false;
-
-    public static void lockKey() {
-        keyLocked = true;
-    }
 
     public static void scheduleKeyPress(KeyMapping key) {
         if (key == null) return;
@@ -81,16 +76,8 @@ public class RadialClient implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (OPEN_RADIAL.isDown()) {
-                if (!keyLocked && client.gui.screen() == null) {
-                    client.gui.setScreen(new RadialScreen());
-                }
-            } else {
-                keyLocked = false;
-            }
-
-            //noinspection StatementWithEmptyBody
-            while (OPEN_RADIAL.consumeClick()) {
+            if (OPEN_RADIAL.consumeClick() && client.gui.screen() == null) {
+                client.gui.setScreen(new RadialScreen());
             }
 
             if (!keyPressQueue.isEmpty()) {

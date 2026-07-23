@@ -1,5 +1,11 @@
 package dev.velolib.radial.mode;
 
+import dev.velolib.radial.api.RadialSlot;
+import dev.velolib.radial.api.SlotActionContext;
+import dev.velolib.radial.integration.MalilibIntegration;
+import dev.velolib.radial.mode.base.IconEnabledSlotMode;
+import dev.velolib.radial.ui.screen.MalilibSelectionScreen;
+import dev.velolib.radial.ui.screen.SlotEditorScreen;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -7,12 +13,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
-import dev.velolib.radial.api.RadialSlot;
-import dev.velolib.radial.api.SlotActionContext;
-import dev.velolib.radial.integration.MalilibIntegration;
-import dev.velolib.radial.mode.base.IconEnabledSlotMode;
-import dev.velolib.radial.ui.screen.MalilibSelectionScreen;
-import dev.velolib.radial.ui.screen.SlotEditorScreen;
 
 public class MalilibSlotMode extends IconEnabledSlotMode {
     @Override

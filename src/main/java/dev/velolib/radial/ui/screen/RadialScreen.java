@@ -1,6 +1,12 @@
 package dev.velolib.radial.ui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.velolib.radial.RadialClient;
+import dev.velolib.radial.api.RadialSlot;
+import dev.velolib.radial.api.SlotActionContext;
+import dev.velolib.radial.config.RadialConfig;
+import dev.velolib.radial.render.DonutRenderer;
+import dev.velolib.radial.render.SlotRenderHelper;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -13,12 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
-import dev.velolib.radial.RadialClient;
-import dev.velolib.radial.api.RadialSlot;
-import dev.velolib.radial.api.SlotActionContext;
-import dev.velolib.radial.config.RadialConfig;
-import dev.velolib.radial.render.DonutRenderer;
-import dev.velolib.radial.render.SlotRenderHelper;
 
 import java.util.List;
 

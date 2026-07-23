@@ -1,6 +1,12 @@
 package dev.velolib.radial;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.velolib.radial.api.ShortcutRegistry;
+import dev.velolib.radial.api.SlotModeRegistry;
+import dev.velolib.radial.config.RadialConfig;
+import dev.velolib.radial.integration.MalilibIntegration;
+import dev.velolib.radial.mixin.KeyMappingAccessor;
+import dev.velolib.radial.ui.screen.RadialScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -13,12 +19,6 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import dev.velolib.radial.api.ShortcutRegistry;
-import dev.velolib.radial.api.SlotModeRegistry;
-import dev.velolib.radial.config.RadialConfig;
-import dev.velolib.radial.integration.MalilibIntegration;
-import dev.velolib.radial.mixin.KeyMappingAccessor;
-import dev.velolib.radial.ui.screen.RadialScreen;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

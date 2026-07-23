@@ -2,8 +2,8 @@ package dev.velolib.radial.integration;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import net.fabricmc.loader.api.FabricLoader;
 import dev.velolib.radial.config.RadialConfigScreen;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class ModMenuIntegration implements ModMenuApi {
     @Override

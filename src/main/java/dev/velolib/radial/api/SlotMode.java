@@ -1,8 +1,8 @@
 package dev.velolib.radial.api;
 
+import dev.velolib.radial.ui.screen.SlotEditorScreen;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
-import dev.velolib.radial.ui.screen.SlotEditorScreen;
 
 public interface SlotMode {
     Component getTranslatedName();

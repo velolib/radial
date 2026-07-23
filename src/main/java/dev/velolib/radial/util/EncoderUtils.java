@@ -1,5 +1,6 @@
 package dev.velolib.radial.util;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
@@ -9,7 +10,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
-import com.mojang.serialization.Codec;
 
 import java.util.Map;
 import java.util.Optional;

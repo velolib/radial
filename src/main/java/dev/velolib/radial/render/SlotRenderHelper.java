@@ -1,5 +1,6 @@
 package dev.velolib.radial.render;
 
+import dev.velolib.radial.api.RadialSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -9,7 +10,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import dev.velolib.radial.api.RadialSlot;
 
 import java.util.Objects;
 

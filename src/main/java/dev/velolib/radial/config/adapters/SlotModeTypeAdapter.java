@@ -1,9 +1,9 @@
 package dev.velolib.radial.config.adapters;
 
 import com.google.gson.*;
-import net.minecraft.resources.Identifier;
 import dev.velolib.radial.api.SlotMode;
 import dev.velolib.radial.api.SlotModeRegistry;
+import net.minecraft.resources.Identifier;
 
 import java.lang.reflect.Type;
 import java.util.Map;

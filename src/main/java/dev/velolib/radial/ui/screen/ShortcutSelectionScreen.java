@@ -1,5 +1,7 @@
 package dev.velolib.radial.ui.screen;
 
+import dev.velolib.radial.api.ShortcutEntry;
+import dev.velolib.radial.api.ShortcutRegistry;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -8,8 +10,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-import dev.velolib.radial.api.ShortcutEntry;
-import dev.velolib.radial.api.ShortcutRegistry;
 
 import java.util.ArrayList;
 import java.util.List;

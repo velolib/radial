@@ -2,13 +2,13 @@ package dev.velolib.radial.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
 import dev.velolib.radial.RadialClient;
 import dev.velolib.radial.api.RadialSlot;
 import dev.velolib.radial.api.SlotMode;
 import dev.velolib.radial.api.SlotModeRegistry;
 import dev.velolib.radial.config.adapters.ColorTypeAdapter;
 import dev.velolib.radial.config.adapters.SlotModeTypeAdapter;
+import net.fabricmc.loader.api.FabricLoader;
 
 import java.awt.*;
 import java.io.File;

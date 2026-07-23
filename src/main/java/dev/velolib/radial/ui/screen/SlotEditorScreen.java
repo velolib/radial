@@ -1,5 +1,12 @@
 package dev.velolib.radial.ui.screen;
 
+import dev.velolib.radial.api.RadialSlot;
+import dev.velolib.radial.api.SlotMode;
+import dev.velolib.radial.api.SlotModeRegistry;
+import dev.velolib.radial.config.RadialConfig;
+import dev.velolib.radial.render.SlotRenderHelper;
+import dev.velolib.radial.ui.widget.DropdownButtonWidget;
+import dev.velolib.radial.ui.widget.DropdownMenuWidget;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -12,13 +19,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-import dev.velolib.radial.api.RadialSlot;
-import dev.velolib.radial.api.SlotMode;
-import dev.velolib.radial.api.SlotModeRegistry;
-import dev.velolib.radial.config.RadialConfig;
-import dev.velolib.radial.render.SlotRenderHelper;
-import dev.velolib.radial.ui.widget.DropdownButtonWidget;
-import dev.velolib.radial.ui.widget.DropdownMenuWidget;
 
 import java.util.List;
 

@@ -3,11 +3,11 @@ package dev.velolib.radial.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import dev.velolib.radial.RadialClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import dev.velolib.radial.RadialClient;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

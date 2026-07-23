@@ -9,6 +9,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 import dev.velolib.radial.RadialClient;
@@ -187,10 +189,10 @@ public class RadialScreen extends Screen {
             SlotRenderHelper.renderSlotIcon(graphics, slot, 0, 0);
 
         } else if (index == -1) {
-            String icon = "✖";
-            int xOff = (SLOT_SIZE - font.width(icon)) / 2;
-            int yOff = (SLOT_SIZE - 8) / 2;
-            graphics.text(font, icon, xOff, yOff, color);
+            ItemStack icon = new ItemStack(Items.BARRIER);
+            int xOff = (SLOT_SIZE - 16) / 2;
+            int yOff = (SLOT_SIZE - 16) / 2;
+            graphics.item(icon, xOff, yOff);
         }
 
         graphics.pose().popMatrix();

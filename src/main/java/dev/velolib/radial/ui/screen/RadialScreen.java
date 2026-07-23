@@ -224,6 +224,7 @@ public class RadialScreen extends Screen {
         slot.mode.performAction(slot, new SlotActionContext() {
             @Override
             public void closeScreen() {
+                RadialClient.lockKey();
                 RadialScreen.this.onClose();
             }
 

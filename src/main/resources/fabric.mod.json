@@ -1,38 +1,56 @@
 {
-	"schemaVersion": 1,
-	"id": "radial",
-	"version": "${version}",
-	"name": "radial",
-	"description": "A simple and opinionated Minecraft radial menu mod that works flawlessly out of the box.",
-	"authors": [
-		"velolib"
-	],
-	"contact": {
-		"sources": "https://github.com/velolib/radial"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/radial/icon.png",
-	"environment": "client",
-	"entrypoints": {
-		"client": [
-			"velo.radial.RadialClient"
-		],
-		"modmenu": [
-			"velo.radial.integration.ModMenuIntegration"
-		]
-	},
-	"mixins": [
-		"radial.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.19.2",
-		"minecraft": "~26.1.2",
-		"java": ">=25",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"yet_another_config_lib_v3": ">=3.9.3+26.1-fabric",
-		"modmenu": ">=18.0.0-beta.1",
-		"malilib": "*"
-	}
+  "schemaVersion": 1,
+  "id": "radial",
+  "version": "${version}",
+  "name": "radial",
+  "description": "A simple and opinionated Minecraft radial menu mod that works flawlessly out of the box.",
+  "authors": [
+    {
+      "name": "velolib",
+      "contact": {
+        "email": "vlocitize@gmail.com",
+        "homepage": "https://velolib.dev"
+      }
+    }
+  ],
+  "contact": {
+    "sources": "https://github.com/velolib/radial",
+    "issues": "https://github.com/velolib/radial/issues",
+    "homepage": "https://modrinth.com/mod/radial"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/radial/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.velolib.radial.RadialClient"
+    ],
+    "modmenu": [
+      "dev.velolib.radial.integration.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "radial.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "yet_another_config_lib_v3": ">=3.9.5+26.2-fabric",
+    "modmenu": ">=20.0.1",
+    "malilib": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.modrinth": "https://modrinth.com/mod/radial",
+        "modmenu.github_releases": "https://github.com/velolib/radial/releases",
+        "modmenu.issues": "https://github.com/velolib/radial/issues"
+      }
+    }
+  },
+  "accessWidener": "radial.classtweaker"
 }

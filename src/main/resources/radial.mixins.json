@@ -1,15 +1,15 @@
 {
-	"required": true,
-	"package": "velo.radial.mixin",
-	"compatibilityLevel": "JAVA_25",
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
-	},
-	"client": [
-		"KeyMappingAccessor",
-		"KeyMappingMixin"
-	]
+  "required": true,
+  "package": "dev.velolib.radial.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "client": [
+    "KeyMappingAccessor",
+    "KeyMappingMixin"
+  ]
 }

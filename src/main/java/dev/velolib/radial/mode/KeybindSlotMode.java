@@ -1,10 +1,23 @@
 package dev.velolib.radial.mode;
 
+import com.google.common.base.MoreObjects;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.TextureUtil;
 import dev.velolib.radial.RadialClient;
+import dev.velolib.radial.mixin.KeyMappingAccessor;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.KeyboardHandler;
+import net.minecraft.client.gui.screens.debug.DebugOptionsScreen;
+import net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.network.chat.ClickEvent.OpenFile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
 import dev.velolib.radial.api.RadialSlot;
@@ -12,8 +25,33 @@ import dev.velolib.radial.api.SlotActionContext;
 import dev.velolib.radial.mode.base.IconEnabledSlotMode;
 import dev.velolib.radial.ui.screen.KeybindPickerScreen;
 import dev.velolib.radial.ui.screen.SlotEditorScreen;
+import net.minecraft.network.protocol.game.ServerboundChangeGameModePacket;
+import net.minecraft.server.commands.GameModeCommand;
+import net.minecraft.server.commands.VersionCommand;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.level.GameType;
+import org.lwjgl.glfw.GLFW;
+
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.function.Consumer;
 
 public class KeybindSlotMode extends IconEnabledSlotMode {
+    public static final HashMap<KeyMapping, Consumer<Minecraft>> SPECIAL_ACTIONS = new HashMap<>();
+
+    static {
+        // TODO: add crash debug key
+
+        SPECIAL_ACTIONS.put(new KeyMapping("key.screenshot", GLFW.GLFW_KEY_F2, KeyMapping.Category.MISC), client -> {
+            Screenshot.grab(client, false);
+        });
+
+        SPECIAL_ACTIONS.put(new KeyMapping("key.debug.overlay", GLFW.GLFW_KEY_F3, KeyMapping.Category.DEBUG), client -> {
+            client.getDebugOverlay().showDebugScreen();
+        });
+    }
+
     @Override
     public Component getTranslatedName() {
         return Component.translatable("radial.mode.keybind");
@@ -59,8 +97,30 @@ public class KeybindSlotMode extends IconEnabledSlotMode {
         context.closeScreen();
 
         Minecraft client = Minecraft.getInstance();
+
+        for (HashMap.Entry<KeyMapping, Consumer<Minecraft>> entry : SPECIAL_ACTIONS.entrySet()) {
+            if (entry.getKey().getName().equals(slot.value)) {
+                entry.getValue().accept(client);
+                RadialClient.devLogger("hi");
+                return;
+            }
+        }
+
         for (net.minecraft.client.KeyMapping key : client.options.keyMappings) {
             if (key.getName().equals(slot.value)) {
+                if (slot.value.startsWith("key.debug")) {
+                    InputConstants.Key inputKey = ((KeyMappingAccessor) key).getKey();
+                    int keyCode = inputKey.getValue();
+
+                    var dummyEvent = new KeyEvent(
+                            keyCode,
+                            0,
+                            0
+                    );
+
+                    client.keyboardHandler.handleDebugKeys(dummyEvent);
+                }
+
                 RadialClient.scheduleKeyPress(key);
                 break;
             }

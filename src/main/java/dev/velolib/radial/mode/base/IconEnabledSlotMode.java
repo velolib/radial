@@ -1,12 +1,16 @@
 package dev.velolib.radial.mode.base;
 
+import dev.velolib.radial.RadialClient;
+import dev.velolib.radial.util.EncoderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
 import dev.velolib.radial.api.RadialSlot;
 import dev.velolib.radial.api.SlotMode;
@@ -57,7 +61,7 @@ public abstract class IconEnabledSlotMode implements SlotMode {
         Button handButton = Button.builder(Component.translatable("screen.radial.editor.hand"), _ -> {
             if (Minecraft.getInstance().player != null) {
                 ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
-                String id = !stack.isEmpty() ? BuiltInRegistries.ITEM.getKey(stack.getItem()).toString() : "minecraft:air";
+                String id = !stack.isEmpty() ? EncoderUtils.toGiveCommandString(stack, Minecraft.getInstance().level.registryAccess()) : "minecraft:air";
                 iconField.setValue(id);
                 slot.itemId = id;
                 slot.clearCache();

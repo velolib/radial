@@ -22,16 +22,15 @@ public class ShortcutSelectionScreen extends Screen {
     private static final int ENTRY_HEIGHT = 28;
 
     private final Screen parent;
-
     private final Consumer<Identifier> onSelect;
 
     private ShortcutList shortcutList;
 
     public ShortcutSelectionScreen(Screen parent, Consumer<Identifier> onSelect) {
+
         super(Component.literal("Select Shortcut"));
 
         this.parent = parent;
-
         this.onSelect = onSelect;
     }
 
@@ -57,13 +56,9 @@ public class ShortcutSelectionScreen extends Screen {
 
     @Override
     protected void init() {
-
         int listWidth = getListWidth();
-
         int listLeft = getListLeft();
-
         int listTop = getListStartY();
-
         int listHeight = getListHeight();
 
         EditBox searchField =
@@ -105,16 +100,16 @@ public class ShortcutSelectionScreen extends Screen {
 
                     return name.contains(q) || id.contains(q);
                 })
-                .map(entry -> new ShortcutEntryItem(entry, onSelect))
+                .map(entry -> new ShortcutEntryItem(entry, onSelect, this::onClose))
                 .collect(Collectors.toList());
 
         shortcutList.replaceEntries(entries);
-
         shortcutList.setScrollAmount(0.0);
     }
 
     @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
         super.extractRenderState(graphics, mouseX, mouseY, delta);
@@ -128,6 +123,7 @@ public class ShortcutSelectionScreen extends Screen {
     private static class ShortcutList extends ObjectSelectionList<ShortcutEntryItem> {
 
         private ShortcutList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
+
             super(minecraft, width, height, y, itemHeight);
         }
 
@@ -140,30 +136,28 @@ public class ShortcutSelectionScreen extends Screen {
     private static class ShortcutEntryItem extends ObjectSelectionList.Entry<ShortcutEntryItem> {
 
         private final Identifier id;
-
         private final ShortcutEntry entry;
-
         private final Consumer<Identifier> onSelect;
+        private final Runnable onClose;
 
-        private ShortcutEntryItem(Map.Entry<Identifier, ShortcutEntry> mapEntry, Consumer<Identifier> onSelect) {
+        private ShortcutEntryItem(
+                Map.Entry<Identifier, ShortcutEntry> mapEntry, Consumer<Identifier> onSelect, Runnable onClose) {
+
             this.id = mapEntry.getKey();
-
             this.entry = mapEntry.getValue();
-
             this.onSelect = onSelect;
+            this.onClose = onClose;
         }
 
         @Override
         public void extractContent(
                 GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
+
             Minecraft client = Minecraft.getInstance();
 
             int left = getContentX();
-
             int top = getContentY();
-
             int right = getContentRight();
-
             int bottom = getContentBottom();
 
             graphics.fill(left, top + 1, right, bottom - 1, hovered ? 0x80FFFFFF : 0x40000000);
@@ -183,11 +177,13 @@ public class ShortcutSelectionScreen extends Screen {
 
         @Override
         public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+
             if (event.button() != 0) {
                 return false;
             }
 
             onSelect.accept(id);
+            onClose.run();
 
             return true;
         }

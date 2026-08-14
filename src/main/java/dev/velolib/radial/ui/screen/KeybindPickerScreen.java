@@ -28,7 +28,6 @@ public class KeybindPickerScreen extends Screen {
         super(Component.literal("Select Keybind"));
 
         this.parent = parent;
-
         this.onSelect = onSelect;
     }
 
@@ -54,20 +53,15 @@ public class KeybindPickerScreen extends Screen {
 
     @Override
     protected void init() {
-
         int listWidth = getListWidth();
-
         int listLeft = getListLeft();
-
         int listTop = getListStartY();
-
         int listHeight = getListHeight();
 
         EditBox searchField =
                 new EditBox(font, listLeft, 15, listWidth, 20, Component.translatable("screen.radial.editor.search"));
 
         searchField.setHint(Component.translatable("screen.radial.editor.search"));
-
         searchField.setResponder(this::updateSearch);
 
         addRenderableWidget(searchField);
@@ -103,11 +97,12 @@ public class KeybindPickerScreen extends Screen {
 
                     String actionName =
                             Component.translatable(key.getName()).getString().toLowerCase();
+
                     String category = key.getCategory().label().getString().toLowerCase();
 
                     return actionName.contains(q) || category.contains(q);
                 })
-                .map(key -> new KeybindEntry(key, onSelect))
+                .map(key -> new KeybindEntry(key, onSelect, this::onClose))
                 .collect(Collectors.toList());
 
         keybindList.replaceEntries(entries);
@@ -116,6 +111,7 @@ public class KeybindPickerScreen extends Screen {
 
     @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
 
         super.extractRenderState(graphics, mouseX, mouseY, delta);
@@ -129,6 +125,7 @@ public class KeybindPickerScreen extends Screen {
     private static class KeybindList extends ObjectSelectionList<KeybindEntry> {
 
         private KeybindList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
+
             super(minecraft, width, height, y, itemHeight);
         }
 
@@ -142,24 +139,24 @@ public class KeybindPickerScreen extends Screen {
 
         private final KeyMapping key;
         private final Consumer<String> onSelect;
+        private final Runnable onClose;
 
-        private KeybindEntry(KeyMapping key, Consumer<String> onSelect) {
+        private KeybindEntry(KeyMapping key, Consumer<String> onSelect, Runnable onClose) {
+
             this.key = key;
-
             this.onSelect = onSelect;
+            this.onClose = onClose;
         }
 
         @Override
         public void extractContent(
                 GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
+
             Minecraft client = Minecraft.getInstance();
 
             int left = getContentX();
-
             int top = getContentY();
-
             int right = getContentRight();
-
             int bottom = getContentBottom();
 
             graphics.fill(left, top + 1, right, bottom - 1, hovered ? 0x80FFFFFF : 0x40000000);
@@ -183,11 +180,13 @@ public class KeybindPickerScreen extends Screen {
 
         @Override
         public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+
             if (event.button() != 0) {
                 return false;
             }
 
             onSelect.accept(key.getName());
+            onClose.run();
 
             return true;
         }

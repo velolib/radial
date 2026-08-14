@@ -12,6 +12,7 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class EncoderUtils {
@@ -58,20 +59,20 @@ public class EncoderUtils {
                         if (!first) command.append(",");
                         first = false;
 
-                        command.append(typeId.toString()).append("=");
+                        command.append(Objects.requireNonNull(typeId)).append("=");
 
                         // Encode the component object back to an NBT Tag
                         Tag tag = codec.encodeStart(registryOps, value.get()).getOrThrow();
 
                         // Tag#toString natively produces a compliant SNBT string in 1.21
-                        command.append(tag.toString());
+                        command.append(tag);
                     }
                 } else {
                     // A default component that was explicitly removed is prefixed with an exclamation mark
                     if (!first) command.append(",");
                     first = false;
 
-                    command.append("!").append(typeId.toString());
+                    command.append("!").append(Objects.requireNonNull(typeId).toString());
                 }
             }
             command.append("]");

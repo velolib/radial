@@ -1,0 +1,11 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "radial:phosphor.ttf",
+      "shift": [0, 0],
+      "size": 16,
+      "oversample": 4.0
+    }
+  ]
+}

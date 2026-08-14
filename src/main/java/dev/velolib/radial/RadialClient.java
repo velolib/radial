@@ -28,17 +28,9 @@ public class RadialClient implements ClientModInitializer {
     public static final String MOD_ID = "radial";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    private static final KeyMapping.Category CATEGORY =
-            KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
+    private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
 
-    public static final KeyMapping OPEN_RADIAL = KeyMappingHelper.registerKeyMapping(
-            new KeyMapping(
-                    "key." + MOD_ID + ".open",
-                    InputConstants.Type.KEYSYM,
-                    GLFW.GLFW_KEY_R,
-                    CATEGORY
-            )
-    );
+    public static final KeyMapping OPEN_RADIAL = KeyMappingHelper.registerKeyMapping(new KeyMapping("key." + MOD_ID + ".open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY));
 
     private static final Map<KeyMapping, Integer> keyPressQueue = new ConcurrentHashMap<>();
     private static boolean keyLocked = false;
@@ -83,6 +75,7 @@ public class RadialClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (OPEN_RADIAL.isDown()) {
                 if (!keyLocked && client.gui.screen() == null) {
+                    RadialScreen.prepareRenderer();
                     client.gui.setScreen(new RadialScreen());
                 }
             } else {

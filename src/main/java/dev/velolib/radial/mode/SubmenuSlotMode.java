@@ -50,11 +50,11 @@ public class SubmenuSlotMode extends IconEnabledSlotMode {
         subGroup.addChild(label);
 
         // Pass 0, 0 for X and Y, the layout will override it automatically
-        AbstractSliderButton subCountSlider = new AbstractSliderButton(0, 0, width, ROW_HEIGHT, Component.translatable("screen.radial.editor.sub_size", slot.childSlotCount), (slot.childSlotCount - 2) / 10.0) {
+        AbstractSliderButton subCountSlider = new AbstractSliderButton(0, 0, width, ROW_HEIGHT, Component.translatable("screen.radial.editor.submenu.placeholder", slot.childSlotCount), (slot.childSlotCount - 2) / 10.0) {
             @Override
             protected void updateMessage() {
                 int val = 2 + (int) Math.round(value * 10);
-                setMessage(Component.translatable("screen.radial.editor.sub_size", val));
+                setMessage(Component.translatable("screen.radial.editor.submenu.placeholder", val));
             }
 
             @Override

@@ -2,7 +2,7 @@ package dev.velolib.radial.mode.base;
 
 import dev.velolib.radial.api.RadialSlot;
 import dev.velolib.radial.api.SlotMode;
-import dev.velolib.radial.ui.screen.IconPickerScreen;
+import dev.velolib.radial.ui.screen.iconpicker.IconPickerScreen;
 import dev.velolib.radial.ui.screen.SlotEditorScreen;
 import dev.velolib.radial.util.EncoderUtils;
 import net.minecraft.client.Minecraft;

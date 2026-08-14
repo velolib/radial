@@ -463,7 +463,7 @@ public class RadialScreen extends Screen {
         // 2. Check if any of the Slot 1-12 keys were pressed
         for (int i = 0; i < RadialClient.SLOT_KEYS.length; i++) {
             if (RadialClient.SLOT_KEYS[i].matches(event)) {
-                if (i < activeSlots.size()) {
+                if (i < currentSlotCount && i < activeSlots.size()) {
                     performAction(activeSlots.get(i));
                     return true;
                 }

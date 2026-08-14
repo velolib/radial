@@ -23,6 +23,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class RadialScreen extends Screen {
 
@@ -282,7 +283,7 @@ public class RadialScreen extends Screen {
         if (hoveredSlot != -1) {
             String name = (isSubmenu() && hoveredSlot == 0)
                     ? Component.translatable("radial.ui.back").getString()
-                    : (getTargetSlot(hoveredSlot) != null ? getTargetSlot(hoveredSlot).name : "");
+                    : (getTargetSlot(hoveredSlot) != null ? Objects.requireNonNull(getTargetSlot(hoveredSlot)).name : "");
 
             if (!name.isEmpty()) {
                 int alpha = Mth.clamp((int) (easeOutQuint(getGlobalRevealProgress(config)) * 255.0F + 0.5F), 0, 255);
@@ -392,7 +393,7 @@ public class RadialScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
+    public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubled) {
         if (hoveredSlot != -1) {
             if (click.button() == 0) {
                 if (isSubmenu() && hoveredSlot == 0) {
@@ -424,6 +425,30 @@ public class RadialScreen extends Screen {
         }
 
         return super.mouseClicked(click, doubled);
+    }
+
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.@NonNull KeyEvent event) {
+        // 1. Check if the "Back" key was pressed
+        if (RadialClient.BACK_KEY.matches(event)) {
+            if (isSubmenu()) {
+                goBack();
+                return true;
+            }
+        }
+
+        // 2. Check if any of the Slot 1-12 keys were pressed
+        for (int i = 0; i < RadialClient.SLOT_KEYS.length; i++) {
+            if (RadialClient.SLOT_KEYS[i].matches(event)) {
+                if (i < activeSlots.size()) {
+                    performAction(activeSlots.get(i));
+                    return true;
+                }
+            }
+        }
+
+        // Pass any other keys (like ESC) to the default screen handler
+        return super.keyPressed(event);
     }
 
     @Override

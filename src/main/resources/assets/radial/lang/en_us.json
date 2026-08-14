@@ -4,6 +4,19 @@
 
   "key.category.radial.main": "Radial",
   "key.radial.open": "Open Radial",
+  "key.radial.back": "Go Back (Submenu)",
+  "key.radial.slot.1": "Activate Slot 1",
+  "key.radial.slot.2": "Activate Slot 2",
+  "key.radial.slot.3": "Activate Slot 3",
+  "key.radial.slot.4": "Activate Slot 4",
+  "key.radial.slot.5": "Activate Slot 5",
+  "key.radial.slot.6": "Activate Slot 6",
+  "key.radial.slot.7": "Activate Slot 7",
+  "key.radial.slot.8": "Activate Slot 8",
+  "key.radial.slot.9": "Activate Slot 9",
+  "key.radial.slot.10": "Activate Slot 10",
+  "key.radial.slot.11": "Activate Slot 11",
+  "key.radial.slot.12": "Activate Slot 12",
 
   "radial.ui.back": "Back",
 

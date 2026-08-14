@@ -80,29 +80,24 @@ public class KeybindSlotMode extends IconEnabledSlotMode {
     @Override
     public void performAction(RadialSlot slot, SlotActionContext context) {
         context.closeScreen();
-
         Minecraft client = Minecraft.getInstance();
 
         for (HashMap.Entry<KeyMapping, Consumer<Minecraft>> entry : SPECIAL_ACTIONS.entrySet()) {
             if (entry.getKey().getName().equals(slot.value)) {
                 entry.getValue().accept(client);
-                RadialClient.devLogger("hi");
                 return;
             }
         }
 
         for (net.minecraft.client.KeyMapping key : client.options.keyMappings) {
             if (key.getName().equals(slot.value)) {
+                // SAFETY CHECK: Abort if it's an internal radial key
+                if (dev.velolib.radial.RadialClient.isRadialInternalKey(key)) return;
+
                 if (slot.value.startsWith("key.debug")) {
                     InputConstants.Key inputKey = ((KeyMappingAccessor) key).getKey();
                     int keyCode = inputKey.getValue();
-
-                    var dummyEvent = new KeyEvent(
-                            keyCode,
-                            0,
-                            0
-                    );
-
+                    var dummyEvent = new KeyEvent(keyCode, 0, 0);
                     client.keyboardHandler.handleDebugKeys(dummyEvent);
                 }
 

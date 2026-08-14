@@ -30,13 +30,44 @@ public class RadialClient implements ClientModInitializer {
 
     private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
 
-    public static final KeyMapping OPEN_RADIAL = KeyMappingHelper.registerKeyMapping(new KeyMapping("key." + MOD_ID + ".open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY));
+    public static final KeyMapping OPEN_RADIAL = KeyMappingHelper.registerKeyMapping(new KeyMapping("key." + MOD_ID + ".open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY, 0));
+    public static final KeyMapping BACK_KEY = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+            "key." + MOD_ID + ".back",
+            InputConstants.Type.KEYSYM,
+            InputConstants.UNKNOWN.getValue(),
+            CATEGORY,
+            1
+    ));
+    public static final KeyMapping[] SLOT_KEYS = new KeyMapping[12];
+
+    static {
+        for (int i = 0; i < 12; i++) {
+            SLOT_KEYS[i] = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+                    "key." + MOD_ID + ".slot." + (i + 1),
+                    InputConstants.Type.KEYSYM,
+                    InputConstants.UNKNOWN.getValue(),
+                    CATEGORY,
+                    12 + i
+            ));
+        }
+    }
 
     private static final Map<KeyMapping, Integer> keyPressQueue = new ConcurrentHashMap<>();
     private static boolean keyLocked = false;
 
     public static void lockKey() {
         keyLocked = true;
+    }
+
+    /**
+     * Helper to blacklist our internal keys from the picker and slot modes.
+     */
+    public static boolean isRadialInternalKey(KeyMapping key) {
+        if (key == OPEN_RADIAL || key == BACK_KEY) return true;
+        for (KeyMapping slotKey : SLOT_KEYS) {
+            if (key == slotKey) return true;
+        }
+        return false;
     }
 
     public static void scheduleKeyPress(KeyMapping key) {

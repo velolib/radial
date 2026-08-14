@@ -93,16 +93,18 @@ public class KeybindPickerScreen extends Screen {
         String q = query.toLowerCase();
 
         List<KeybindEntry> entries = Arrays.stream(minecraft.options.keyMappings).filter(key -> {
+            // BLACKLIST CHECK: Skip our internal radial keys
+            if (dev.velolib.radial.RadialClient.isRadialInternalKey(key)) {
+                return false;
+            }
 
             String actionName = Component.translatable(key.getName()).getString().toLowerCase();
-
             String category = key.getCategory().label().getString().toLowerCase();
 
             return actionName.contains(q) || category.contains(q);
         }).map(key -> new KeybindEntry(key, onSelect)).collect(Collectors.toList());
 
         keybindList.replaceEntries(entries);
-
         keybindList.setScrollAmount(0.0);
     }
 

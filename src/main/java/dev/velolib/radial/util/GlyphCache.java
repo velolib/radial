@@ -4,11 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.velolib.radial.RadialClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -16,13 +11,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 public final class GlyphCache {
 
     private static List<String> cachedGlyphs;
 
-    private GlyphCache() {
-    }
+    private GlyphCache() {}
 
     public static void invalidate() {
         cachedGlyphs = null;
@@ -51,7 +49,8 @@ public final class GlyphCache {
 
         if (resourceOpt.isPresent()) {
 
-            try (Reader reader = new BufferedReader(new InputStreamReader(resourceOpt.get().open(), StandardCharsets.UTF_8))) {
+            try (Reader reader =
+                    new BufferedReader(new InputStreamReader(resourceOpt.get().open(), StandardCharsets.UTF_8))) {
 
                 JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
 
@@ -61,7 +60,8 @@ public final class GlyphCache {
 
                     JsonObject provider = providers.get(i).getAsJsonObject();
 
-                    if (!provider.has("type") || !provider.get("type").getAsString().equals("bitmap")) {
+                    if (!provider.has("type")
+                            || !provider.get("type").getAsString().equals("bitmap")) {
                         continue;
                     }
 
@@ -96,7 +96,9 @@ public final class GlyphCache {
 
             RadialClient.LOGGER.error("Glyph cache parsed empty, using fallback list.");
 
-            cachedGlyphs.addAll(List.of("★", "☆", "♥", "♦", "♣", "♠", "☠", "☢", "☣", "⚠", "⚡", "↑", "↓", "←", "→", "↕", "↔", "⟳", "✖", "✔", "⚙", "⌂", "✉", "☺", "☻", "☼", "♀", "♂", "♪", "♫", "►", "◄", "⛄", "⛏"));
+            cachedGlyphs.addAll(List.of(
+                    "★", "☆", "♥", "♦", "♣", "♠", "☠", "☢", "☣", "⚠", "⚡", "↑", "↓", "←", "→", "↕", "↔", "⟳", "✖", "✔",
+                    "⚙", "⌂", "✉", "☺", "☻", "☼", "♀", "♂", "♪", "♫", "►", "◄", "⛄", "⛏"));
         }
 
         cachedGlyphs = List.copyOf(cachedGlyphs);

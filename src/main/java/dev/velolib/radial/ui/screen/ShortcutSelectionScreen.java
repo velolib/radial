@@ -2,6 +2,10 @@ package dev.velolib.radial.ui.screen;
 
 import dev.velolib.radial.api.ShortcutEntry;
 import dev.velolib.radial.api.ShortcutRegistry;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -12,11 +16,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class ShortcutSelectionScreen extends Screen {
 
@@ -67,7 +66,8 @@ public class ShortcutSelectionScreen extends Screen {
 
         int listHeight = getListHeight();
 
-        EditBox searchField = new EditBox(font, listLeft, 15, listWidth, 20, Component.translatable("screen.radial.editor.search"));
+        EditBox searchField =
+                new EditBox(font, listLeft, 15, listWidth, 20, Component.translatable("screen.radial.editor.search"));
 
         searchField.setHint(Component.translatable("screen.radial.editor.search"));
 
@@ -81,7 +81,9 @@ public class ShortcutSelectionScreen extends Screen {
 
         addRenderableWidget(shortcutList);
 
-        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose()).bounds(width / 2 - 100, height - 28, 200, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose())
+                .bounds(width / 2 - 100, height - 28, 200, 20)
+                .build());
 
         setInitialFocus(searchField);
 
@@ -95,14 +97,16 @@ public class ShortcutSelectionScreen extends Screen {
 
         String q = query.toLowerCase();
 
-        List<ShortcutEntryItem> entries = ShortcutRegistry.getRegisteredShortcuts().entrySet().stream().filter(entry -> {
+        List<ShortcutEntryItem> entries = ShortcutRegistry.getRegisteredShortcuts().entrySet().stream()
+                .filter(entry -> {
+                    String name = entry.getValue().name().getString().toLowerCase();
 
-            String name = entry.getValue().name().getString().toLowerCase();
+                    String id = entry.getKey().toString().toLowerCase();
 
-            String id = entry.getKey().toString().toLowerCase();
-
-            return name.contains(q) || id.contains(q);
-        }).map(entry -> new ShortcutEntryItem(entry, onSelect)).collect(Collectors.toList());
+                    return name.contains(q) || id.contains(q);
+                })
+                .map(entry -> new ShortcutEntryItem(entry, onSelect))
+                .collect(Collectors.toList());
 
         shortcutList.replaceEntries(entries);
 
@@ -150,7 +154,8 @@ public class ShortcutSelectionScreen extends Screen {
         }
 
         @Override
-        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void extractContent(
+                GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
             Minecraft client = Minecraft.getInstance();
 
             int left = getContentX();

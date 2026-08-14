@@ -1,6 +1,17 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
+	id 'com.diffplug.spotless' version '8.9.0'
+}
+
+spotless {
+	java {
+		target 'src/main/java/**/*.java'
+		palantirJavaFormat()
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
 }
 
 version = project.mod_version

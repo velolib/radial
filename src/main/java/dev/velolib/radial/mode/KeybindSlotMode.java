@@ -8,6 +8,8 @@ import dev.velolib.radial.mixin.KeyMappingAccessor;
 import dev.velolib.radial.mode.base.IconEnabledSlotMode;
 import dev.velolib.radial.ui.screen.KeybindPickerScreen;
 import dev.velolib.radial.ui.screen.SlotEditorScreen;
+import java.util.HashMap;
+import java.util.function.Consumer;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -19,9 +21,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.HashMap;
-import java.util.function.Consumer;
-
 public class KeybindSlotMode extends IconEnabledSlotMode {
     public static final HashMap<KeyMapping, Consumer<Minecraft>> SPECIAL_ACTIONS = new HashMap<>();
 
@@ -32,9 +31,10 @@ public class KeybindSlotMode extends IconEnabledSlotMode {
             Screenshot.grab(client, false);
         });
 
-        SPECIAL_ACTIONS.put(new KeyMapping("key.debug.overlay", GLFW.GLFW_KEY_F3, KeyMapping.Category.DEBUG), client -> {
-            client.getDebugOverlay().showDebugScreen();
-        });
+        SPECIAL_ACTIONS.put(
+                new KeyMapping("key.debug.overlay", GLFW.GLFW_KEY_F3, KeyMapping.Category.DEBUG), client -> {
+                    client.getDebugOverlay().showDebugScreen();
+                });
     }
 
     @Override
@@ -52,22 +52,33 @@ public class KeybindSlotMode extends IconEnabledSlotMode {
         // Group the label and row together vertically
         LinearLayout valueGroup = LinearLayout.vertical().spacing(2);
 
-        StringWidget label = new StringWidget(Component.translatable("screen.radial.editor.value"), Minecraft.getInstance().font);
+        StringWidget label =
+                new StringWidget(Component.translatable("screen.radial.editor.value"), Minecraft.getInstance().font);
         valueGroup.addChild(label);
 
         // Horizontal row for the field + picker button
         LinearLayout inputRow = LinearLayout.horizontal().spacing(HORIZ_GAP);
 
-        EditBox valueField = new EditBox(Minecraft.getInstance().font, 0, 0, valueFieldWidth, ROW_HEIGHT, Component.translatable("screen.radial.editor.value"));
+        EditBox valueField = new EditBox(
+                Minecraft.getInstance().font,
+                0,
+                0,
+                valueFieldWidth,
+                ROW_HEIGHT,
+                Component.translatable("screen.radial.editor.value"));
         valueField.setMaxLength(Integer.MAX_VALUE);
         valueField.setValue(slot.value != null ? slot.value : "");
         valueField.setResponder(v -> slot.value = v);
         inputRow.addChild(valueField);
 
-        Button valueBrowseButton = Button.builder(Component.translatable("screen.radial.editor.select"), _ -> Minecraft.getInstance().gui.setScreen(new KeybindPickerScreen(screen, id -> {
-            valueField.setValue(id);
-            slot.value = id;
-        }))).bounds(0, 0, BROWSE_BTN_WIDTH, ROW_HEIGHT).build();
+        Button valueBrowseButton = Button.builder(
+                        Component.translatable("screen.radial.editor.select"),
+                        _ -> Minecraft.getInstance().gui.setScreen(new KeybindPickerScreen(screen, id -> {
+                            valueField.setValue(id);
+                            slot.value = id;
+                        })))
+                .bounds(0, 0, BROWSE_BTN_WIDTH, ROW_HEIGHT)
+                .build();
         inputRow.addChild(valueBrowseButton);
 
         valueGroup.addChild(inputRow);

@@ -1,5 +1,9 @@
 package dev.velolib.radial.ui.screen;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -10,11 +14,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class KeybindPickerScreen extends Screen {
 
@@ -64,7 +63,8 @@ public class KeybindPickerScreen extends Screen {
 
         int listHeight = getListHeight();
 
-        EditBox searchField = new EditBox(font, listLeft, 15, listWidth, 20, Component.translatable("screen.radial.editor.search"));
+        EditBox searchField =
+                new EditBox(font, listLeft, 15, listWidth, 20, Component.translatable("screen.radial.editor.search"));
 
         searchField.setHint(Component.translatable("screen.radial.editor.search"));
 
@@ -78,7 +78,9 @@ public class KeybindPickerScreen extends Screen {
 
         addRenderableWidget(keybindList);
 
-        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose()).bounds(width / 2 - 100, height - 28, 200, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose())
+                .bounds(width / 2 - 100, height - 28, 200, 20)
+                .build());
 
         setInitialFocus(searchField);
 
@@ -92,17 +94,21 @@ public class KeybindPickerScreen extends Screen {
 
         String q = query.toLowerCase();
 
-        List<KeybindEntry> entries = Arrays.stream(minecraft.options.keyMappings).filter(key -> {
-            // BLACKLIST CHECK: Skip our internal radial keys
-            if (dev.velolib.radial.RadialClient.isRadialInternalKey(key)) {
-                return false;
-            }
+        List<KeybindEntry> entries = Arrays.stream(minecraft.options.keyMappings)
+                .filter(key -> {
+                    // BLACKLIST CHECK: Skip our internal radial keys
+                    if (dev.velolib.radial.RadialClient.isRadialInternalKey(key)) {
+                        return false;
+                    }
 
-            String actionName = Component.translatable(key.getName()).getString().toLowerCase();
-            String category = key.getCategory().label().getString().toLowerCase();
+                    String actionName =
+                            Component.translatable(key.getName()).getString().toLowerCase();
+                    String category = key.getCategory().label().getString().toLowerCase();
 
-            return actionName.contains(q) || category.contains(q);
-        }).map(key -> new KeybindEntry(key, onSelect)).collect(Collectors.toList());
+                    return actionName.contains(q) || category.contains(q);
+                })
+                .map(key -> new KeybindEntry(key, onSelect))
+                .collect(Collectors.toList());
 
         keybindList.replaceEntries(entries);
         keybindList.setScrollAmount(0.0);
@@ -144,7 +150,8 @@ public class KeybindPickerScreen extends Screen {
         }
 
         @Override
-        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void extractContent(
+                GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
             Minecraft client = Minecraft.getInstance();
 
             int left = getContentX();

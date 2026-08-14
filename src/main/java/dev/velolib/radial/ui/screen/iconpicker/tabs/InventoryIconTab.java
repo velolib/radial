@@ -1,6 +1,7 @@
 package dev.velolib.radial.ui.screen.iconpicker.tabs;
 
 import dev.velolib.radial.ui.screen.iconpicker.IconTab;
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
@@ -12,11 +13,10 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.function.Consumer;
-
 public class InventoryIconTab implements IconTab {
 
-    private static final Identifier INVENTORY_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "textures/gui/container/inventory.png");
+    private static final Identifier INVENTORY_TEXTURE =
+            Identifier.fromNamespaceAndPath("minecraft", "textures/gui/container/inventory.png");
     private static final int INV_WIDTH = 176;
     private static final int INV_HEIGHT = 166;
     private static final int INV_SLOT_SIZE = 18;
@@ -36,10 +36,12 @@ public class InventoryIconTab implements IconTab {
     }
 
     @Override
-    public boolean showSearchBar() { return false; }
+    public boolean showSearchBar() {
+        return false;
+    }
 
     @Override
-    public void updateSearch(String query) { }
+    public void updateSearch(String query) {}
 
     @Override
     public void setup(int width, int height, Consumer<Renderable> addRenderable, Consumer<GuiEventListener> addWidget) {
@@ -58,29 +60,56 @@ public class InventoryIconTab implements IconTab {
 
         Component infoText = Component.translatable("screen.radial.editor.icon_picker.inventory.info");
         graphics.text(mc.font, infoText, screenWidth / 2 - mc.font.width(infoText) / 2, bgY - 15, 0xFFAAAAAA);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, INVENTORY_TEXTURE, bgX, bgY, 0, 0, INV_WIDTH, INV_HEIGHT, 256, 256, 0xFFFFFFFF);
+        graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                INVENTORY_TEXTURE,
+                bgX,
+                bgY,
+                0,
+                0,
+                INV_WIDTH,
+                INV_HEIGHT,
+                256,
+                256,
+                0xFFFFFFFF);
 
         // Hotbar
         for (int i = 0; i < 9; i++) {
-            drawInvSlot(graphics, mc, mouseX, mouseY, bgX + 7 + i * 18, bgY + 141, inventory.getNonEquipmentItems().get(i));
+            drawInvSlot(
+                    graphics,
+                    mc,
+                    mouseX,
+                    mouseY,
+                    bgX + 7 + i * 18,
+                    bgY + 141,
+                    inventory.getNonEquipmentItems().get(i));
         }
 
         // Main Inventory
         for (int i = 0; i < 27; i++) {
-            drawInvSlot(graphics, mc, mouseX, mouseY, bgX + 7 + (i % 9) * 18, bgY + 83 + (i / 9) * 18, inventory.getNonEquipmentItems().get(i + 9));
+            drawInvSlot(
+                    graphics,
+                    mc,
+                    mouseX,
+                    mouseY,
+                    bgX + 7 + (i % 9) * 18,
+                    bgY + 83 + (i / 9) * 18,
+                    inventory.getNonEquipmentItems().get(i + 9));
         }
 
         // Armor
         EquipmentSlot[] armorSlots = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
         for (int i = 0; i < armorSlots.length; i++) {
-            drawInvSlot(graphics, mc, mouseX, mouseY, bgX + 7, bgY + 7 + i * 18, mc.player.getItemBySlot(armorSlots[i]));
+            drawInvSlot(
+                    graphics, mc, mouseX, mouseY, bgX + 7, bgY + 7 + i * 18, mc.player.getItemBySlot(armorSlots[i]));
         }
 
         // Offhand
         drawInvSlot(graphics, mc, mouseX, mouseY, bgX + 76, bgY + 61, inventory.player.getOffhandItem());
     }
 
-    private void drawInvSlot(GuiGraphicsExtractor graphics, Minecraft mc, int mouseX, int mouseY, int x, int y, ItemStack stack) {
+    private void drawInvSlot(
+            GuiGraphicsExtractor graphics, Minecraft mc, int mouseX, int mouseY, int x, int y, ItemStack stack) {
         if (!stack.isEmpty()) {
             graphics.fakeItem(stack, x + 1, y + 1);
         }

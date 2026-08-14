@@ -3,10 +3,6 @@ package dev.velolib.radial.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dev.velolib.radial.RadialClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -15,18 +11,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 public final class PhosphorIconCache {
 
     private static final Gson GSON = new Gson();
 
-    private static final Type ICON_LIST_TYPE = new TypeToken<List<PhosphorIcon>>() {
-    }.getType();
+    private static final Type ICON_LIST_TYPE = new TypeToken<List<PhosphorIcon>>() {}.getType();
 
     private static List<PhosphorIcon> cachedIcons;
 
-    private PhosphorIconCache() {
-    }
+    private PhosphorIconCache() {}
 
     public static List<PhosphorIcon> getIcons() {
 
@@ -49,7 +46,8 @@ public final class PhosphorIconCache {
             return cachedIcons;
         }
 
-        try (Reader reader = new BufferedReader(new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8))) {
+        try (Reader reader =
+                new BufferedReader(new InputStreamReader(resource.get().open(), StandardCharsets.UTF_8))) {
 
             List<PhosphorIcon> icons = GSON.fromJson(reader, ICON_LIST_TYPE);
 

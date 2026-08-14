@@ -3,15 +3,15 @@ package dev.velolib.radial.config.adapters;
 import com.google.gson.*;
 import dev.velolib.radial.api.SlotMode;
 import dev.velolib.radial.api.SlotModeRegistry;
-import net.minecraft.resources.Identifier;
-
 import java.lang.reflect.Type;
 import java.util.Map;
+import net.minecraft.resources.Identifier;
 
 public class SlotModeTypeAdapter implements JsonSerializer<SlotMode>, JsonDeserializer<SlotMode> {
 
     @Override
-    public SlotMode deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public SlotMode deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException {
         String idString = json.getAsString();
 
         // --- ON-THE-FLY MIGRATION ---
@@ -37,7 +37,8 @@ public class SlotModeTypeAdapter implements JsonSerializer<SlotMode>, JsonDeseri
     @Override
     public JsonElement serialize(SlotMode src, Type typeOfSrc, JsonSerializationContext context) {
         // Reverse lookup: Find the Identifier for the given SlotMode instance
-        for (Map.Entry<Identifier, SlotMode> entry : SlotModeRegistry.getRegisteredModes().entrySet()) {
+        for (Map.Entry<Identifier, SlotMode> entry :
+                SlotModeRegistry.getRegisteredModes().entrySet()) {
             // We check by class type to ensure we match the right mode safely
             if (entry.getValue().getClass() == src.getClass()) {
                 return new JsonPrimitive(entry.getKey().toString());

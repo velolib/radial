@@ -2,8 +2,8 @@ package dev.velolib.radial.mode.base;
 
 import dev.velolib.radial.api.RadialSlot;
 import dev.velolib.radial.api.SlotMode;
-import dev.velolib.radial.ui.screen.iconpicker.IconPickerScreen;
 import dev.velolib.radial.ui.screen.SlotEditorScreen;
+import dev.velolib.radial.ui.screen.iconpicker.IconPickerScreen;
 import dev.velolib.radial.util.EncoderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -29,14 +29,21 @@ public abstract class IconEnabledSlotMode implements SlotMode {
         LinearLayout iconGroup = LinearLayout.vertical().spacing(2);
 
         // 1. Label
-        StringWidget label = new StringWidget(Component.translatable("screen.radial.editor.icon"), Minecraft.getInstance().font);
+        StringWidget label =
+                new StringWidget(Component.translatable("screen.radial.editor.icon"), Minecraft.getInstance().font);
         iconGroup.addChild(label);
 
         // 2. Horizontal row for Field + Buttons
         LinearLayout inputRow = LinearLayout.horizontal().spacing(HORIZ_GAP);
 
         // Icon EditBox
-        EditBox iconField = new EditBox(Minecraft.getInstance().font, 0, 0, iconFieldWidth, ROW_HEIGHT, Component.translatable("screen.radial.editor.icon"));
+        EditBox iconField = new EditBox(
+                Minecraft.getInstance().font,
+                0,
+                0,
+                iconFieldWidth,
+                ROW_HEIGHT,
+                Component.translatable("screen.radial.editor.icon"));
         iconField.setMaxLength(Integer.MAX_VALUE);
         iconField.setValue(slot.itemId != null ? slot.itemId : "minecraft:stone");
         iconField.setResponder(v -> {
@@ -46,23 +53,32 @@ public abstract class IconEnabledSlotMode implements SlotMode {
         inputRow.addChild(iconField);
 
         // Browse Button
-        Button browseIconButton = Button.builder(Component.translatable("screen.radial.editor.browse"), _ -> Minecraft.getInstance().gui.setScreen(new IconPickerScreen(screen, id -> {
-            iconField.setValue(id);
-            slot.itemId = id;
-            slot.clearCache();
-        }))).bounds(0, 0, ICON_BTN_WIDTH, ROW_HEIGHT).build();
+        Button browseIconButton = Button.builder(
+                        Component.translatable("screen.radial.editor.browse"),
+                        _ -> Minecraft.getInstance().gui.setScreen(new IconPickerScreen(screen, id -> {
+                            iconField.setValue(id);
+                            slot.itemId = id;
+                            slot.clearCache();
+                        })))
+                .bounds(0, 0, ICON_BTN_WIDTH, ROW_HEIGHT)
+                .build();
         inputRow.addChild(browseIconButton);
 
         // Hand Button
         Button handButton = Button.builder(Component.translatable("screen.radial.editor.hand"), _ -> {
-            if (Minecraft.getInstance().player != null) {
-                ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
-                String id = !stack.isEmpty() ? EncoderUtils.toGiveCommandString(stack, Minecraft.getInstance().level.registryAccess()) : "minecraft:air";
-                iconField.setValue(id);
-                slot.itemId = id;
-                slot.clearCache();
-            }
-        }).bounds(0, 0, ICON_BTN_WIDTH, ROW_HEIGHT).build();
+                    if (Minecraft.getInstance().player != null) {
+                        ItemStack stack = Minecraft.getInstance().player.getMainHandItem();
+                        String id = !stack.isEmpty()
+                                ? EncoderUtils.toGiveCommandString(
+                                        stack, Minecraft.getInstance().level.registryAccess())
+                                : "minecraft:air";
+                        iconField.setValue(id);
+                        slot.itemId = id;
+                        slot.clearCache();
+                    }
+                })
+                .bounds(0, 0, ICON_BTN_WIDTH, ROW_HEIGHT)
+                .build();
         inputRow.addChild(handButton);
 
         // Add the horizontal row into the vertical group, then add the group to the main container

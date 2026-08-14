@@ -11,9 +11,6 @@ import dev.velolib.radial.api.SlotMode;
 import dev.velolib.radial.api.SlotModeRegistry;
 import dev.velolib.radial.config.adapters.ColorTypeAdapter;
 import dev.velolib.radial.config.adapters.SlotModeTypeAdapter;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.network.chat.Component;
-
 import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
@@ -22,14 +19,18 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
 
 public class RadialConfig {
 
     public static final int CONFIG_VERSION = 3;
 
-    private static final File CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("radial.json").toFile();
+    private static final File CONFIG_FILE =
+            FabricLoader.getInstance().getConfigDir().resolve("radial.json").toFile();
 
-    private static final File TEMP_FILE = FabricLoader.getInstance().getConfigDir().resolve("radial.json.tmp").toFile();
+    private static final File TEMP_FILE =
+            FabricLoader.getInstance().getConfigDir().resolve("radial.json.tmp").toFile();
 
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -149,7 +150,11 @@ public class RadialConfig {
             try (FileWriter writer = new FileWriter(TEMP_FILE)) {
                 GSON.toJson(INSTANCE, writer);
             }
-            Files.move(TEMP_FILE.toPath(), CONFIG_FILE.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            Files.move(
+                    TEMP_FILE.toPath(),
+                    CONFIG_FILE.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.ATOMIC_MOVE);
         } catch (Exception e) {
             RadialClient.LOGGER.error("Critical error during config save!", e);
         }

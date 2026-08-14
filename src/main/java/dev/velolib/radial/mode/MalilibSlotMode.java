@@ -43,21 +43,32 @@ public class MalilibSlotMode extends IconEnabledSlotMode {
 
         LinearLayout valueGroup = LinearLayout.vertical().spacing(2);
 
-        StringWidget label = new StringWidget(Component.translatable("screen.radial.editor.value"), Minecraft.getInstance().font);
+        StringWidget label =
+                new StringWidget(Component.translatable("screen.radial.editor.value"), Minecraft.getInstance().font);
         valueGroup.addChild(label);
 
         LinearLayout inputRow = LinearLayout.horizontal().spacing(HORIZ_GAP);
 
-        EditBox valueField = new EditBox(Minecraft.getInstance().font, 0, 0, valueFieldWidth, ROW_HEIGHT, Component.translatable("screen.radial.editor.value"));
+        EditBox valueField = new EditBox(
+                Minecraft.getInstance().font,
+                0,
+                0,
+                valueFieldWidth,
+                ROW_HEIGHT,
+                Component.translatable("screen.radial.editor.value"));
         valueField.setMaxLength(Integer.MAX_VALUE);
         valueField.setValue(slot.value != null ? slot.value : "");
         valueField.setResponder(v -> slot.value = v);
         inputRow.addChild(valueField);
 
-        Button valueBrowseButton = Button.builder(Component.translatable("screen.radial.editor.select"), _ -> Minecraft.getInstance().gui.setScreen(new MalilibSelectionScreen(screen, action -> {
-            valueField.setValue(action.id());
-            slot.value = action.id();
-        }))).bounds(0, 0, BROWSE_BTN_WIDTH, ROW_HEIGHT).build();
+        Button valueBrowseButton = Button.builder(
+                        Component.translatable("screen.radial.editor.select"),
+                        _ -> Minecraft.getInstance().gui.setScreen(new MalilibSelectionScreen(screen, action -> {
+                            valueField.setValue(action.id());
+                            slot.value = action.id();
+                        })))
+                .bounds(0, 0, BROWSE_BTN_WIDTH, ROW_HEIGHT)
+                .build();
         inputRow.addChild(valueBrowseButton);
 
         valueGroup.addChild(inputRow);

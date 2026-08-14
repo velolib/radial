@@ -2,6 +2,8 @@ package dev.velolib.radial.render;
 
 import dev.velolib.radial.api.RadialSlot;
 import dev.velolib.radial.util.PhosphorIconCache;
+import java.util.Objects;
+import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -15,17 +17,13 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Objects;
-import java.util.Optional;
-
 public final class SlotRenderHelper {
 
     private static final Identifier PHOSPHOR_FONT = Identifier.fromNamespaceAndPath("radial", "phosphor");
 
     private static final FontDescription PHOSPHOR_FONT_DESCRIPTION = new FontDescription.Resource(PHOSPHOR_FONT);
 
-    private SlotRenderHelper() {
-    }
+    private SlotRenderHelper() {}
 
     public static ItemStack resolveDynamicItem(String itemId) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -47,9 +45,7 @@ public final class SlotRenderHelper {
                 try {
 
                     switch (type) {
-
                         case "hotbar":
-
                             if (parts.length >= 3) {
 
                                 int hbIndex = Integer.parseInt(parts[2]);
@@ -63,7 +59,6 @@ public final class SlotRenderHelper {
                             break;
 
                         case "inventory":
-
                             if (parts.length >= 3) {
 
                                 int invIndex = Integer.parseInt(parts[2]);
@@ -77,13 +72,11 @@ public final class SlotRenderHelper {
                             break;
 
                         case "armor":
-
                             if (parts.length >= 3) {
 
                                 String armorSlot = parts[2];
 
                                 switch (armorSlot) {
-
                                     case "head":
                                         return minecraft.player.getItemBySlot(EquipmentSlot.HEAD);
 
@@ -179,8 +172,8 @@ public final class SlotRenderHelper {
             Optional<MobEffect> effect = BuiltInRegistries.MOB_EFFECT.getOptional(id);
 
             effect.ifPresent(value -> {
-
-                String path = Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(value)).getPath();
+                String path = Objects.requireNonNull(BuiltInRegistries.MOB_EFFECT.getKey(value))
+                        .getPath();
 
                 Identifier spriteId = Identifier.fromNamespaceAndPath("minecraft", "mob_effect/" + path);
 
@@ -200,7 +193,10 @@ public final class SlotRenderHelper {
     }
 
     private static void renderPhosphorIcon(GuiGraphicsExtractor graphics, String iconName, float x, float y) {
-        PhosphorIconCache.PhosphorIcon icon = PhosphorIconCache.getIcons().stream().filter(candidate -> candidate.name().equals(iconName)).findFirst().orElse(null);
+        PhosphorIconCache.PhosphorIcon icon = PhosphorIconCache.getIcons().stream()
+                .filter(candidate -> candidate.name().equals(iconName))
+                .findFirst()
+                .orElse(null);
 
         if (icon == null) {
             return;

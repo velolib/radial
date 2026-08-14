@@ -7,6 +7,8 @@ import dev.velolib.radial.config.RadialConfig;
 import dev.velolib.radial.integration.MalilibIntegration;
 import dev.velolib.radial.mixin.KeyMappingAccessor;
 import dev.velolib.radial.ui.screen.RadialScreen;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -20,24 +22,18 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class RadialClient implements ClientModInitializer {
 
     public static final String MOD_ID = "radial";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
+    private static final KeyMapping.Category CATEGORY =
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
 
-    public static final KeyMapping OPEN_RADIAL = KeyMappingHelper.registerKeyMapping(new KeyMapping("key." + MOD_ID + ".open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY, 0));
+    public static final KeyMapping OPEN_RADIAL = KeyMappingHelper.registerKeyMapping(
+            new KeyMapping("key." + MOD_ID + ".open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_R, CATEGORY, 0));
     public static final KeyMapping BACK_KEY = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-            "key." + MOD_ID + ".back",
-            InputConstants.Type.KEYSYM,
-            InputConstants.UNKNOWN.getValue(),
-            CATEGORY,
-            1
-    ));
+            "key." + MOD_ID + ".back", InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), CATEGORY, 1));
     public static final KeyMapping[] SLOT_KEYS = new KeyMapping[12];
 
     static {
@@ -47,8 +43,7 @@ public class RadialClient implements ClientModInitializer {
                     InputConstants.Type.KEYSYM,
                     InputConstants.UNKNOWN.getValue(),
                     CATEGORY,
-                    12 + i
-            ));
+                    12 + i));
         }
     }
 
@@ -114,8 +109,7 @@ public class RadialClient implements ClientModInitializer {
             }
 
             //noinspection StatementWithEmptyBody
-            while (OPEN_RADIAL.consumeClick()) {
-            }
+            while (OPEN_RADIAL.consumeClick()) {}
 
             if (!keyPressQueue.isEmpty()) {
                 var it = keyPressQueue.entrySet().iterator();

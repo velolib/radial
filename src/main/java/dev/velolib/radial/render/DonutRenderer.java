@@ -2,14 +2,13 @@ package dev.velolib.radial.render;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.velolib.radial.config.RadialConfig;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A highly optimized, asynchronous, texture-based renderer for radial menu sectors (donut slices).
@@ -91,17 +90,21 @@ public class DonutRenderer implements AutoCloseable {
             return;
         }
 
-        boolean needsRegeneration = baseTexture == null || hotTexture == null ||
-                lastCount != count || lastInner != inner || lastOuter != outer ||
-                lastGap != config.sectorGap || lastResScale != resScale ||
-                lastTexSize != requiredTexSize ||
-                lastDrawSectorBorders != config.drawSectorBorders ||
-                lastSectorBorderWidth != config.sectorBorderWidth ||
-                lastDrawOuterBorders != config.drawOuterBorders ||
-                lastBackgroundColor != config.backgroundColor.getRGB() ||
-                lastActivationColor != config.activationColor.getRGB() ||
-                lastBorderColor != config.borderColor.getRGB() ||
-                lastHighlightBorderColor != config.highlightBorderColor.getRGB();
+        boolean needsRegeneration = baseTexture == null
+                || hotTexture == null
+                || lastCount != count
+                || lastInner != inner
+                || lastOuter != outer
+                || lastGap != config.sectorGap
+                || lastResScale != resScale
+                || lastTexSize != requiredTexSize
+                || lastDrawSectorBorders != config.drawSectorBorders
+                || lastSectorBorderWidth != config.sectorBorderWidth
+                || lastDrawOuterBorders != config.drawOuterBorders
+                || lastBackgroundColor != config.backgroundColor.getRGB()
+                || lastActivationColor != config.activationColor.getRGB()
+                || lastBorderColor != config.borderColor.getRGB()
+                || lastHighlightBorderColor != config.highlightBorderColor.getRGB();
 
         if (!needsRegeneration) {
             return;
@@ -141,7 +144,15 @@ public class DonutRenderer implements AutoCloseable {
      * @param ease        The animation progress (0.0 to 1.0) used for scaling and opacity interpolation.
      * @param resScale    The resolution scale to properly size the texture on screen.
      */
-    public void renderSector(GuiGraphicsExtractor graphics, float cx, float cy, float slotAngle, float push, boolean highlighted, float ease, float resScale) {
+    public void renderSector(
+            GuiGraphicsExtractor graphics,
+            float cx,
+            float cy,
+            float slotAngle,
+            float push,
+            boolean highlighted,
+            float ease,
+            float resScale) {
         if (baseTexture == null || hotTexture == null || baseTexId == null || hotTexId == null) {
             return;
         }
@@ -161,7 +172,18 @@ public class DonutRenderer implements AutoCloseable {
         Identifier texture = highlighted ? hotTexId : baseTexId;
         int alpha = Mth.clamp((int) (clampedEase * 255.0f + 0.5f), 0, 255);
 
-        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, offset, offset, 0, 0, texSize, texSize, texSize, texSize, (alpha << 24) | 0xFFFFFF);
+        graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                texture,
+                offset,
+                offset,
+                0,
+                0,
+                texSize,
+                texSize,
+                texSize,
+                texSize,
+                (alpha << 24) | 0xFFFFFF);
 
         graphics.pose().popMatrix();
     }
@@ -188,32 +210,49 @@ public class DonutRenderer implements AutoCloseable {
         final float sectorGap = config.sectorGap;
 
         CompletableFuture.supplyAsync(() -> {
-            NativeImage baseImage = new NativeImage(targetTexSize, targetTexSize, false);
-            NativeImage hotImage = new NativeImage(targetTexSize, targetTexSize, false);
+                    NativeImage baseImage = new NativeImage(targetTexSize, targetTexSize, false);
+                    NativeImage hotImage = new NativeImage(targetTexSize, targetTexSize, false);
 
-            generatePixels(baseImage, hotImage, count, inner, outer, resScale, bgColor, borderColor, hotColor, hotBorderColor, drawSectorBorders, drawOuterBorders, sectorBorderWidth, sectorGap);
+                    generatePixels(
+                            baseImage,
+                            hotImage,
+                            count,
+                            inner,
+                            outer,
+                            resScale,
+                            bgColor,
+                            borderColor,
+                            hotColor,
+                            hotBorderColor,
+                            drawSectorBorders,
+                            drawOuterBorders,
+                            sectorBorderWidth,
+                            sectorGap);
 
-            return new NativeImage[]{baseImage, hotImage};
-        }).thenAcceptAsync(images -> {
-            // Drop results if a newer generation request was fired while this was processing
-            if (this.generationId != currentGenId) {
-                images[0].close();
-                images[1].close();
-                return;
-            }
+                    return new NativeImage[] {baseImage, hotImage};
+                })
+                .thenAcceptAsync(
+                        images -> {
+                            // Drop results if a newer generation request was fired while this was processing
+                            if (this.generationId != currentGenId) {
+                                images[0].close();
+                                images[1].close();
+                                return;
+                            }
 
-            if (this.baseTexture != null) this.baseTexture.close();
-            if (this.hotTexture != null) this.hotTexture.close();
+                            if (this.baseTexture != null) this.baseTexture.close();
+                            if (this.hotTexture != null) this.hotTexture.close();
 
-            this.baseTexture = new DynamicTexture(() -> "", images[0]);
-            this.hotTexture = new DynamicTexture(() -> "", images[1]);
+                            this.baseTexture = new DynamicTexture(() -> "", images[0]);
+                            this.hotTexture = new DynamicTexture(() -> "", images[1]);
 
-            this.baseTexId = Identifier.fromNamespaceAndPath("radial", "sector_base_" + this.idSuffix);
-            this.hotTexId = Identifier.fromNamespaceAndPath("radial", "sector_hot_" + this.idSuffix);
+                            this.baseTexId = Identifier.fromNamespaceAndPath("radial", "sector_base_" + this.idSuffix);
+                            this.hotTexId = Identifier.fromNamespaceAndPath("radial", "sector_hot_" + this.idSuffix);
 
-            Minecraft.getInstance().getTextureManager().register(this.baseTexId, this.baseTexture);
-            Minecraft.getInstance().getTextureManager().register(this.hotTexId, this.hotTexture);
-        }, Minecraft.getInstance());
+                            Minecraft.getInstance().getTextureManager().register(this.baseTexId, this.baseTexture);
+                            Minecraft.getInstance().getTextureManager().register(this.hotTexId, this.hotTexture);
+                        },
+                        Minecraft.getInstance());
     }
 
     /**
@@ -227,7 +266,21 @@ public class DonutRenderer implements AutoCloseable {
      * angular distance from the center, and applies a {@link #smoothstep(float)} function
      * to blend the colors, resulting in a perfectly smooth curve.
      */
-    private void generatePixels(NativeImage baseImage, NativeImage hotImage, int count, float inner, float outer, float resScale, int baseColor, int borderColor, int hotBaseColor, int hotBorderColor, boolean drawSectorBorders, boolean drawOuterBorders, float sectorBorderWidth, float sectorGap) {
+    private void generatePixels(
+            NativeImage baseImage,
+            NativeImage hotImage,
+            int count,
+            float inner,
+            float outer,
+            float resScale,
+            int baseColor,
+            int borderColor,
+            int hotBaseColor,
+            int hotBorderColor,
+            boolean drawSectorBorders,
+            boolean drawOuterBorders,
+            float sectorBorderWidth,
+            float sectorGap) {
         float center = texSize / 2.0f;
         float innerR = inner * resScale;
         float outerR = outer * resScale;

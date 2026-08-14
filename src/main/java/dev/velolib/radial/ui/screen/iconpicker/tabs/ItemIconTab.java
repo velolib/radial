@@ -1,6 +1,9 @@
 package dev.velolib.radial.ui.screen.iconpicker.tabs;
 
 import dev.velolib.radial.ui.screen.iconpicker.GridIconTab;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -8,10 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class ItemIconTab extends GridIconTab<ItemIconTab.ItemSearchEntry> {
 
@@ -30,7 +29,9 @@ public class ItemIconTab extends GridIconTab<ItemIconTab.ItemSearchEntry> {
     }
 
     @Override
-    protected int getSlotSize() { return 20; }
+    protected int getSlotSize() {
+        return 20;
+    }
 
     @Override
     protected List<ItemSearchEntry> search(String query) {
@@ -51,7 +52,14 @@ public class ItemIconTab extends GridIconTab<ItemIconTab.ItemSearchEntry> {
     }
 
     @Override
-    protected void renderIcon(GuiGraphicsExtractor graphics, int x, int y, int mouseX, int mouseY, ItemSearchEntry item, boolean hovered) {
+    protected void renderIcon(
+            GuiGraphicsExtractor graphics,
+            int x,
+            int y,
+            int mouseX,
+            int mouseY,
+            ItemSearchEntry item,
+            boolean hovered) {
         graphics.fakeItem(item.stack(), x + 2, y + 2);
         if (hovered) {
             graphics.setTooltipForNextFrame(Minecraft.getInstance().font, item.stack(), mouseX, mouseY);

@@ -2,6 +2,12 @@ package dev.velolib.radial.ui.screen;
 
 import dev.velolib.radial.integration.MalilibIntegration;
 import dev.velolib.radial.integration.MalilibIntegration.MalilibAction;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -11,13 +17,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class MalilibSelectionScreen extends Screen {
 
@@ -48,7 +47,8 @@ public class MalilibSelectionScreen extends Screen {
 
         List<MalilibAction> actions = MalilibIntegration.getAllActions();
 
-        this.actionsByMod = actions.stream().collect(Collectors.groupingBy(MalilibAction::modName, TreeMap::new, Collectors.toList()));
+        this.actionsByMod = actions.stream()
+                .collect(Collectors.groupingBy(MalilibAction::modName, TreeMap::new, Collectors.toList()));
 
         if (!actionsByMod.isEmpty()) {
 
@@ -83,7 +83,9 @@ public class MalilibSelectionScreen extends Screen {
 
         if (actionsByMod.isEmpty()) {
 
-            addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose()).bounds(width / 2 - 100, height - 28, 200, 20).build());
+            addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose())
+                    .bounds(width / 2 - 100, height - 28, 200, 20)
+                    .build());
 
             return;
         }
@@ -95,11 +97,12 @@ public class MalilibSelectionScreen extends Screen {
         for (String modName : actionsByMod.keySet()) {
 
             Button button = Button.builder(Component.literal(modName), _ -> {
+                        setTab(modName);
 
-                setTab(modName);
-
-                updateTabButtonStates();
-            }).bounds(xOffset, 10, tabWidth, 20).build();
+                        updateTabButtonStates();
+                    })
+                    .bounds(xOffset, 10, tabWidth, 20)
+                    .build();
 
             button.active = !modName.equals(currentTab);
 
@@ -112,7 +115,13 @@ public class MalilibSelectionScreen extends Screen {
 
         int listWidth = getListWidth();
 
-        searchField = new EditBox(font, width / 2 - listWidth / 2, 35, listWidth, 20, Component.translatable("screen.radial.editor.search"));
+        searchField = new EditBox(
+                font,
+                width / 2 - listWidth / 2,
+                35,
+                listWidth,
+                20,
+                Component.translatable("screen.radial.editor.search"));
 
         searchField.setHint(Component.translatable("screen.radial.editor.search"));
 
@@ -120,13 +129,16 @@ public class MalilibSelectionScreen extends Screen {
 
         addRenderableWidget(searchField);
 
-        malilibList = new MalilibList(Minecraft.getInstance(), listWidth, getListHeight(), getListStartY(), ENTRY_HEIGHT);
+        malilibList =
+                new MalilibList(Minecraft.getInstance(), listWidth, getListHeight(), getListStartY(), ENTRY_HEIGHT);
 
         malilibList.updateSizeAndPosition(listWidth, getListHeight(), getListLeft(), getListStartY());
 
         addRenderableWidget(malilibList);
 
-        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose()).bounds(width / 2 - 100, height - 28, 200, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose())
+                .bounds(width / 2 - 100, height - 28, 200, 20)
+                .build());
 
         setInitialFocus(searchField);
 
@@ -152,7 +164,11 @@ public class MalilibSelectionScreen extends Screen {
 
         String q = query.toLowerCase();
 
-        List<MalilibEntry> entries = currentActions.stream().filter(action -> action.name().toLowerCase().contains(q) || action.displayName().toLowerCase().contains(q)).map(action -> new MalilibEntry(action, onSelect)).collect(Collectors.toList());
+        List<MalilibEntry> entries = currentActions.stream()
+                .filter(action -> action.name().toLowerCase().contains(q)
+                        || action.displayName().toLowerCase().contains(q))
+                .map(action -> new MalilibEntry(action, onSelect))
+                .collect(Collectors.toList());
 
         malilibList.replaceEntries(entries);
 
@@ -173,7 +189,8 @@ public class MalilibSelectionScreen extends Screen {
 
         if (actionsByMod.isEmpty()) {
 
-            graphics.centeredText(font, "No Malilib mods found or no hotkeys available.", width / 2, height / 2, 0xFF555555);
+            graphics.centeredText(
+                    font, "No Malilib mods found or no hotkeys available.", width / 2, height / 2, 0xFF555555);
 
             super.extractRenderState(graphics, mouseX, mouseY, delta);
 
@@ -213,7 +230,8 @@ public class MalilibSelectionScreen extends Screen {
         }
 
         @Override
-        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void extractContent(
+                GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
             Minecraft client = Minecraft.getInstance();
 
             int left = getContentX();

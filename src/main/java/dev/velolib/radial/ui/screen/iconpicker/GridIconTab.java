@@ -1,5 +1,8 @@
 package dev.velolib.radial.ui.screen.iconpicker;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -7,10 +10,6 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 public abstract class GridIconTab<T> implements IconTab {
     protected final Consumer<String> onSelect;
@@ -25,8 +24,12 @@ public abstract class GridIconTab<T> implements IconTab {
     }
 
     protected abstract int getSlotSize();
+
     protected abstract List<T> search(String query);
-    protected abstract void renderIcon(GuiGraphicsExtractor graphics, int x, int y, int mouseX, int mouseY, T item, boolean hovered);
+
+    protected abstract void renderIcon(
+            GuiGraphicsExtractor graphics, int x, int y, int mouseX, int mouseY, T item, boolean hovered);
+
     protected abstract void selectIcon(T item);
     // Renamed to avoid clashing with the Entry's getNarration() method
     protected abstract Component getItemNarration(T item);
@@ -69,26 +72,41 @@ public abstract class GridIconTab<T> implements IconTab {
     }
 
     @Override
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) { /* Managed by listWidget */ }
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        /* Managed by listWidget */
+    }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) { return false; /* Managed by listWidget */ }
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return false; /* Managed by listWidget */
+    }
 
     @Override
-    public boolean showSearchBar() { return true; }
+    public boolean showSearchBar() {
+        return true;
+    }
 
     private class IconGridList extends ObjectSelectionList<IconGridEntry> {
-        public IconGridList(Minecraft mc, int w, int h, int y, int rowHeight) { super(mc, w, h, y, rowHeight); }
-        @Override public int getRowWidth() { return Math.min(330, getWidth() - 20); }
+        public IconGridList(Minecraft mc, int w, int h, int y, int rowHeight) {
+            super(mc, w, h, y, rowHeight);
+        }
+
+        @Override
+        public int getRowWidth() {
+            return Math.min(330, getWidth() - 20);
+        }
     }
 
     private class IconGridEntry extends ObjectSelectionList.Entry<IconGridEntry> {
         private final List<T> items;
 
-        private IconGridEntry(List<T> items) { this.items = items; }
+        private IconGridEntry(List<T> items) {
+            this.items = items;
+        }
 
         @Override
-        public void extractContent(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void extractContent(
+                @NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
             int left = getContentX();
             int top = getContentY();
             int slotSize = getSlotSize();

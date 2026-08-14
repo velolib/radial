@@ -6,14 +6,13 @@ import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.hotkeys.KeybindCategory;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class MalilibIntegration {
 
     public static void init() {
-        RadialClient.LOGGER.info("[Radial] Malilib logic active.");
+        RadialClient.LOGGER.info("Radial Malilib logic active.");
     }
 
     public static List<MalilibAction> getAllActions() {
@@ -62,6 +61,5 @@ public class MalilibIntegration {
         }
     }
 
-    public record MalilibAction(String modName, String category, String name, String id, String displayName) {
-    }
+    public record MalilibAction(String modName, String category, String name, String id, String displayName) {}
 }

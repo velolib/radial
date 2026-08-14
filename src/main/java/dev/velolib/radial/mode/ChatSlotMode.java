@@ -23,10 +23,12 @@ public class ChatSlotMode extends IconEnabledSlotMode {
         // Group the Label and EditBox together closely
         LinearLayout valueGroup = LinearLayout.vertical().spacing(2);
 
-        StringWidget label = new StringWidget(Component.translatable("screen.radial.editor.value"), Minecraft.getInstance().font);
+        StringWidget label =
+                new StringWidget(Component.translatable("screen.radial.editor.value"), Minecraft.getInstance().font);
         valueGroup.addChild(label);
 
-        EditBox valueField = new EditBox(Minecraft.getInstance().font, 0, 0, width, 20, Component.translatable("screen.radial.editor.value"));
+        EditBox valueField = new EditBox(
+                Minecraft.getInstance().font, 0, 0, width, 20, Component.translatable("screen.radial.editor.value"));
         valueField.setMaxLength(Integer.MAX_VALUE);
         valueField.setValue(slot.value != null ? slot.value : "");
         valueField.setResponder(v -> slot.value = v);

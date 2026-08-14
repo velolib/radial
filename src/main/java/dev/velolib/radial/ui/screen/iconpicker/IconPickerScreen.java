@@ -1,6 +1,9 @@
 package dev.velolib.radial.ui.screen.iconpicker;
 
 import dev.velolib.radial.ui.screen.iconpicker.tabs.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -9,10 +12,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 
 public class IconPickerScreen extends Screen {
     private final Screen parent;
@@ -44,7 +43,8 @@ public class IconPickerScreen extends Screen {
 
         for (IconTab tab : tabs) {
             Button button = Button.builder(tab.getTitle(), _ -> setTab(tab))
-                    .bounds(xOffset, 10, tabWidth, 20).build();
+                    .bounds(xOffset, 10, tabWidth, 20)
+                    .build();
 
             button.active = (tab != currentTab);
             addRenderableWidget(button);
@@ -53,23 +53,27 @@ public class IconPickerScreen extends Screen {
         }
 
         int listWidth = Math.min(350, (int) (width * 0.9));
-        EditBox searchField = new EditBox(font, width / 2 - listWidth / 2, 35, listWidth, 20, Component.translatable("screen.radial.editor.search"));
+        EditBox searchField = new EditBox(
+                font,
+                width / 2 - listWidth / 2,
+                35,
+                listWidth,
+                20,
+                Component.translatable("screen.radial.editor.search"));
         searchField.setResponder(query -> {
             if (currentTab != null) currentTab.updateSearch(query);
         });
 
         addRenderableWidget(searchField);
         addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose())
-                .bounds(width / 2 - 100, height - 28, 200, 20).build());
+                .bounds(width / 2 - 100, height - 28, 200, 20)
+                .build());
 
-        currentTab.setup(width, height,
-                renderable -> addRenderableWidget((AbstractWidget) renderable),
-                listener -> {
-                    if (!this.children().contains(listener)) {
-                        addWidget((AbstractWidget) listener);
-                    }
-                }
-        );
+        currentTab.setup(width, height, renderable -> addRenderableWidget((AbstractWidget) renderable), listener -> {
+            if (!this.children().contains(listener)) {
+                addWidget((AbstractWidget) listener);
+            }
+        });
 
         searchField.visible = currentTab.showSearchBar();
         searchField.setValue("");

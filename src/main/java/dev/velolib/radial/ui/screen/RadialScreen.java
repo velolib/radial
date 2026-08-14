@@ -7,6 +7,9 @@ import dev.velolib.radial.api.SlotActionContext;
 import dev.velolib.radial.config.RadialConfig;
 import dev.velolib.radial.render.DonutRenderer;
 import dev.velolib.radial.render.SlotRenderHelper;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -21,14 +24,12 @@ import net.minecraft.world.item.Items;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
 public class RadialScreen extends Screen {
 
-    private static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
-    private static final Identifier SELECTION_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/selection");
+    private static final Identifier SLOT_TEXTURE =
+            Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
+    private static final Identifier SELECTION_TEXTURE =
+            Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/selection");
 
     private static final int SLOT_SIZE = 26;
     private static final int ITEM_SIZE = 16;
@@ -139,7 +140,9 @@ public class RadialScreen extends Screen {
 
     private float getDetectionOuterRadius(RadialConfig config) {
         float radius = getVisibleOuterRadius(config);
-        return config.enableHoverAnimation ? radius + SLOT_PUSH + config.outerDetectionBoundary : radius + config.outerDetectionBoundary;
+        return config.enableHoverAnimation
+                ? radius + SLOT_PUSH + config.outerDetectionBoundary
+                : radius + config.outerDetectionBoundary;
     }
 
     // --- Render Loop ---
@@ -148,7 +151,8 @@ public class RadialScreen extends Screen {
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         RadialConfig config = RadialConfig.INSTANCE;
         RadialConfig.ActivationMode mode = config.activationMode;
-        boolean isScrollMode = mode == RadialConfig.ActivationMode.SCROLL_CLICK || mode == RadialConfig.ActivationMode.SCROLL_RELEASE;
+        boolean isScrollMode =
+                mode == RadialConfig.ActivationMode.SCROLL_CLICK || mode == RadialConfig.ActivationMode.SCROLL_RELEASE;
 
         // 1. Check Key Release
         InputConstants.Key boundKey = KeyMappingHelper.getBoundKeyOf(RadialClient.OPEN_RADIAL);
@@ -231,7 +235,8 @@ public class RadialScreen extends Screen {
                 float slotAngle = (float) ((Math.PI * 2.0 / renderCount) * i - Math.PI / 2.0);
                 float revealEase = easeOutQuint(getRevealProgress(i, renderCount, config));
 
-                SECTOR_RENDERER.renderSector(graphics, cx, cy, slotAngle, hoverPush, (i == hoveredSlot), revealEase, 2.0F);
+                SECTOR_RENDERER.renderSector(
+                        graphics, cx, cy, slotAngle, hoverPush, (i == hoveredSlot), revealEase, 2.0F);
             }
         }
 
@@ -251,7 +256,8 @@ public class RadialScreen extends Screen {
             float slotX = (float) (cx + Math.cos(slotAngle) * finalRadius);
             float slotY = (float) (cy + Math.sin(slotAngle) * finalRadius);
 
-            float scale = revealEase * (config.enableHoverAnimation ? 1.0F + SLOT_HOVER_SCALE * (i == hoveredSlot ? 1.0F : 0.0F) : 1.0F);
+            float scale = revealEase
+                    * (config.enableHoverAnimation ? 1.0F + SLOT_HOVER_SCALE * (i == hoveredSlot ? 1.0F : 0.0F) : 1.0F);
 
             graphics.pose().pushMatrix();
             graphics.pose().translate(slotX, slotY);
@@ -260,9 +266,17 @@ public class RadialScreen extends Screen {
             int color = (revealAlpha << 24) | 0xFFFFFF;
             int drawOffset = -SLOT_SIZE / 2;
 
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, drawOffset, drawOffset, SLOT_SIZE, SLOT_SIZE, color);
+            graphics.blitSprite(
+                    RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, drawOffset, drawOffset, SLOT_SIZE, SLOT_SIZE, color);
             if (i == hoveredSlot) {
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SELECTION_TEXTURE, drawOffset, drawOffset, SLOT_SIZE, SLOT_SIZE, color);
+                graphics.blitSprite(
+                        RenderPipelines.GUI_TEXTURED,
+                        SELECTION_TEXTURE,
+                        drawOffset,
+                        drawOffset,
+                        SLOT_SIZE,
+                        SLOT_SIZE,
+                        color);
             }
 
             if (isSubmenu() && i == 0) {
@@ -283,11 +297,14 @@ public class RadialScreen extends Screen {
         if (hoveredSlot != -1) {
             String name = (isSubmenu() && hoveredSlot == 0)
                     ? Component.translatable("radial.ui.back").getString()
-                    : (getTargetSlot(hoveredSlot) != null ? Objects.requireNonNull(getTargetSlot(hoveredSlot)).name : "");
+                    : (getTargetSlot(hoveredSlot) != null
+                            ? Objects.requireNonNull(getTargetSlot(hoveredSlot)).name
+                            : "");
 
             if (!name.isEmpty()) {
                 int alpha = Mth.clamp((int) (easeOutQuint(getGlobalRevealProgress(config)) * 255.0F + 0.5F), 0, 255);
-                graphics.text(font, Component.nullToEmpty(name), cx - font.width(name) / 2, cy - 4, (alpha << 24) | 0xFFFFFF);
+                graphics.text(
+                        font, Component.nullToEmpty(name), cx - font.width(name) / 2, cy - 4, (alpha << 24) | 0xFFFFFF);
             }
         }
 
@@ -320,7 +337,10 @@ public class RadialScreen extends Screen {
         float step = totalDuration * Mth.clamp(STAGGER_STEP_FRACTION, 0.0F, 0.99F) / (staggerCount - 1);
         float elementDuration = Math.max(0.001F, totalDuration - step * (staggerCount - 1));
 
-        return Mth.clamp(((float) revealElapsedSeconds - (step * getStaggerIndex(index, count, animation))) / elementDuration, 0.0F, 1.0F);
+        return Mth.clamp(
+                ((float) revealElapsedSeconds - (step * getStaggerIndex(index, count, animation))) / elementDuration,
+                0.0F,
+                1.0F);
     }
 
     private float getGlobalRevealProgress(RadialConfig config) {
@@ -372,7 +392,10 @@ public class RadialScreen extends Screen {
         Arrays.fill(pushAnim, 0.0F);
 
         RadialConfig.ActivationMode mode = RadialConfig.INSTANCE.activationMode;
-        hoveredSlot = (mode == RadialConfig.ActivationMode.SCROLL_CLICK || mode == RadialConfig.ActivationMode.SCROLL_RELEASE) ? 0 : -1;
+        hoveredSlot =
+                (mode == RadialConfig.ActivationMode.SCROLL_CLICK || mode == RadialConfig.ActivationMode.SCROLL_RELEASE)
+                        ? 0
+                        : -1;
 
         revealElapsedSeconds = 0.0;
         lastNano = System.nanoTime();

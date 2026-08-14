@@ -2,15 +2,14 @@ package dev.velolib.radial.ui.screen.iconpicker.tabs;
 
 import dev.velolib.radial.ui.screen.iconpicker.GridIconTab;
 import dev.velolib.radial.util.PhosphorIconCache;
+import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 public class PhosphorIconTab extends GridIconTab<PhosphorIconCache.PhosphorIcon> {
 
@@ -26,7 +25,9 @@ public class PhosphorIconTab extends GridIconTab<PhosphorIconCache.PhosphorIcon>
     }
 
     @Override
-    protected int getSlotSize() { return 20; }
+    protected int getSlotSize() {
+        return 20;
+    }
 
     @Override
     protected List<PhosphorIconCache.PhosphorIcon> search(String query) {
@@ -36,7 +37,14 @@ public class PhosphorIconTab extends GridIconTab<PhosphorIconCache.PhosphorIcon>
     }
 
     @Override
-    protected void renderIcon(GuiGraphicsExtractor graphics, int x, int y, int mouseX, int mouseY, PhosphorIconCache.PhosphorIcon icon, boolean hovered) {
+    protected void renderIcon(
+            GuiGraphicsExtractor graphics,
+            int x,
+            int y,
+            int mouseX,
+            int mouseY,
+            PhosphorIconCache.PhosphorIcon icon,
+            boolean hovered) {
         Minecraft client = Minecraft.getInstance();
         Component component = Component.literal(icon.character())
                 .setStyle(Style.EMPTY.withFont(new FontDescription.Resource(PHOSPHOR_FONT)));

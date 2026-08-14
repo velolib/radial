@@ -26,7 +26,7 @@ A fast, fluid interface built for speed. Execute actions on click or release, de
 
 ### Complete visual control
 ![Configuration screen](./assets/propho2.webp)
-Make it yours with a real-time live preview. Adjust the inner and outer radii, change colors, tweak gaps, or hide the background donut entirely to perfectly match your HUD.
+Make it yours with a real-time live preview. Adjust the radius, change colors, tweak gaps, or hide the background donut entirely to perfectly match your HUD.
 
 ### Various functionalities
 ![Slot editor](./assets/propho3.webp)
@@ -34,7 +34,7 @@ Bind your slots to whatever you need. Set up chat commands, standard keybinds, s
 
 ### Icon customization
 ![Icon customization](./assets/propho4.webp)
-Represent your actions your way. Choose from any item (full NBT support included), sync visually with live inventory slots, display mob effect icons, or type out custom character combinations.
+Represent your actions your way. Choose from any item (full NBT support included), sync visually with live inventory slots, display mob effect icons, Phosphor icons, or type out custom character combinations.
 
 ## Version Support & Backports
 

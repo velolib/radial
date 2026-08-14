@@ -1,11 +1,10 @@
 package dev.velolib.radial.api;
 
 import dev.velolib.radial.mode.*;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.Identifier;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resources.Identifier;
 
 public class SlotModeRegistry {
     private static final Map<Identifier, SlotMode> REGISTRY = new LinkedHashMap<>();

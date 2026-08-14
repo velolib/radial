@@ -7,6 +7,7 @@ import dev.velolib.radial.config.RadialConfig;
 import dev.velolib.radial.render.SlotRenderHelper;
 import dev.velolib.radial.ui.widget.DropdownButtonWidget;
 import dev.velolib.radial.ui.widget.DropdownMenuWidget;
+import java.util.List;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -20,11 +21,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
-import java.util.List;
-
 public class SlotEditorScreen extends Screen {
 
-    private static final Identifier SLOT_TEXTURE = Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
+    private static final Identifier SLOT_TEXTURE =
+            Identifier.fromNamespaceAndPath("minecraft", "gamemode_switcher/slot");
     private static final int SLOT_SIZE = 26;
 
     // LAYOUT CONSTANTS
@@ -68,10 +68,8 @@ public class SlotEditorScreen extends Screen {
         StringWidget nameLabel = new StringWidget(Component.translatable("screen.radial.editor.name"), font);
         nameGroup.addChild(nameLabel);
 
-        nameField = new EditBox(
-                font, 0, 0, contentWidth, ROW_HEIGHT,
-                Component.translatable("screen.radial.editor.name")
-        );
+        nameField =
+                new EditBox(font, 0, 0, contentWidth, ROW_HEIGHT, Component.translatable("screen.radial.editor.name"));
         nameField.setMaxLength(Integer.MAX_VALUE);
         nameField.setValue(slot.name);
         nameField.setResponder(v -> slot.name = v);
@@ -85,27 +83,37 @@ public class SlotEditorScreen extends Screen {
         modeGroup.addChild(modeLabel);
 
         List<SlotMode> availableModes = SlotModeRegistry.getRegisteredModes().values().stream()
-                .filter(mode -> mode.isAvailable() && (isRoot || !mode.getTranslatedName().getString().toLowerCase().contains("submenu")))
+                .filter(mode -> mode.isAvailable()
+                        && (isRoot
+                                || !mode.getTranslatedName()
+                                        .getString()
+                                        .toLowerCase()
+                                        .contains("submenu")))
                 .toList();
 
-        modeDropdown = new DropdownButtonWidget<>(
-                0, 0, contentWidth, ROW_HEIGHT,
-                availableModes, slot.mode, SlotMode::getTranslatedName,
-                selectedMode -> {
-                    slot.mode = selectedMode;
-                    selectedMode.onInitialize(slot);
-                    this.rebuildWidgets();
-                },
-                this::addRenderableWidget
-        ) {
-            @Override
-            public void closeMenu() {
-                if (this.isMenuOpen()) {
-                    SlotEditorScreen.this.removeWidget(this.getActiveMenu());
-                }
-                super.closeMenu();
-            }
-        };
+        modeDropdown =
+                new DropdownButtonWidget<>(
+                        0,
+                        0,
+                        contentWidth,
+                        ROW_HEIGHT,
+                        availableModes,
+                        slot.mode,
+                        SlotMode::getTranslatedName,
+                        selectedMode -> {
+                            slot.mode = selectedMode;
+                            selectedMode.onInitialize(slot);
+                            this.rebuildWidgets();
+                        },
+                        this::addRenderableWidget) {
+                    @Override
+                    public void closeMenu() {
+                        if (this.isMenuOpen()) {
+                            SlotEditorScreen.this.removeWidget(this.getActiveMenu());
+                        }
+                        super.closeMenu();
+                    }
+                };
         modeGroup.addChild(modeDropdown);
         mainLayout.addChild(modeGroup);
 
@@ -119,20 +127,18 @@ public class SlotEditorScreen extends Screen {
         LinearLayout actionGroup = LinearLayout.horizontal().spacing(HORIZ_GAP);
         int actionBtnWidth = (contentWidth - HORIZ_GAP) / 2;
 
-        Button saveButton = Button.builder(
-                Component.translatable("screen.radial.editor.save"),
-                _ -> {
+        Button saveButton = Button.builder(Component.translatable("screen.radial.editor.save"), _ -> {
                     this.isSaved = true;
                     RadialConfig.save();
                     onClose();
-                }
-        ).bounds(0, 0, actionBtnWidth, ROW_HEIGHT).build();
+                })
+                .bounds(0, 0, actionBtnWidth, ROW_HEIGHT)
+                .build();
         actionGroup.addChild(saveButton);
 
-        Button cancelButton = Button.builder(
-                Component.translatable("screen.radial.editor.cancel"),
-                _ -> onClose()
-        ).bounds(0, 0, actionBtnWidth, ROW_HEIGHT).build();
+        Button cancelButton = Button.builder(Component.translatable("screen.radial.editor.cancel"), _ -> onClose())
+                .bounds(0, 0, actionBtnWidth, ROW_HEIGHT)
+                .build();
         actionGroup.addChild(cancelButton);
 
         mainLayout.addChild(actionGroup);
@@ -159,14 +165,7 @@ public class SlotEditorScreen extends Screen {
         int iconY = (nameField != null) ? nameField.getY() - SLOT_SIZE - 20 : height / 2 - 110;
 
         // Draw background slot
-        graphics.blitSprite(
-                RenderPipelines.GUI_TEXTURED,
-                SLOT_TEXTURE,
-                centerX - 13,
-                iconY,
-                SLOT_SIZE,
-                SLOT_SIZE
-        );
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, centerX - 13, iconY, SLOT_SIZE, SLOT_SIZE);
 
         SlotRenderHelper.renderSlotIcon(graphics, slot, centerX - 13, iconY);
 
@@ -208,11 +207,11 @@ public class SlotEditorScreen extends Screen {
                 floatingMenu.mouseClicked(click, doubled);
                 return true;
             } else //noinspection StatementWithEmptyBody
-                if (this.modeDropdown.isMouseOver(click.x(), click.y())) {
-                    // Let the click fall through so the button can close itself
-                } else {
-                    this.modeDropdown.closeMenu();
-                }
+            if (this.modeDropdown.isMouseOver(click.x(), click.y())) {
+                // Let the click fall through so the button can close itself
+            } else {
+                this.modeDropdown.closeMenu();
+            }
         }
 
         return super.mouseClicked(click, doubled);

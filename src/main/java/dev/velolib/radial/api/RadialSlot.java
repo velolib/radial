@@ -1,6 +1,8 @@
 package dev.velolib.radial.api;
 
 import com.mojang.brigadier.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.arguments.item.ItemInput;
 import net.minecraft.commands.arguments.item.ItemParser;
@@ -9,9 +11,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RadialSlot {
 
@@ -50,21 +49,15 @@ public class RadialSlot {
                 return cachedStack;
             }
 
-            HolderLookup.Provider registryLookup =
-                    client.level.registryAccess();
+            HolderLookup.Provider registryLookup = client.level.registryAccess();
 
-            ItemInput result =
-                    new ItemParser(registryLookup)
-                            .parse(new StringReader(itemId));
+            ItemInput result = new ItemParser(registryLookup).parse(new StringReader(itemId));
 
             cachedStack = new ItemStack(result.item(), 1);
             cachedStack.applyComponentsAndValidate(result.components());
         } catch (Exception e) {
             cachedStack = new ItemStack(Items.BARRIER);
-            cachedStack.set(
-                    DataComponents.CUSTOM_NAME,
-                    Component.literal("Invalid Item ID")
-            );
+            cachedStack.set(DataComponents.CUSTOM_NAME, Component.literal("Invalid Item ID"));
         }
 
         return cachedStack;

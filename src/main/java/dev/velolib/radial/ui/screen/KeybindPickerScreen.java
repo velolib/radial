@@ -1,178 +1,199 @@
 package dev.velolib.radial.ui.screen;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 public class KeybindPickerScreen extends Screen {
 
-    private static final int ENTRY_HEIGHT = 20;
+    private static final int ENTRY_HEIGHT = 28;
 
     private final Screen parent;
     private final Consumer<String> onSelect;
 
-    private EditBox searchField;
-    private List<KeyMapping> filteredKeys = new ArrayList<>();
-    private int scrollOffset = 0;
+    private KeybindList keybindList;
 
     public KeybindPickerScreen(Screen parent, Consumer<String> onSelect) {
         super(Component.literal("Select Keybind"));
+
         this.parent = parent;
         this.onSelect = onSelect;
     }
 
-    private void updateSearch(String query) {
-        String q = query.toLowerCase();
-
-        filteredKeys = Arrays.stream(minecraft.options.keyMappings)
-                .filter(key -> {
-                    String actionName = Component.translatable(key.getName()).getString().toLowerCase();
-                    String category = key.getCategory().label().getString().toLowerCase();
-
-                    return actionName.contains(q) || category.contains(q);
-                })
-                .collect(Collectors.toList());
-
-        scrollOffset = 0;
+    private int getListStartY() {
+        return 45;
     }
 
-    // --- Layout Helpers ---
-    private int getListStartY() {
-        return 45; // Starts higher than Malilib since there are no tabs
+    private int getListBottom() {
+        return height - 40;
     }
 
     private int getListWidth() {
         return Math.min(350, (int) (width * 0.9));
     }
 
+    private int getListHeight() {
+        return Math.max(1, getListBottom() - getListStartY());
+    }
+
     private int getListLeft() {
         return width / 2 - getListWidth() / 2;
     }
 
-    private int getMaxEntries() {
-        return Math.max(1, (height - getListStartY() - 40) / ENTRY_HEIGHT);
-    }
-
     @Override
     protected void init() {
-        filteredKeys = Arrays.asList(minecraft.options.keyMappings);
+        int listWidth = getListWidth();
+        int listLeft = getListLeft();
+        int listTop = getListStartY();
+        int listHeight = getListHeight();
 
-        int searchWidth = getListWidth();
-        int left = getListLeft();
+        EditBox searchField =
+                new EditBox(font, listLeft, 15, listWidth, 20, Component.translatable("screen.radial.editor.search"));
 
-        searchField = new EditBox(
-                font,
-                left,
-                15,
-                searchWidth,
-                20,
-                Component.translatable("screen.radial.editor.search")
-        );
         searchField.setHint(Component.translatable("screen.radial.editor.search"));
         searchField.setResponder(this::updateSearch);
 
         addRenderableWidget(searchField);
+
+        keybindList = new KeybindList(Minecraft.getInstance(), listWidth, listHeight, listTop, ENTRY_HEIGHT);
+
+        keybindList.updateSizeAndPosition(listWidth, listHeight, listLeft, listTop);
+
+        addRenderableWidget(keybindList);
+
+        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), _ -> onClose())
+                .bounds(width / 2 - 100, height - 28, 200, 20)
+                .build());
+
         setInitialFocus(searchField);
 
-        addRenderableWidget(Button.builder(
-                Component.translatable("gui.cancel"),
-                _ -> onClose()
-        ).bounds(width / 2 - 100, height - 28, 200, 20).build());
+        updateSearch("");
+    }
+
+    private void updateSearch(String query) {
+        if (keybindList == null) {
+            return;
+        }
+
+        String q = query.toLowerCase();
+
+        List<KeybindEntry> entries = Arrays.stream(minecraft.options.keyMappings)
+                .filter(key -> {
+                    // BLACKLIST CHECK: Skip our internal radial keys
+                    if (dev.velolib.radial.RadialClient.isRadialInternalKey(key)) {
+                        return false;
+                    }
+
+                    String actionName =
+                            Component.translatable(key.getName()).getString().toLowerCase();
+
+                    String category = key.getCategory().label().getString().toLowerCase();
+
+                    return actionName.contains(q) || category.contains(q);
+                })
+                .map(key -> new KeybindEntry(key, onSelect, this::onClose))
+                .collect(Collectors.toList());
+
+        keybindList.replaceEntries(entries);
+        keybindList.setScrollAmount(0.0);
     }
 
     @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+
         graphics.fillGradient(0, 0, width, height, 0xC0101010, 0xD0101010);
-
-        int startY = getListStartY();
-        int listWidth = getListWidth();
-        int left = getListLeft();
-        int maxEntries = getMaxEntries();
-
-        for (int i = 0; i < maxEntries; i++) {
-            int index = i + scrollOffset;
-            if (index >= filteredKeys.size()) break;
-
-            KeyMapping key = filteredKeys.get(index);
-            int y = startY + i * ENTRY_HEIGHT;
-
-            boolean hovered = mouseX >= left && mouseX <= left + listWidth && mouseY >= y && mouseY < y + ENTRY_HEIGHT;
-
-            int bgColor = hovered ? 0x80FFFFFF : 0x40000000;
-            graphics.fill(left, y, left + listWidth, y + ENTRY_HEIGHT - 2, bgColor);
-
-            String actionName = Component.translatable(key.getName()).getString();
-            String boundKey = Component.translatable(key.saveString()).getString();
-
-            graphics.text(
-                    font,
-                    actionName + " [" + boundKey + "]",
-                    left + 5,
-                    y + 5,
-                    0xFFFFFFFF
-            );
-
-            Component categoryLabel = key.getCategory().label();
-            int catWidth = font.width(categoryLabel);
-
-            graphics.text(
-                    font,
-                    categoryLabel,
-                    left + listWidth - catWidth - 5,
-                    y + 5,
-                    0xFFAAAAAA
-            );
-        }
 
         super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 
     @Override
-    public boolean mouseClicked(@NonNull MouseButtonEvent click, boolean doubled) {
-        int startY = getListStartY();
-        int listWidth = getListWidth();
-        int left = getListLeft();
-        int maxEntries = getMaxEntries();
-
-        double mx = click.x();
-        double my = click.y();
-
-        for (int i = 0; i < maxEntries; i++) {
-            int y = startY + i * ENTRY_HEIGHT;
-
-            if (mx >= left && mx <= left + listWidth && my >= y && my < y + ENTRY_HEIGHT) {
-                int index = i + scrollOffset;
-                if (index < filteredKeys.size()) {
-                    onSelect.accept(filteredKeys.get(index).getName());
-                    onClose();
-                    return true;
-                }
-            }
-        }
-
-        return super.mouseClicked(click, doubled);
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        int maxScroll = Math.max(0, filteredKeys.size() - getMaxEntries());
-        scrollOffset = Math.max(0, Math.min(maxScroll, scrollOffset - (int) verticalAmount));
-        return true;
-    }
-
-    @Override
     public void onClose() {
         minecraft.gui.setScreen(parent);
+    }
+
+    private static class KeybindList extends ObjectSelectionList<KeybindEntry> {
+
+        private KeybindList(Minecraft minecraft, int width, int height, int y, int itemHeight) {
+
+            super(minecraft, width, height, y, itemHeight);
+        }
+
+        @Override
+        public int getRowWidth() {
+            return Math.min(330, getWidth() - 20);
+        }
+    }
+
+    private static class KeybindEntry extends ObjectSelectionList.Entry<KeybindEntry> {
+
+        private final KeyMapping key;
+        private final Consumer<String> onSelect;
+        private final Runnable onClose;
+
+        private KeybindEntry(KeyMapping key, Consumer<String> onSelect, Runnable onClose) {
+
+            this.key = key;
+            this.onSelect = onSelect;
+            this.onClose = onClose;
+        }
+
+        @Override
+        public void extractContent(
+                GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float delta) {
+
+            Minecraft client = Minecraft.getInstance();
+
+            int left = getContentX();
+            int top = getContentY();
+            int right = getContentRight();
+            int bottom = getContentBottom();
+
+            graphics.fill(left, top + 1, right, bottom - 1, hovered ? 0x80FFFFFF : 0x40000000);
+
+            String actionName = Component.translatable(key.getName()).getString();
+
+            String boundKey = key.saveString();
+
+            String display = actionName + " [" + boundKey + "]";
+
+            int textY = top + ((bottom - top) - client.font.lineHeight) / 2;
+
+            graphics.text(client.font, display, left + 8, textY, 0xFFFFFFFF);
+
+            Component category = key.getCategory().label();
+
+            int categoryWidth = client.font.width(category);
+
+            graphics.text(client.font, category, right - categoryWidth - 8, textY, 0xFFAAAAAA);
+        }
+
+        @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+
+            if (event.button() != 0) {
+                return false;
+            }
+
+            onSelect.accept(key.getName());
+            onClose.run();
+
+            return true;
+        }
+
+        @Override
+        public @NonNull Component getNarration() {
+            return Component.translatable(key.getName());
+        }
     }
 }

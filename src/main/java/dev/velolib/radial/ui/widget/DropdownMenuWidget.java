@@ -1,5 +1,7 @@
 package dev.velolib.radial.ui.widget;
 
+import java.util.List;
+import java.util.function.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -12,12 +14,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.NonNull;
 
-import java.util.List;
-import java.util.function.Function;
-
 public class DropdownMenuWidget<T> extends AbstractWidget {
     private static final int MAX_VISIBLE_ITEMS = 6;
-    private static final Identifier SPRITE_HIGHLIGHTED = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field_highlighted");
+    private static final Identifier SPRITE_HIGHLIGHTED =
+            Identifier.fromNamespaceAndPath("minecraft", "widget/text_field_highlighted");
     private final List<T> options;
     private final T currentSelection;
     private final Function<T, Component> labelMapper;
@@ -25,10 +25,15 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
     private final int itemHeight;
     private double scrollAmount = 0;
 
-    public DropdownMenuWidget(int x, int y, int width, int itemHeight,
-                              List<T> options, T currentSelection,
-                              Function<T, Component> labelMapper,
-                              DropdownButtonWidget<T> parentButton) {
+    public DropdownMenuWidget(
+            int x,
+            int y,
+            int width,
+            int itemHeight,
+            List<T> options,
+            T currentSelection,
+            Function<T, Component> labelMapper,
+            DropdownButtonWidget<T> parentButton) {
         super(x, y, width, Math.min(options.size(), MAX_VISIBLE_ITEMS) * itemHeight, Component.empty());
         this.options = options;
         this.currentSelection = currentSelection;
@@ -58,8 +63,7 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
-        return mouseX >= getX() && mouseX < getX() + width &&
-                mouseY >= getY() && mouseY < getY() + height;
+        return mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height;
     }
 
     @Override
@@ -101,9 +105,12 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
 
             if (itemY + itemHeight < getY() || itemY > getY() + height) continue;
 
-            boolean isItemHovered = mouseX >= getX() && mouseX < getX() + width &&
-                    mouseY >= itemY && mouseY < itemY + itemHeight &&
-                    mouseY >= getY() && mouseY <= getY() + height;
+            boolean isItemHovered = mouseX >= getX()
+                    && mouseX < getX() + width
+                    && mouseY >= itemY
+                    && mouseY < itemY + itemHeight
+                    && mouseY >= getY()
+                    && mouseY <= getY() + height;
 
             if (isItemHovered) {
                 graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SPRITE_HIGHLIGHTED, getX(), itemY, width, itemHeight);
@@ -119,15 +126,16 @@ public class DropdownMenuWidget<T> extends AbstractWidget {
         int maxScroll = getMaxScroll();
         if (maxScroll > 0) {
             int scrollbarWidth = 2;
-            int scrollbarHeight = Math.max(8, (int) ((float) this.height * this.height / (options.size() * itemHeight)));
+            int scrollbarHeight =
+                    Math.max(8, (int) ((float) this.height * this.height / (options.size() * itemHeight)));
             int scrollbarX = getX() + width - scrollbarWidth - 2; // Moved in slightly to respect the border
             int scrollbarY = getY() + 1 + (int) ((this.scrollAmount / maxScroll) * (this.height - 2 - scrollbarHeight));
 
-            graphics.fill(scrollbarX, scrollbarY, scrollbarX + scrollbarWidth, scrollbarY + scrollbarHeight, 0x80888888);
+            graphics.fill(
+                    scrollbarX, scrollbarY, scrollbarX + scrollbarWidth, scrollbarY + scrollbarHeight, 0x80888888);
         }
     }
 
     @Override
-    protected void updateWidgetNarration(@NonNull NarrationElementOutput narrationElementOutput) {
-    }
+    protected void updateWidgetNarration(@NonNull NarrationElementOutput narrationElementOutput) {}
 }

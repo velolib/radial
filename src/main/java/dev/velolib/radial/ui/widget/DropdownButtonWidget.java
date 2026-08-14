@@ -1,5 +1,8 @@
 package dev.velolib.radial.ui.widget;
 
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -11,13 +14,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 public class DropdownButtonWidget<T> extends AbstractWidget {
     private static final Identifier SPRITE = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field");
-    private static final Identifier SPRITE_HIGHLIGHTED = Identifier.fromNamespaceAndPath("minecraft", "widget/text_field_highlighted");
+    private static final Identifier SPRITE_HIGHLIGHTED =
+            Identifier.fromNamespaceAndPath("minecraft", "widget/text_field_highlighted");
     private final List<T> options;
     private final Function<T, Component> labelMapper;
     private final Consumer<T> onSelect;
@@ -25,10 +25,16 @@ public class DropdownButtonWidget<T> extends AbstractWidget {
     private T selectedOption;
     private DropdownMenuWidget<T> activeMenu = null;
 
-    public DropdownButtonWidget(int x, int y, int width, int height,
-                                List<T> options, T initialSelection,
-                                Function<T, Component> labelMapper, Consumer<T> onSelect,
-                                Consumer<DropdownMenuWidget<T>> menuRegistrar) {
+    public DropdownButtonWidget(
+            int x,
+            int y,
+            int width,
+            int height,
+            List<T> options,
+            T initialSelection,
+            Function<T, Component> labelMapper,
+            Consumer<T> onSelect,
+            Consumer<DropdownMenuWidget<T>> menuRegistrar) {
         super(x, y, width, height, labelMapper.apply(initialSelection));
         this.options = options;
         this.selectedOption = initialSelection;
@@ -74,9 +80,14 @@ public class DropdownButtonWidget<T> extends AbstractWidget {
             closeMenu();
         } else {
             this.activeMenu = new DropdownMenuWidget<>(
-                    getX(), getY() + getHeight(), this.width, this.height,
-                    this.options, this.selectedOption, this.labelMapper, this
-            );
+                    getX(),
+                    getY() + getHeight(),
+                    this.width,
+                    this.height,
+                    this.options,
+                    this.selectedOption,
+                    this.labelMapper,
+                    this);
             this.menuRegistrar.accept(this.activeMenu);
         }
     }
@@ -95,7 +106,12 @@ public class DropdownButtonWidget<T> extends AbstractWidget {
         Component currentText = this.labelMapper.apply(this.selectedOption);
 
         graphics.text(font, currentText, getX() + 4, getY() + (getHeight() - 8) / 2, textColor);
-        graphics.text(font, Component.literal(open ? "▲" : "▼"), getX() + width - 12, getY() + (getHeight() - 8) / 2, textColor);
+        graphics.text(
+                font,
+                Component.literal(open ? "▲" : "▼"),
+                getX() + width - 12,
+                getY() + (getHeight() - 8) / 2,
+                textColor);
     }
 
     @Override

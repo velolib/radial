@@ -5,13 +5,12 @@ import dev.velolib.radial.api.SlotActionContext;
 import dev.velolib.radial.api.SlotModeRegistry;
 import dev.velolib.radial.mode.base.IconEnabledSlotMode;
 import dev.velolib.radial.ui.screen.SlotEditorScreen;
+import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.Component;
-
-import java.util.ArrayList;
 
 public class SubmenuSlotMode extends IconEnabledSlotMode {
     @Override
@@ -36,7 +35,12 @@ public class SubmenuSlotMode extends IconEnabledSlotMode {
         if (slot.children == null) slot.children = new ArrayList<>();
 
         while (slot.children.size() < slot.childSlotCount) {
-            slot.children.add(new RadialSlot("Sub Slot " + (slot.children.size() + 1), SlotModeRegistry.getRegisteredModes().get(net.minecraft.resources.Identifier.fromNamespaceAndPath("radial", "empty")), "", "minecraft:stone"));
+            slot.children.add(new RadialSlot(
+                    "Sub Slot " + (slot.children.size() + 1),
+                    SlotModeRegistry.getRegisteredModes()
+                            .get(net.minecraft.resources.Identifier.fromNamespaceAndPath("radial", "empty")),
+                    "",
+                    "minecraft:stone"));
         }
     }
 
@@ -46,23 +50,31 @@ public class SubmenuSlotMode extends IconEnabledSlotMode {
 
         LinearLayout subGroup = LinearLayout.vertical().spacing(2);
 
-        StringWidget label = new StringWidget(Component.translatable("screen.radial.editor.submenu"), Minecraft.getInstance().font);
+        StringWidget label =
+                new StringWidget(Component.translatable("screen.radial.editor.submenu"), Minecraft.getInstance().font);
         subGroup.addChild(label);
 
         // Pass 0, 0 for X and Y, the layout will override it automatically
-        AbstractSliderButton subCountSlider = new AbstractSliderButton(0, 0, width, ROW_HEIGHT, Component.translatable("screen.radial.editor.sub_size", slot.childSlotCount), (slot.childSlotCount - 2) / 10.0) {
-            @Override
-            protected void updateMessage() {
-                int val = 2 + (int) Math.round(value * 10);
-                setMessage(Component.translatable("screen.radial.editor.sub_size", val));
-            }
+        AbstractSliderButton subCountSlider =
+                new AbstractSliderButton(
+                        0,
+                        0,
+                        width,
+                        ROW_HEIGHT,
+                        Component.translatable("screen.radial.editor.submenu.placeholder", slot.childSlotCount),
+                        (slot.childSlotCount - 2) / 10.0) {
+                    @Override
+                    protected void updateMessage() {
+                        int val = 2 + (int) Math.round(value * 10);
+                        setMessage(Component.translatable("screen.radial.editor.submenu.placeholder", val));
+                    }
 
-            @Override
-            protected void applyValue() {
-                slot.childSlotCount = 2 + (int) Math.round(value * 10);
-                onInitialize(slot); // Trigger the array resize logic
-            }
-        };
+                    @Override
+                    protected void applyValue() {
+                        slot.childSlotCount = 2 + (int) Math.round(value * 10);
+                        onInitialize(slot); // Trigger the array resize logic
+                    }
+                };
         subGroup.addChild(subCountSlider);
 
         container.addChild(subGroup);

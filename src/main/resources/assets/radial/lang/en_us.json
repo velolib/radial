@@ -1,23 +1,39 @@
 {
   "modmenu.nameTranslation.radial": "Radial",
-  "modmenu.descriptionTranslate.modmenu": "A simple and opinionated Minecraft radial menu mod that works flawlessly out of the box.",
-  "category.radial.main": "Radial",
+  "modmenu.descriptionTranslation.radial": "A simple and opinionated Minecraft radial menu mod that works flawlessly out of the box.",
+
   "key.category.radial.main": "Radial",
   "key.radial.open": "Open Radial",
+  "key.radial.back": "Go Back (Submenu)",
+  "key.radial.slot.1": "Activate Slot 1",
+  "key.radial.slot.2": "Activate Slot 2",
+  "key.radial.slot.3": "Activate Slot 3",
+  "key.radial.slot.4": "Activate Slot 4",
+  "key.radial.slot.5": "Activate Slot 5",
+  "key.radial.slot.6": "Activate Slot 6",
+  "key.radial.slot.7": "Activate Slot 7",
+  "key.radial.slot.8": "Activate Slot 8",
+  "key.radial.slot.9": "Activate Slot 9",
+  "key.radial.slot.10": "Activate Slot 10",
+  "key.radial.slot.11": "Activate Slot 11",
+  "key.radial.slot.12": "Activate Slot 12",
+
   "radial.ui.back": "Back",
+
   "radial.mode.empty": "Do Nothing",
   "radial.mode.chat": "Send Chat / Command",
   "radial.mode.keybind": "Trigger Game Keybind",
   "radial.mode.shortcut": "Open Screen Shortcut",
   "radial.mode.malilib": "Trigger MaLiLib Hotkey",
   "radial.mode.submenu": "Open Submenu",
+
   "screen.radial.editor.title": "Edit Radial Slot",
   "screen.radial.editor.name": "Slot Name",
   "screen.radial.editor.mode": "Action Mode",
   "screen.radial.editor.value": "Action Value",
   "screen.radial.editor.icon": "Icon Identifier",
   "screen.radial.editor.submenu": "Submenu Size",
-  "screen.radial.editor.sub_size": "Submenu Size: %s",
+  "screen.radial.editor.submenu.placeholder": "Submenu Size: %s",
   "screen.radial.editor.save": "Save & Close",
   "screen.radial.editor.cancel": "Cancel",
   "screen.radial.editor.browse": "Icons",
@@ -26,36 +42,91 @@
   "screen.radial.editor.search": "Search...",
   "screen.radial.editor.icon_picker.items": "Items",
   "screen.radial.editor.icon_picker.inventory": "Inventory",
+  "screen.radial.editor.icon_picker.inventory.info": "Selected slots dynamically sync with the selected inventory position.",
   "screen.radial.editor.icon_picker.effects": "Effects",
   "screen.radial.editor.icon_picker.glyphs": "Glyphs",
-  "screen.radial.editor.icon_picker.inventory.info": "Selected slots dynamically sync with the selected inventory position.",
+  "screen.radial.editor.icon_picker.phosphor": "Icons",
+
   "screen.radial.config.title": "Radial Configuration",
+
   "screen.radial.config.category.settings": "Settings",
-  "screen.radial.config.description.main": "Radial by velolib",
-  "screen.radial.config.preview": "Live Preview",
+  "screen.radial.config.category.settings.tooltip": "Radial by velolib",
+
+  "screen.radial.config.category.preview": "Live Preview",
+
   "screen.radial.config.show_preview": "Show Live Preview",
-  "screen.radial.config.show_preview.tooltip": "Renders a live, interactive preview of your radial menu.",
+  "screen.radial.config.show_preview.tooltip": "Renders a live, interactive preview of your radial menu, including invisible detection zones.",
+
   "screen.radial.config.group.layout": "Dimensions & Layout",
+
   "screen.radial.config.slot_count": "Slot Count",
-  "screen.radial.config.slot_count.tooltip": "The number of selectable slices in the root radial menu.",
-  "screen.radial.config.radius": "Menu Radius",
-  "screen.radial.config.radius.tooltip": "The distance from the center of the screen to the item slots.",
-  "screen.radial.config.inner_padding": "Inner Detection Boundary",
-  "screen.radial.config.inner_padding.tooltip": "How close to the center the cursor can be before it stops selecting a slot.",
-  "screen.radial.config.outer_reach": "Outer Detection Reach",
-  "screen.radial.config.outer_reach.tooltip": "How far outward the cursor can travel before it stops selecting a slot.",
+  "screen.radial.config.slot_count.tooltip": "The number of selectable slices in the radial menu.",
+
+  "screen.radial.config.slot_radius": "Slot Radius",
+  "screen.radial.config.slot_radius.tooltip": "The distance from the center of the screen to the center of every item slot and the center line of the visible radial menu.",
+
+  "screen.radial.config.radial_thickness": "Radial Thickness",
+  "screen.radial.config.radial_thickness.tooltip": "Controls the thickness of the visible radial menu. The ring expands equally inward and outward around the slot radius.",
+
+  "screen.radial.config.inner_detection_boundary": "Inner Detection Boundary",
+  "screen.radial.config.inner_detection_boundary.tooltip": "Extends the invisible selection area inward beyond the visible radial menu. This does not move the slots or sectors.",
+
+  "screen.radial.config.outer_detection_boundary": "Outer Detection Boundary",
+  "screen.radial.config.outer_detection_boundary.tooltip": "Extends the invisible selection area outward beyond the visible radial menu. This does not move the slots or sectors.",
+
   "screen.radial.config.group.appearance": "Appearance & Colors",
+
   "screen.radial.config.background_color": "Background Color",
   "screen.radial.config.background_color.tooltip": "The default color of the unselected menu sectors.",
+
   "screen.radial.config.activation_color": "Highlight Color",
-  "screen.radial.config.activation_color.tooltip": "The color a sector flashes when actively hovered or selected.",
+  "screen.radial.config.activation_color.tooltip": "The color a sector uses when actively hovered or selected.",
+
+  "screen.radial.config.border_color": "Border Accent Color",
+  "screen.radial.config.border_color.tooltip": "The border color used by unselected sectors.",
+
+  "screen.radial.config.highlight_border_color": "Highlight Border Color",
+  "screen.radial.config.highlight_border_color.tooltip": "The border color used by highlighted sectors.",
+
   "screen.radial.config.show_activation_zone": "Draw Menu Background",
-  "screen.radial.config.show_activation_zone.tooltip": "Renders the visual background ring and highlight colors behind the item slots.",
+  "screen.radial.config.show_activation_zone.tooltip": "Renders the visible background ring and sector colors behind the item slots.",
+
+  "screen.radial.config.draw_outer_borders": "Draw Inner & Outer Borders",
+  "screen.radial.config.draw_outer_borders.tooltip": "Draws the curved accent borders along the inside and outside edges of the visible radial menu.",
+
+  "screen.radial.config.draw_sector_borders": "Draw Sector Borders",
+  "screen.radial.config.draw_sector_borders.tooltip": "Draws an accent border on the straight edges dividing each menu slice.",
+
+  "screen.radial.config.sector_border_width": "Sector Border Width",
+  "screen.radial.config.sector_border_width.tooltip": "Controls the thickness of the straight borders separating sectors.",
+
   "screen.radial.config.sector_gap": "Sector Gap",
   "screen.radial.config.sector_gap.tooltip": "The visual spacing between each slice. This is purely cosmetic and does not affect the clickable hitbox area.",
+
   "screen.radial.config.group.behavior": "Interaction & Behavior",
+
+  "screen.radial.config.reveal_animation": "Reveal Animation",
+  "screen.radial.config.reveal_animation.tooltip": "Controls how the radial menu appears when opened.",
+
+  "screen.radial.config.reveal_duration_ms": "Reveal Duration (ms)",
+  "screen.radial.config.reveal_duration_ms.tooltip": "The total amount of time used to reveal the radial menu. Staggered animations overlap while still completing within this duration.",
+
+  "screen.radial.config.enable_hover_animation": "Animate on Hover",
+  "screen.radial.config.enable_hover_animation.tooltip": "Moves and scales the hovered slot outward when the cursor enters it.",
+
+  "screen.radial.config.hover_animation_duration_ms": "Hover Animation Duration (ms)",
+  "screen.radial.config.hover_animation_duration_ms.tooltip": "Controls how quickly a slot moves and scales when hovered. Set to 0 for instant movement.",
+
   "screen.radial.config.activation_mode": "Activation Mode",
-  "screen.radial.config.activation_mode.tooltip": "How actions are triggered.\n\nClick: Requires actively clicking the mouse.\nRelease: Triggers automatically when letting go of the menu hotkey.\n\n§e(Note: Submenus will always require a click to open)§r",
-  "screen.radial.config.animation_speed": "Animation Duration (ms)",
-  "screen.radial.config.animation_speed.tooltip": "The length of the opening scale animation. Set to 0 to open instantly."
+  "screen.radial.config.activation_mode.tooltip": "How actions are triggered.\n\nCursor + Click: Aim with the mouse, activate by clicking.\nCursor + Release: Aim with the mouse, activate by letting go of the hotkey.\nScroll + Click: Select with the scroll wheel, activate by clicking.\nScroll + Release: Select with the scroll wheel, activate by letting go of the hotkey.\n\n§e(Note: Submenus will always require a click to open)§r",
+
+  "screen.radial.config.activation_mode.click": "Cursor + Click",
+  "screen.radial.config.activation_mode.release": "Cursor + Release",
+  "screen.radial.config.activation_mode.scroll_click": "Scroll + Click",
+  "screen.radial.config.activation_mode.scroll_release": "Scroll + Release",
+
+  "screen.radial.config.reveal_animation.zoom": "Zoom",
+  "screen.radial.config.reveal_animation.staggered_clockwise": "Staggered — Clockwise",
+  "screen.radial.config.reveal_animation.staggered_counterclockwise": "Staggered — Counterclockwise",
+  "screen.radial.config.reveal_animation.staggered_both": "Staggered — Both Directions"
 }

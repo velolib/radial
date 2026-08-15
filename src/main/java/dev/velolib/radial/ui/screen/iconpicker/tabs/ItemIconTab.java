@@ -35,9 +35,14 @@ public class ItemIconTab extends GridIconTab<ItemIconTab.ItemSearchEntry> {
 
     @Override
     protected List<ItemSearchEntry> search(String query) {
-        if (query.isEmpty()) return ITEM_INDEX;
+        if (query.isEmpty()) {
+            lastQuery = "";
+            lastResults = ITEM_INDEX;
+            return ITEM_INDEX;
+        }
 
-        List<ItemSearchEntry> source = (query.startsWith(lastQuery)) ? lastResults : ITEM_INDEX;
+        List<ItemSearchEntry> source = !lastQuery.isEmpty() && query.startsWith(lastQuery) ? lastResults : ITEM_INDEX;
+
         List<ItemSearchEntry> results = new ArrayList<>();
 
         for (ItemSearchEntry entry : source) {
@@ -48,6 +53,7 @@ public class ItemIconTab extends GridIconTab<ItemIconTab.ItemSearchEntry> {
 
         lastQuery = query;
         lastResults = results;
+
         return results;
     }
 
@@ -60,7 +66,9 @@ public class ItemIconTab extends GridIconTab<ItemIconTab.ItemSearchEntry> {
             int mouseY,
             ItemSearchEntry item,
             boolean hovered) {
+
         graphics.fakeItem(item.stack(), x + 2, y + 2);
+
         if (hovered) {
             graphics.setTooltipForNextFrame(Minecraft.getInstance().font, item.stack(), mouseX, mouseY);
         }
@@ -79,13 +87,17 @@ public class ItemIconTab extends GridIconTab<ItemIconTab.ItemSearchEntry> {
 
     private static void ensureItemIndex() {
         if (ITEM_INDEX != null) return;
+
         List<ItemSearchEntry> index = new ArrayList<>(BuiltInRegistries.ITEM.size());
+
         for (Item item : BuiltInRegistries.ITEM) {
             Identifier id = BuiltInRegistries.ITEM.getKey(item);
             ItemStack stack = item.getDefaultInstance();
             String name = stack.getItemName().getString();
+
             index.add(new ItemSearchEntry(item, stack, id, name, (id + " " + name).toLowerCase()));
         }
+
         ITEM_INDEX = List.copyOf(index);
     }
 

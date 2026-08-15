@@ -31,7 +31,7 @@ public abstract class GridIconTab<T> implements IconTab {
             GuiGraphicsExtractor graphics, int x, int y, int mouseX, int mouseY, T item, boolean hovered);
 
     protected abstract void selectIcon(T item);
-    // Renamed to avoid clashing with the Entry's getNarration() method
+
     protected abstract Component getItemNarration(T item);
 
     @Override
@@ -42,10 +42,12 @@ public abstract class GridIconTab<T> implements IconTab {
         int left = width / 2 - listWidth / 2;
 
         listWidget = new IconGridList(Minecraft.getInstance(), listWidth, Math.max(1, bottom - top), top, 24);
+
         listWidget.updateSizeAndPosition(listWidth, Math.max(1, bottom - top), left, top);
 
         addRenderable.accept(listWidget);
         addWidget.accept(listWidget);
+
         updateSearch("");
     }
 
@@ -58,12 +60,14 @@ public abstract class GridIconTab<T> implements IconTab {
     private void rebuildRows() {
         if (listWidget == null) return;
 
-        int usableWidth = Math.max(1, listWidget.getRowWidth() - 20);
+        int usableWidth = listWidget.getRowWidth();
         int columns = Math.max(1, usableWidth / getSlotSize());
 
         List<IconGridEntry> rows = new ArrayList<>();
+
         for (int start = 0; start < currentResults.size(); start += columns) {
             int end = Math.min(start + columns, currentResults.size());
+
             rows.add(new IconGridEntry(new ArrayList<>(currentResults.subList(start, end))));
         }
 
@@ -87,17 +91,24 @@ public abstract class GridIconTab<T> implements IconTab {
     }
 
     private class IconGridList extends ObjectSelectionList<IconGridEntry> {
+
         public IconGridList(Minecraft mc, int w, int h, int y, int rowHeight) {
             super(mc, w, h, y, rowHeight);
         }
 
         @Override
         public int getRowWidth() {
-            return Math.min(330, getWidth() - 20);
+            int availableWidth = Math.min(330, getWidth() - 20);
+            int slotSize = getSlotSize();
+
+            int columns = Math.max(1, availableWidth / slotSize);
+
+            return columns * slotSize;
         }
     }
 
     private class IconGridEntry extends ObjectSelectionList.Entry<IconGridEntry> {
+
         private final List<T> items;
 
         private IconGridEntry(List<T> items) {
@@ -110,11 +121,13 @@ public abstract class GridIconTab<T> implements IconTab {
             int left = getContentX();
             int top = getContentY();
             int slotSize = getSlotSize();
+
             int verticalOffset = Math.max(0, (24 - slotSize) / 2);
 
             for (int i = 0; i < items.size(); i++) {
                 int x = left + i * slotSize;
                 int y = top + verticalOffset;
+
                 boolean slotHovered = mouseX >= x && mouseX < x + slotSize && mouseY >= y && mouseY < y + slotSize;
 
                 if (slotHovered) {
@@ -127,8 +140,12 @@ public abstract class GridIconTab<T> implements IconTab {
 
         @Override
         public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubleClick) {
-            if (event.button() != 0) return false;
+            if (event.button() != 0) {
+                return false;
+            }
+
             int slotSize = getSlotSize();
+
             int verticalOffset = Math.max(0, (24 - slotSize) / 2);
 
             for (int i = 0; i < items.size(); i++) {
@@ -136,10 +153,12 @@ public abstract class GridIconTab<T> implements IconTab {
                 int y = getContentY() + verticalOffset;
 
                 if (event.x() >= x && event.x() < x + slotSize && event.y() >= y && event.y() < y + slotSize) {
+
                     selectIcon(items.get(i));
                     return true;
                 }
             }
+
             return false;
         }
 

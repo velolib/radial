@@ -1,8 +1,8 @@
 ---
 name: Feature Request
 about: Suggest an idea for Radial
-title: "[FEATURE] Title Here"
-labels: enhancement
+title: "Title Here"
+labels: feature
 assignees: velolib
 
 ---

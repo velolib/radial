@@ -1,7 +1,7 @@
 ---
 name: Bug Report
-about: Create a report to help improve Radial
-title: "[BUG] Title Here"
+about: Create a bug report to help improve Radial
+title: "Title Here"
 labels: bug
 assignees: velolib
 

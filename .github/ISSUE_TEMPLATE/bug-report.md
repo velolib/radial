@@ -2,7 +2,9 @@
 name: Bug Report
 about: Create a bug report to help improve Radial
 title: "Title Here"
-labels: bug
+labels:
+  - bug
+  - "status: triage"
 assignees: velolib
 
 ---

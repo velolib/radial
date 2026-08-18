@@ -2,7 +2,9 @@
 name: Feature Request
 about: Suggest an idea for Radial
 title: "Title Here"
-labels: feature
+labels:
+  - feature
+  - "status: triage"
 assignees: velolib
 
 ---

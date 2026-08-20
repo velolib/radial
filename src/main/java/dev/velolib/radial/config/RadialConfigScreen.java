@@ -201,6 +201,16 @@ public class RadialConfigScreen {
                                                 .range(0.0f, 20.0f)
                                                 .step(0.5f))
                                         .build())
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Component.translatable("screen.radial.config.enable_background_blur"))
+                                        .description(OptionDescription.of(Component.translatable(
+                                                "screen.radial.config.enable_background_blur.tooltip")))
+                                        .binding(
+                                                false,
+                                                () -> config.enableBackgroundBlur,
+                                                v -> config.enableBackgroundBlur = v)
+                                        .controller(BooleanControllerBuilder::create)
+                                        .build())
                                 .build())
 
                         // BEHAVIOR

@@ -343,12 +343,12 @@ public class RadialScreen extends Screen {
                 1.0F);
     }
 
-    private float getGlobalRevealProgress(RadialConfig config) {
+    public float getGlobalRevealProgress(RadialConfig config) {
         if (config.revealDurationMs <= 0) return 1.0F;
         return Mth.clamp((float) (revealElapsedSeconds / (config.revealDurationMs / 1000.0F)), 0.0F, 1.0F);
     }
 
-    private float easeOutQuint(float value) {
+    public float easeOutQuint(float value) {
         value = Mth.clamp(value, 0.0F, 1.0F);
         float inverse = 1.0F - value;
         return 1.0F - inverse * inverse * inverse * inverse * inverse;
@@ -476,6 +476,11 @@ public class RadialScreen extends Screen {
 
     @Override
     public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-        // Intentionally left empty to prevent the default darkened screen background from rendering
+        // Intentionally skip super.extractBackground to remove the dark gradient
+
+        if (RadialConfig.INSTANCE.enableBackgroundBlur) {
+            // This will now automatically call the Mixin and animate!
+            this.extractBlurredBackground(graphics);
+        }
     }
 }

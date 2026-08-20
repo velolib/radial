@@ -103,6 +103,9 @@
   "screen.radial.config.sector_gap": "Sector Gap",
   "screen.radial.config.sector_gap.tooltip": "The visual spacing between each slice. This is purely cosmetic and does not affect the clickable hitbox area.",
 
+  "screen.radial.config.enable_background_blur": "Enable Background Blur",
+  "screen.radial.config.enable_background_blur.tooltip": "Smoothly blurs the background when opening the radial menu, matching the reveal animation.",
+
   "screen.radial.config.group.behavior": "Interaction & Behavior",
 
   "screen.radial.config.reveal_animation": "Reveal Animation",

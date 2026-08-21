@@ -55,6 +55,7 @@ public class RadialConfig {
     public ActivationMode activationMode = ActivationMode.CLICK;
     public boolean enableHoverAnimation = true;
     public boolean showActivationZone = true;
+    public boolean resetCursorOnSubmenu = false;
 
     public float sectorGap = 3.0f;
     public boolean drawSectorBorders = true;

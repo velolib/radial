@@ -356,6 +356,16 @@ public class RadialScreen extends Screen {
 
     // --- Input & Actions ---
 
+    private void resetCursorPosition() {
+        RadialConfig.ActivationMode mode = RadialConfig.INSTANCE.activationMode;
+        if (mode == RadialConfig.ActivationMode.CLICK || mode == RadialConfig.ActivationMode.RELEASE) {
+            long windowHandle = minecraft.getWindow().handle();
+            double centerX = minecraft.getWindow().getScreenWidth() / 2.0;
+            double centerY = minecraft.getWindow().getScreenHeight() / 2.0;
+            GLFW.glfwSetCursorPos(windowHandle, centerX, centerY);
+        }
+    }
+
     private void performAction(RadialSlot slot) {
         slot.mode.performAction(slot, new SlotActionContext() {
             @Override
@@ -371,6 +381,9 @@ public class RadialScreen extends Screen {
                     currentSlotCount = slotCount;
                     resetAnims();
                     prepareSectorRenderer();
+                    if (RadialConfig.INSTANCE.resetCursorOnSubmenu) {
+                        resetCursorPosition();
+                    }
                 }
             }
 
@@ -386,6 +399,9 @@ public class RadialScreen extends Screen {
         currentSlotCount = RadialConfig.INSTANCE.slotCount;
         resetAnims();
         prepareSectorRenderer();
+        if (RadialConfig.INSTANCE.resetCursorOnSubmenu) {
+            resetCursorPosition();
+        }
     }
 
     private void resetAnims() {

@@ -270,6 +270,16 @@ public class RadialConfigScreen {
                                         .controller(opt -> EnumControllerBuilder.create(opt)
                                                 .enumClass(RadialConfig.ActivationMode.class))
                                         .build())
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Component.translatable("screen.radial.config.reset_cursor_on_submenu"))
+                                        .description(OptionDescription.of(Component.translatable(
+                                                "screen.radial.config.reset_cursor_on_submenu.tooltip")))
+                                        .binding(
+                                                false,
+                                                () -> RadialConfig.INSTANCE.resetCursorOnSubmenu,
+                                                v -> RadialConfig.INSTANCE.resetCursorOnSubmenu = v)
+                                        .controller(BooleanControllerBuilder::create)
+                                        .build())
                                 .build())
                         .build())
 

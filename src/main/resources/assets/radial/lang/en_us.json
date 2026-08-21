@@ -131,5 +131,8 @@
   "screen.radial.config.reveal_animation.zoom": "Zoom",
   "screen.radial.config.reveal_animation.staggered_clockwise": "Staggered — Clockwise",
   "screen.radial.config.reveal_animation.staggered_counterclockwise": "Staggered — Counterclockwise",
-  "screen.radial.config.reveal_animation.staggered_both": "Staggered — Both Directions"
+  "screen.radial.config.reveal_animation.staggered_both": "Staggered — Both Directions",
+
+  "screen.radial.config.reset_cursor_on_submenu": "Reset Cursor on Submenu",
+  "screen.radial.config.reset_cursor_on_submenu.tooltip": "Automatically centers the mouse cursor on the screen when opening or closing a submenu, preventing accidental selections in the new menu."
 }

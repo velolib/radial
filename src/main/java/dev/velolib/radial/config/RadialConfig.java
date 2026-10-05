@@ -14,8 +14,9 @@ import dev.velolib.radial.ui.screen.RadialScreen;
 import dev.velolib.radial.util.ConfigFiles;
 import java.awt.*;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -91,7 +92,7 @@ public class RadialConfig {
             return;
         }
 
-        try (FileReader reader = new FileReader(CONFIG_FILE)) {
+        try (Reader reader = Files.newBufferedReader(CONFIG_FILE.toPath(), StandardCharsets.UTF_8)) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             RadialConfig loaded = GSON.fromJson(root, RadialConfig.class);
 

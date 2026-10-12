@@ -27,7 +27,7 @@ public class RadialSlot {
     public String iconColor;
 
     private transient ItemStack cachedStack;
-    private transient int cachedIconColor = -1;
+    private transient Integer cachedIconColor = null;
 
     public RadialSlot(String name, SlotMode mode, String value, String itemId) {
         this.name = name;
@@ -38,14 +38,14 @@ public class RadialSlot {
 
     public void clearCache() {
         cachedStack = null;
-        cachedIconColor = -1;
+        cachedIconColor = null;
     }
 
     /**
      * Returns the icon tint as 0xRRGGBB, or white when no valid color is set.
      */
     public int getIconColor() {
-        if (cachedIconColor < 0) {
+        if (cachedIconColor == null) {
             Integer parsed = parseIconColor(iconColor);
             cachedIconColor = parsed != null ? parsed : 0xFFFFFF;
         }

@@ -45,7 +45,16 @@ public class DonutRenderer implements AutoCloseable {
      * Prevents older, slower async tasks from overwriting newer textures if the user
      * rapidly changes configurations (e.g., dragging a radius slider).
      */
-    private long generationId = 0;
+    private volatile long generationId = 0;
+
+    /**
+     * True while the newest generation request hasn't finished yet. Without this, every call to
+     * {@link #prepare} before the first textures exist (init, then every tick) would see "no texture"
+     * and start another generation, which makes the previous one stale so its result is discarded.
+     * If a build takes longer than a tick (always true on the first cold run), the textures would then never
+     * arrive while the menu is open and the background would stay invisible.
+     */
+    private volatile boolean generating = false;
 
     // Cached geometry/configuration to detect when a regeneration is required.
     private int lastCount = -1;
@@ -93,8 +102,8 @@ public class DonutRenderer implements AutoCloseable {
             return;
         }
 
-        boolean needsRegeneration = baseTexture == null
-                || hotTexture == null
+        boolean missingTextures = (baseTexture == null || hotTexture == null) && !generating;
+        boolean needsRegeneration = missingTextures
                 || lastCount != count
                 || lastInner != inner
                 || lastOuter != outer
@@ -201,6 +210,7 @@ public class DonutRenderer implements AutoCloseable {
     private void regenerateTextures(
             int targetTexSize, int count, float inner, float outer, float resScale, RadialConfig config) {
         final long currentGenId = ++this.generationId;
+        this.generating = true;
 
         final int bgColor = config.backgroundColor.getRGB();
         final int borderColor = config.borderColor.getRGB();
@@ -264,10 +274,12 @@ public class DonutRenderer implements AutoCloseable {
 
                             Minecraft.getInstance().getTextureManager().register(this.baseTexId, this.baseTexture);
                             Minecraft.getInstance().getTextureManager().register(this.hotTexId, this.hotTexture);
+                            this.generating = false;
                         },
                         Minecraft.getInstance())
                 .exceptionally(e -> {
                     RadialClient.LOGGER.error("Failed to generate radial sector textures", e);
+                    if (this.generationId == currentGenId) this.generating = false;
                     return null;
                 });
     }
@@ -496,5 +508,6 @@ public class DonutRenderer implements AutoCloseable {
         texSize = 0;
 
         generationId++;
+        generating = false;
     }
 }

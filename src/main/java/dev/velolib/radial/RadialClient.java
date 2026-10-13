@@ -61,6 +61,7 @@ public class RadialClient implements ClientModInitializer {
 
     private static final Map<KeyMapping, ScheduledKeyPress> keyPressQueue = new ConcurrentHashMap<>();
     private static boolean keyLocked = false;
+    private static boolean sectorTexturesPrepared = false;
 
     /**
      * Press state of a single key. Repeated presses are queued so each one gets a distinct
@@ -178,9 +179,12 @@ public class RadialClient implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!sectorTexturesPrepared && client.level != null) {
+                RadialScreen.prepareRenderer();
+                sectorTexturesPrepared = true;
+            }
             if (OPEN_RADIAL.isDown()) {
                 if (!keyLocked && client.gui.screen() == null) {
-                    RadialScreen.prepareRenderer();
                     client.gui.setScreen(new RadialScreen());
                 }
             } else {

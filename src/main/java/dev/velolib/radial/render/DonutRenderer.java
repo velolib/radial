@@ -4,6 +4,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dev.velolib.radial.RadialClient;
 import dev.velolib.radial.config.RadialConfig;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -122,7 +124,10 @@ public class DonutRenderer implements AutoCloseable {
             return;
         }
 
-        regenerateTextures(requiredTexSize, count, inner, outer, resScale, config);
+        // Old slices have the wrong width for a new count, so they can't stay on screen while the new
+        // ones build in the background (they overlap), and hiding them flashes an empty ring: build now.
+        boolean sync = lastCount != count && baseTexture != null && hotTexture != null;
+        regenerateTextures(requiredTexSize, count, inner, outer, resScale, config, sync);
 
         lastCount = count;
         lastInner = inner;
@@ -208,7 +213,7 @@ public class DonutRenderer implements AutoCloseable {
      * to the main Minecraft thread.
      */
     private void regenerateTextures(
-            int targetTexSize, int count, float inner, float outer, float resScale, RadialConfig config) {
+            int targetTexSize, int count, float inner, float outer, float resScale, RadialConfig config, boolean sync) {
         final long currentGenId = ++this.generationId;
         this.generating = true;
 
@@ -221,62 +226,73 @@ public class DonutRenderer implements AutoCloseable {
         final float sectorBorderWidth = config.sectorBorderWidth;
         final float sectorGap = config.sectorGap;
 
-        CompletableFuture.supplyAsync(() -> {
-                    NativeImage baseImage = new NativeImage(targetTexSize, targetTexSize, false);
-                    NativeImage hotImage = null;
+        Supplier<NativeImage[]> build = () -> {
+            NativeImage baseImage = new NativeImage(targetTexSize, targetTexSize, false);
+            NativeImage hotImage = null;
 
-                    try {
-                        hotImage = new NativeImage(targetTexSize, targetTexSize, false);
+            try {
+                hotImage = new NativeImage(targetTexSize, targetTexSize, false);
 
-                        generatePixels(
-                                baseImage,
-                                hotImage,
-                                targetTexSize,
-                                count,
-                                inner,
-                                outer,
-                                resScale,
-                                bgColor,
-                                borderColor,
-                                hotColor,
-                                hotBorderColor,
-                                drawSectorBorders,
-                                drawOuterBorders,
-                                sectorBorderWidth,
-                                sectorGap);
-                    } catch (RuntimeException e) {
-                        // Free the native memory before reporting the failure
-                        baseImage.close();
-                        if (hotImage != null) hotImage.close();
-                        throw e;
-                    }
+                generatePixels(
+                        baseImage,
+                        hotImage,
+                        targetTexSize,
+                        count,
+                        inner,
+                        outer,
+                        resScale,
+                        bgColor,
+                        borderColor,
+                        hotColor,
+                        hotBorderColor,
+                        drawSectorBorders,
+                        drawOuterBorders,
+                        sectorBorderWidth,
+                        sectorGap);
+            } catch (RuntimeException e) {
+                // Free the native memory before reporting the failure
+                baseImage.close();
+                if (hotImage != null) hotImage.close();
+                throw e;
+            }
 
-                    return new NativeImage[] {baseImage, hotImage};
-                })
-                .thenAcceptAsync(
-                        images -> {
-                            // Drop results if a newer generation request was fired while this was processing
-                            if (this.generationId != currentGenId) {
-                                images[0].close();
-                                images[1].close();
-                                return;
-                            }
+            return new NativeImage[] {baseImage, hotImage};
+        };
+        Consumer<NativeImage[]> upload = images -> {
+            // Drop results if a newer generation request was fired while this was processing
+            if (this.generationId != currentGenId) {
+                images[0].close();
+                images[1].close();
+                return;
+            }
 
-                            if (this.baseTexture != null) this.baseTexture.close();
-                            if (this.hotTexture != null) this.hotTexture.close();
+            if (this.baseTexture != null) this.baseTexture.close();
+            if (this.hotTexture != null) this.hotTexture.close();
 
-                            this.texSize = targetTexSize;
-                            this.baseTexId = Identifier.fromNamespaceAndPath("radial", "sector_base_" + this.idSuffix);
-                            this.hotTexId = Identifier.fromNamespaceAndPath("radial", "sector_hot_" + this.idSuffix);
+            this.texSize = targetTexSize;
+            this.baseTexId = Identifier.fromNamespaceAndPath("radial", "sector_base_" + this.idSuffix);
+            this.hotTexId = Identifier.fromNamespaceAndPath("radial", "sector_hot_" + this.idSuffix);
 
-                            this.baseTexture = new DynamicTexture(this.baseTexId::toString, images[0]);
-                            this.hotTexture = new DynamicTexture(this.hotTexId::toString, images[1]);
+            this.baseTexture = new DynamicTexture(this.baseTexId::toString, images[0]);
+            this.hotTexture = new DynamicTexture(this.hotTexId::toString, images[1]);
 
-                            Minecraft.getInstance().getTextureManager().register(this.baseTexId, this.baseTexture);
-                            Minecraft.getInstance().getTextureManager().register(this.hotTexId, this.hotTexture);
-                            this.generating = false;
-                        },
-                        Minecraft.getInstance())
+            Minecraft.getInstance().getTextureManager().register(this.baseTexId, this.baseTexture);
+            Minecraft.getInstance().getTextureManager().register(this.hotTexId, this.hotTexture);
+            this.generating = false;
+        };
+
+        if (sync) {
+            try {
+                upload.accept(build.get());
+            } catch (RuntimeException e) {
+                RadialClient.LOGGER.error("Failed to generate radial sector textures", e);
+                this.generating = false;
+            }
+            return;
+        }
+
+        CompletableFuture.supplyAsync(build)
+                .thenAcceptAsync(upload, Minecraft.getInstance())
                 .exceptionally(e -> {
                     RadialClient.LOGGER.error("Failed to generate radial sector textures", e);
                     if (this.generationId == currentGenId) this.generating = false;
@@ -341,6 +357,13 @@ public class DonutRenderer implements AutoCloseable {
 
                 float angleCenter = (float) Mth.atan2(dyCenter, dxCenter);
                 float angularDistanceCenter = (halfSpan - Math.abs(angleCenter)) * distCenter;
+
+                // Early exit: outside this sector's angle, where no sub-sample can have coverage
+                if (angularDistanceCenter < -(aa + 1.0f)) {
+                    baseImage.setPixel(x, y, 0x00000000);
+                    hotImage.setPixel(x, y, 0x00000000);
+                    continue;
+                }
 
                 float centerAngularAlpha = 0.0f;
                 boolean centerInOverlapZone = false;
